@@ -1413,7 +1413,7 @@ const AddProduct = () => {
                           {/* Delivery time section */}
                           <div className="mb-20 mt-20">
                             <p className="text-xs mb-2 px-1">delivery days</p>
-                            <p className="text-xs mb-2 px-1 mb-12">
+                            <p className="text-xs mb-2 px-1 ">
                               +
                               <input
                                 type="text"

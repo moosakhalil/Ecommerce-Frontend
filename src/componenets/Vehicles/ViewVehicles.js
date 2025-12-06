@@ -2,6 +2,7 @@ import React, { useState, useEffect } from 'react';
 import axios from 'axios';
 import { useNavigate } from 'react-router-dom';
 import { Truck, Package, Edit, Trash2, Search, Filter, Plus, Eye, AlertCircle } from 'lucide-react';
+import Sidebar from '../Sidebar/sidebar';
 
 const ViewVehicles = () => {
   const navigate = useNavigate();
@@ -101,8 +102,10 @@ const ViewVehicles = () => {
   }
 
   return (
-    <div className="min-h-screen bg-gray-50 p-6">
-      <div className="max-w-7xl mx-auto">
+    <div className="flex">
+      <Sidebar />
+      <div className="flex-1 min-h-screen bg-gray-50 p-6">
+        <div className="max-w-7xl mx-auto">
         {/* Header */}
         <div className="bg-white rounded-lg shadow-md p-6 mb-6">
           <div className="flex justify-between items-center mb-6">
@@ -207,6 +210,12 @@ const ViewVehicles = () => {
                       <span className="text-gray-600">Type:</span>
                       <span className="font-medium capitalize">{vehicle.vehicleType}</span>
                     </div>
+                    {(vehicle.truckTypeName || vehicle.scooterTypeName) && (
+                      <div className="flex justify-between text-sm">
+                        <span className="text-gray-600">Vehicle Type Name:</span>
+                        <span className="font-medium">{vehicle.truckTypeName || vehicle.scooterTypeName}</span>
+                      </div>
+                    )}
                     <div className="flex justify-between text-sm">
                       <span className="text-gray-600">Weight Max:</span>
                       <span className="font-medium">{vehicle.weightMaxKg} kg</span>
@@ -318,7 +327,9 @@ const ViewVehicles = () => {
           </div>
         </div>
       )}
-    </div>
+        </div>
+      </div>
+    
   );
 };
 

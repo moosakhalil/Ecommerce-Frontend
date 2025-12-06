@@ -2,6 +2,7 @@ import React, { useState, useEffect } from 'react';
 import axios from 'axios';
 import { useNavigate, useParams } from 'react-router-dom';
 import { ArrowLeft, Truck, Package, Calendar, Fuel, Settings, FileText, AlertCircle, Edit } from 'lucide-react';
+import Sidebar from '../Sidebar/sidebar';
 
 const ViewVehicle = () => {
   const navigate = useNavigate();
@@ -79,7 +80,9 @@ const ViewVehicle = () => {
   }
 
   return (
-    <div className="min-h-screen bg-gray-50 p-6">
+    <div className="flex">
+      <Sidebar />
+      <div className="flex-1 min-h-screen bg-gray-50 p-6">
       <div className="max-w-5xl mx-auto">
         {/* Header */}
         <div className="bg-white rounded-lg shadow-md p-6 mb-6">
@@ -118,7 +121,23 @@ const ViewVehicle = () => {
           </div>
         </div>
 
-        <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
+        {/* Vehicle Type Display */}
+        <div className="bg-white rounded-lg shadow-md p-6 mb-6">
+          <div className="p-4 bg-gray-50 border border-gray-200 rounded-lg">
+            <label className="block text-sm font-medium text-gray-700 mb-2">
+              Vehicle Type
+            </label>
+            <div className="flex items-center gap-2">
+              {vehicle.vehicleType === 'truck' ? (
+                <><Truck size={24} className="text-blue-600" /><span className="font-medium text-lg capitalize">{vehicle.vehicleType}</span></>
+              ) : (
+                <><Package size={24} className="text-green-600" /><span className="font-medium text-lg capitalize">{vehicle.vehicleType}</span></>
+              )}
+            </div>
+          </div>
+        </div>
+
+        <div className="bg-white rounded-lg shadow-md p-6 space-y-6">
           {/* Basic Information */}
           <div className="bg-white rounded-lg shadow-md p-6">
             <h2 className="text-xl font-semibold mb-4 flex items-center gap-2">
@@ -130,6 +149,18 @@ const ViewVehicle = () => {
                 <span className="text-gray-600 font-medium">Vehicle Type:</span>
                 <span className="text-gray-900 capitalize">{vehicle.vehicleType}</span>
               </div>
+              {vehicle.vehicleType === 'truck' && vehicle.truckTypeName && (
+                <div className="flex justify-between py-2 border-b">
+                  <span className="text-gray-600 font-medium">Vehicle Type Name:</span>
+                  <span className="text-gray-900">{vehicle.truckTypeName}</span>
+                </div>
+              )}
+              {vehicle.vehicleType === 'scooter' && vehicle.scooterTypeName && (
+                <div className="flex justify-between py-2 border-b">
+                  <span className="text-gray-600 font-medium">Vehicle Type Name:</span>
+                  <span className="text-gray-900">{vehicle.scooterTypeName}</span>
+                </div>
+              )}
               <div className="flex justify-between py-2 border-b">
                 <span className="text-gray-600 font-medium">Number Plate:</span>
                 <span className="text-gray-900 font-semibold">{vehicle.numberPlate}</span>
@@ -312,6 +343,7 @@ const ViewVehicle = () => {
           </div>
         </div>
       </div>
+    </div>
     </div>
   );
 };

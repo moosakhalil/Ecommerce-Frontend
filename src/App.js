@@ -73,6 +73,9 @@ import AllpreOrdersComponent from "./componenets/VendorPreorder/allpreorder";
 import VideoManagementSystem from "./componenets/VideosManagement/videomanagement";
 import ProductManagement from "./componenets/Products/productmanagement";
 import AddVehicle from "./componenets/Vehicles/AddVehicle";
+import AddVehicleStep1 from "./componenets/Vehicles/AddVehicleStep1";
+import AddVehicleStep2 from "./componenets/Vehicles/AddVehicleStep2";
+import SelectVehicle from "./componenets/Vehicles/SelectVehicle";
 import ViewVehicles from "./componenets/Vehicles/ViewVehicles";
 import EditVehicle from "./componenets/Vehicles/EditVehicle";
 import ViewVehicle from "./componenets/Vehicles/ViewVehicle";
@@ -119,7 +122,23 @@ function App() {
           path="/admin/vehicles/add"
           element={
             <>
-              <AddVehicle />
+              <AddVehicleStep1 />
+            </>
+          }
+        />
+        <Route
+          path="/admin/vehicles/select"
+          element={
+            <>
+              <SelectVehicle />
+            </>
+          }
+        />
+        <Route
+          path="/admin/vehicles/add/details/:id"
+          element={
+            <>
+              <AddVehicleStep2 />
             </>
           }
         />

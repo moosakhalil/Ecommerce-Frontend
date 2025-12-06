@@ -2,6 +2,7 @@ import React, { useState, useEffect } from 'react';
 import axios from 'axios';
 import { useNavigate, useParams } from 'react-router-dom';
 import { Truck, Package, Upload, AlertCircle, Check, ArrowLeft } from 'lucide-react';
+import Sidebar from '../Sidebar/sidebar';
 
 const EditVehicle = () => {
   const navigate = useNavigate();
@@ -14,6 +15,8 @@ const EditVehicle = () => {
   const [formData, setFormData] = useState({
     name: '',
     vehicleType: 'truck',
+    truckTypeName: '',
+    scooterTypeName: '',
     weightMaxKg: '',
     maxPackageLength: '',
     loadLimitPercent: 80,
@@ -66,6 +69,8 @@ const EditVehicle = () => {
         setFormData({
           name: vehicle.name || '',
           vehicleType: vehicle.vehicleType || 'truck',
+          truckTypeName: vehicle.truckTypeName || '',
+          scooterTypeName: vehicle.scooterTypeName || '',
           weightMaxKg: vehicle.weightMaxKg || '',
           maxPackageLength: vehicle.maxPackageLength || '',
           loadLimitPercent: vehicle.loadLimitPercent || 80,
@@ -195,7 +200,9 @@ const EditVehicle = () => {
   }
 
   return (
-    <div className="min-h-screen bg-gray-50 p-6">
+    <div className="flex">
+      <Sidebar />
+      <div className="flex-1 min-h-screen bg-gray-50 p-6">
       <div className="max-w-4xl mx-auto">
         <div className="bg-white rounded-lg shadow-md p-8">
           {/* Header */}
@@ -226,37 +233,46 @@ const EditVehicle = () => {
           )}
 
           <form onSubmit={handleSubmit} className="space-y-6">
-            {/* Vehicle Type Selection */}
-            <div>
-              <label className="block text-sm font-medium text-gray-700 mb-2">
-                Vehicle Type <span className="text-red-500">*</span>
-              </label>
-              <div className="flex gap-4">
-                <button
-                  type="button"
-                  onClick={() => setFormData(prev => ({ ...prev, vehicleType: 'truck' }))}
-                  className={`flex-1 flex items-center justify-center gap-2 p-4 border-2 rounded-lg transition-colors ${
-                    formData.vehicleType === 'truck'
-                      ? 'border-blue-600 bg-blue-50 text-blue-600'
-                      : 'border-gray-300 hover:border-gray-400'
-                  }`}
-                >
-                  <Truck size={24} />
-                  <span className="font-medium">Truck</span>
-                </button>
-                <button
-                  type="button"
-                  onClick={() => setFormData(prev => ({ ...prev, vehicleType: 'scooter' }))}
-                  className={`flex-1 flex items-center justify-center gap-2 p-4 border-2 rounded-lg transition-colors ${
-                    formData.vehicleType === 'scooter'
-                      ? 'border-green-600 bg-green-50 text-green-600'
-                      : 'border-gray-300 hover:border-gray-400'
-                  }`}
-                >
-                  <Package size={24} />
-                  <span className="font-medium">Scooter</span>
-                </button>
+            {/* Vehicle Type Display (Read-only) */}
+            <div className="p-4 bg-gray-50 border border-gray-200 rounded-lg space-y-3">
+              <div>
+                <label className="block text-sm font-medium text-gray-700 mb-2">
+                  Vehicle Type (Cannot be changed)
+                </label>
+                <div className="flex items-center gap-2">
+                  {formData.vehicleType === 'truck' ? (
+                    <><Truck size={24} className="text-blue-600" /><span className="font-medium text-lg capitalize">{formData.vehicleType}</span></>
+                  ) : (
+                    <><Package size={24} className="text-green-600" /><span className="font-medium text-lg capitalize">{formData.vehicleType}</span></>
+                  )}
+                </div>
               </div>
+              {formData.vehicleType === 'truck' && formData.truckTypeName && (
+                <div>
+                  <label className="block text-sm font-medium text-gray-700 mb-2">
+                    Vehicle Type Name (Cannot be changed)
+                  </label>
+                  <input
+                    type="text"
+                    value={formData.truckTypeName}
+                    readOnly
+                    className="w-full px-4 py-2 border border-gray-300 rounded-lg bg-gray-100 cursor-not-allowed"
+                  />
+                </div>
+              )}
+              {formData.vehicleType === 'scooter' && formData.scooterTypeName && (
+                <div>
+                  <label className="block text-sm font-medium text-gray-700 mb-2">
+                    Vehicle Type Name (Cannot be changed)
+                  </label>
+                  <input
+                    type="text"
+                    value={formData.scooterTypeName}
+                    readOnly
+                    className="w-full px-4 py-2 border border-gray-300 rounded-lg bg-gray-100 cursor-not-allowed"
+                  />
+                </div>
+              )}
             </div>
 
             {/* Basic Information */}
@@ -278,45 +294,42 @@ const EditVehicle = () => {
 
               <div>
                 <label className="block text-sm font-medium text-gray-700 mb-2">
-                  Number Plate <span className="text-red-500">*</span>
+                  Number Plate (Cannot be changed)
                 </label>
                 <input
                   type="text"
                   name="numberPlate"
                   value={formData.numberPlate}
-                  onChange={handleChange}
-                  required
-                  className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                  readOnly
+                  className="w-full px-4 py-2 border border-gray-300 rounded-lg bg-gray-100 cursor-not-allowed"
                   placeholder="e.g., AB 1234 CD"
                 />
               </div>
 
               <div>
                 <label className="block text-sm font-medium text-gray-700 mb-2">
-                  Weight Max (kg) <span className="text-red-500">*</span>
+                  Weight Max (kg) (Cannot be changed)
                 </label>
                 <input
                   type="number"
                   name="weightMaxKg"
                   value={formData.weightMaxKg}
-                  onChange={handleChange}
-                  required
-                  className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                  readOnly
+                  className="w-full px-4 py-2 border border-gray-300 rounded-lg bg-gray-100 cursor-not-allowed"
                   placeholder="e.g., 1000"
                 />
               </div>
 
               <div>
                 <label className="block text-sm font-medium text-gray-700 mb-2">
-                  Max Package Length (cm) <span className="text-red-500">*</span>
+                  Max Package Length (cm) (Cannot be changed)
                 </label>
                 <input
                   type="number"
                   name="maxPackageLength"
                   value={formData.maxPackageLength}
-                  onChange={handleChange}
-                  required
-                  className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                  readOnly
+                  className="w-full px-4 py-2 border border-gray-300 rounded-lg bg-gray-100 cursor-not-allowed"
                   placeholder="e.g., 150"
                 />
               </div>
@@ -341,7 +354,7 @@ const EditVehicle = () => {
             {/* Conditional Fields - Truck */}
             {formData.vehicleType === 'truck' && (
               <div className="border-t pt-6">
-                <h3 className="text-lg font-semibold mb-4">Truck Dimensions</h3>
+                <h3 className="text-lg font-semibold mb-4">Truck Dimensions (Cannot be changed)</h3>
                 <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
                   <div>
                     <label className="block text-sm font-medium text-gray-700 mb-2">Height (cm)</label>
@@ -349,8 +362,8 @@ const EditVehicle = () => {
                       type="number"
                       name="heightCm"
                       value={formData.heightCm}
-                      onChange={handleChange}
-                      className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                      readOnly
+                      className="w-full px-4 py-2 border border-gray-300 rounded-lg bg-gray-100 cursor-not-allowed"
                       placeholder="e.g., 200"
                     />
                   </div>
@@ -360,8 +373,8 @@ const EditVehicle = () => {
                       type="number"
                       name="widthCm"
                       value={formData.widthCm}
-                      onChange={handleChange}
-                      className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                      readOnly
+                      className="w-full px-4 py-2 border border-gray-300 rounded-lg bg-gray-100 cursor-not-allowed"
                       placeholder="e.g., 180"
                     />
                   </div>
@@ -371,8 +384,8 @@ const EditVehicle = () => {
                       type="number"
                       name="lengthCm"
                       value={formData.lengthCm}
-                      onChange={handleChange}
-                      className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                      readOnly
+                      className="w-full px-4 py-2 border border-gray-300 rounded-lg bg-gray-100 cursor-not-allowed"
                       placeholder="e.g., 400"
                     />
                   </div>
@@ -395,7 +408,7 @@ const EditVehicle = () => {
             {/* Conditional Fields - Scooter */}
             {formData.vehicleType === 'scooter' && (
               <div className="border-t pt-6">
-                <h3 className="text-lg font-semibold mb-4">Scooter Specifications</h3>
+                <h3 className="text-lg font-semibold mb-4">Scooter Specifications (Cannot be changed)</h3>
                 <div className="grid grid-cols-1 gap-4">
                   <div>
                     <label className="block text-sm font-medium text-gray-700 mb-2">Max Number of Packages</label>
@@ -403,8 +416,8 @@ const EditVehicle = () => {
                       type="number"
                       name="maxPackages"
                       value={formData.maxPackages}
-                      onChange={handleChange}
-                      className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                      readOnly
+                      className="w-full px-4 py-2 border border-gray-300 rounded-lg bg-gray-100 cursor-not-allowed"
                       placeholder="e.g., 5"
                     />
                   </div>
@@ -434,53 +447,47 @@ const EditVehicle = () => {
               <h3 className="text-lg font-semibold mb-4">Vehicle Details</h3>
               <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                 <div>
-                  <label className="block text-sm font-medium text-gray-700 mb-2">Fuel Type</label>
-                  <select
+                  <label className="block text-sm font-medium text-gray-700 mb-2">Fuel Type (Cannot be changed)</label>
+                  <input
+                    type="text"
                     name="fuelType"
                     value={formData.fuelType}
-                    onChange={handleChange}
-                    className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
-                  >
-                    <option value="Diesel">Diesel</option>
-                    <option value="Petrol">Petrol</option>
-                    <option value="Electric">Electric</option>
-                    <option value="Hybrid">Hybrid</option>
-                  </select>
+                    readOnly
+                    className="w-full px-4 py-2 border border-gray-300 rounded-lg bg-gray-100 cursor-not-allowed"
+                  />
                 </div>
 
                 <div>
-                  <label className="block text-sm font-medium text-gray-700 mb-2">Transmission</label>
-                  <select
+                  <label className="block text-sm font-medium text-gray-700 mb-2">Transmission (Cannot be changed)</label>
+                  <input
+                    type="text"
                     name="transmission"
                     value={formData.transmission}
-                    onChange={handleChange}
-                    className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
-                  >
-                    <option value="Manual">Manual</option>
-                    <option value="Automatic">Automatic</option>
-                  </select>
+                    readOnly
+                    className="w-full px-4 py-2 border border-gray-300 rounded-lg bg-gray-100 cursor-not-allowed"
+                  />
                 </div>
 
                 <div>
-                  <label className="block text-sm font-medium text-gray-700 mb-2">Year Model</label>
+                  <label className="block text-sm font-medium text-gray-700 mb-2">Year Model (Cannot be changed)</label>
                   <input
                     type="number"
                     name="yearModel"
                     value={formData.yearModel}
-                    onChange={handleChange}
-                    className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                    readOnly
+                    className="w-full px-4 py-2 border border-gray-300 rounded-lg bg-gray-100 cursor-not-allowed"
                     placeholder="e.g., 2023"
                   />
                 </div>
 
                 <div>
-                  <label className="block text-sm font-medium text-gray-700 mb-2">Engine Size (cc)</label>
+                  <label className="block text-sm font-medium text-gray-700 mb-2">Engine Size (cc) (Cannot be changed)</label>
                   <input
                     type="number"
                     name="engineSizeCc"
                     value={formData.engineSizeCc}
-                    onChange={handleChange}
-                    className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                    readOnly
+                    className="w-full px-4 py-2 border border-gray-300 rounded-lg bg-gray-100 cursor-not-allowed"
                     placeholder="e.g., 2500"
                   />
                 </div>
@@ -520,13 +527,13 @@ const EditVehicle = () => {
                 </div>
 
                 <div>
-                  <label className="block text-sm font-medium text-gray-700 mb-2">Chassis Number</label>
+                  <label className="block text-sm font-medium text-gray-700 mb-2">Chassis Number (Cannot be changed)</label>
                   <input
                     type="text"
                     name="chassisNumber"
                     value={formData.chassisNumber}
-                    onChange={handleChange}
-                    className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                    readOnly
+                    className="w-full px-4 py-2 border border-gray-300 rounded-lg bg-gray-100 cursor-not-allowed"
                     placeholder="e.g., XXXXXXXXXXXXXXXXX"
                   />
                 </div>
@@ -582,6 +589,7 @@ const EditVehicle = () => {
           </form>
         </div>
       </div>
+    </div>
     </div>
   );
 };
