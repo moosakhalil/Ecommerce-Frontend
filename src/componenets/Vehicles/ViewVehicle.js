@@ -101,6 +101,11 @@ const ViewVehicle = () => {
                   <Package className="text-green-600" size={32} />
                 )}
                 <div>
+                  {(vehicle.truckTypeName || vehicle.scooterTypeName) && (
+                    <p className="text-xl text-blue-600 font-semibold mb-1">
+                      {vehicle.truckTypeName || vehicle.scooterTypeName}
+                    </p>
+                  )}
                   <h1 className="text-2xl font-bold text-gray-800">{vehicle.name}</h1>
                   <p className="text-gray-600">{vehicle.numberPlate}</p>
                 </div>
@@ -210,9 +215,14 @@ const ViewVehicle = () => {
                     <span className="text-gray-900">{vehicle.dimensions.lengthCm} cm</span>
                   </div>
                   {vehicle.totalDimensionsCubicCm && (
-                    <div className="flex justify-between py-2 border-b bg-blue-50">
-                      <span className="text-gray-700 font-semibold">Total Volume:</span>
-                      <span className="text-blue-600 font-bold">{vehicle.totalDimensionsCubicCm.toLocaleString()} cm³</span>
+                    <div className="py-2 border-b bg-blue-50">
+                      <div className="flex justify-between">
+                        <span className="text-gray-700 font-semibold">Total Volume:</span>
+                        <span className="text-blue-600 font-bold">{vehicle.totalDimensionsCubicCm.toLocaleString()} cm³</span>
+                      </div>
+                      <div className="flex justify-end text-gray-500">
+                        ({(vehicle.totalDimensionsCubicCm / 1000000).toFixed(2)} m³)
+                      </div>
                     </div>
                   )}
                 </>

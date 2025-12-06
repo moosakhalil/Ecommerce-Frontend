@@ -311,6 +311,9 @@ const AddVehicleStep1 = () => {
                               {(formData.heightCm * formData.widthCm * formData.lengthCm).toLocaleString()} cm³
                             </span>
                           </div>
+                          <div className="flex justify-end text-gray-500">
+                            ({((formData.heightCm * formData.widthCm * formData.lengthCm) / 1000000).toFixed(2)} m³)
+                          </div>
                         </div>
                       )}
                     </div>

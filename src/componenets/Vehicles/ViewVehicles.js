@@ -190,6 +190,14 @@ const ViewVehicles = () => {
             {filteredVehicles.map((vehicle) => (
               <div key={vehicle._id} className="bg-white rounded-lg shadow-md overflow-hidden hover:shadow-lg transition-shadow">
                 <div className="p-6">
+                  {/* Vehicle Type Name */}
+                  {(vehicle.truckTypeName || vehicle.scooterTypeName) && (
+                    <div className="mb-3">
+                      <p className="text-sm text-gray-500 mb-1">Vehicle Type Name</p>
+                      <p className="font-semibold text-lg text-blue-600">{vehicle.truckTypeName || vehicle.scooterTypeName}</p>
+                    </div>
+                  )}
+                  
                   {/* Header */}
                   <div className="flex items-start justify-between mb-4">
                     <div className="flex items-center gap-3">
@@ -210,12 +218,6 @@ const ViewVehicles = () => {
                       <span className="text-gray-600">Type:</span>
                       <span className="font-medium capitalize">{vehicle.vehicleType}</span>
                     </div>
-                    {(vehicle.truckTypeName || vehicle.scooterTypeName) && (
-                      <div className="flex justify-between text-sm">
-                        <span className="text-gray-600">Vehicle Type Name:</span>
-                        <span className="font-medium">{vehicle.truckTypeName || vehicle.scooterTypeName}</span>
-                      </div>
-                    )}
                     <div className="flex justify-between text-sm">
                       <span className="text-gray-600">Weight Max:</span>
                       <span className="font-medium">{vehicle.weightMaxKg} kg</span>
@@ -235,11 +237,16 @@ const ViewVehicles = () => {
                           </span>
                         </div>
                         {vehicle.totalDimensionsCubicCm && (
-                          <div className="flex justify-between text-sm">
-                            <span className="text-gray-600">Total Volume:</span>
-                            <span className="font-medium text-blue-600">
-                              {vehicle.totalDimensionsCubicCm.toLocaleString()} cm³
-                            </span>
+                          <div className="flex flex-col text-sm">
+                            <div className="flex justify-between">
+                              <span className="text-gray-600">Total Volume:</span>
+                              <span className="font-medium text-blue-600">
+                                {vehicle.totalDimensionsCubicCm.toLocaleString()} cm³
+                              </span>
+                            </div>
+                            <div className="flex justify-end text-gray-500">
+                              ({(vehicle.totalDimensionsCubicCm / 1000000).toFixed(2)} m³)
+                            </div>
                           </div>
                         )}
                       </>

@@ -195,7 +195,7 @@ const AddVehicleStep2 = () => {
               <Lock size={20} className="text-gray-500" />
               <h3 className="text-lg font-semibold text-gray-700">Vehicle Specifications (Locked)</h3>
             </div>
-            <div className="grid grid-cols-2 gap-4" style={{ fontSize: '2rem' }}>
+            <div className="grid grid-cols-2 gap-4 text-base">
               <div className="flex justify-between">
                 <span className="text-gray-600">Vehicle Type:</span>
                 <span className="font-medium capitalize">{vehicle.vehicleType}</span>
@@ -209,7 +209,7 @@ const AddVehicleStep2 = () => {
               {vehicle.vehicleType === 'scooter' && vehicle.scooterTypeName && (
                 <div className="flex justify-between">
                   <span className="text-gray-600">Scooter Type:</span>
-                  <span className="font-xl">{vehicle.scooterTypeName}</span>
+                  <span className="font-medium">{vehicle.scooterTypeName}</span>
                 </div>
               )}
               <div className="flex justify-between">
@@ -225,11 +225,16 @@ const AddVehicleStep2 = () => {
                     </span>
                   </div>
                   {vehicle.totalDimensionsCubicCm && (
-                    <div className="flex justify-between">
-                      <span className="text-gray-600">Total Volume:</span>
-                      <span className="font-medium text-blue-600">
-                        {vehicle.totalDimensionsCubicCm.toLocaleString()} cm³
-                      </span>
+                    <div className="flex flex-col">
+                      <div className="flex justify-between">
+                        <span className="text-gray-600">Total Volume:</span>
+                        <span className="font-medium text-blue-600">
+                          {vehicle.totalDimensionsCubicCm.toLocaleString()} cm³
+                        </span>
+                      </div>
+                      <div className="flex justify-end text-gray-500">
+                        ({(vehicle.totalDimensionsCubicCm / 1000000).toFixed(2)} m³)
+                      </div>
                     </div>
                   )}
                   <div className="flex justify-between">
