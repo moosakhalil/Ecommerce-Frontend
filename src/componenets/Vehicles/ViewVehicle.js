@@ -170,20 +170,6 @@ const ViewVehicle = () => {
                 <span className="text-gray-600 font-medium">Number Plate:</span>
                 <span className="text-gray-900 font-semibold">{vehicle.numberPlate}</span>
               </div>
-              <div className="flex justify-between py-2 border-b">
-                <span className="text-gray-600 font-medium">Weight Max:</span>
-                <span className="text-gray-900">{vehicle.weightMaxKg} kg</span>
-              </div>
-              {vehicle.maxPackageLength && (
-                <div className="flex justify-between py-2 border-b">
-                  <span className="text-gray-600 font-medium">Max Package Length:</span>
-                  <span className="text-gray-900">{vehicle.maxPackageLength} cm</span>
-                </div>
-              )}
-              <div className="flex justify-between py-2 border-b">
-                <span className="text-gray-600 font-medium">Load Limit:</span>
-                <span className="text-gray-900">{vehicle.loadLimitPercent}%</span>
-              </div>
               {vehicle.chassisNumber && (
                 <div className="flex justify-between py-2 border-b">
                   <span className="text-gray-600 font-medium">Chassis Number:</span>
@@ -200,6 +186,21 @@ const ViewVehicle = () => {
               Specifications
             </h2>
             <div className="space-y-3">
+              <div className="flex justify-between py-2 border-b">
+                <span className="text-gray-600 font-medium">Weight Max:</span>
+                <span className="text-gray-900">{vehicle.weightMaxKg} kg</span>
+              </div>
+              {vehicle.maxPackageLength && (
+                <div className="flex justify-between py-2 border-b">
+                  <span className="text-gray-600 font-medium">Max Package Length:</span>
+                  <span className="text-gray-900">{vehicle.maxPackageLength} cm</span>
+                </div>
+              )}
+              <div className="flex justify-between py-2 border-b">
+                <span className="text-gray-600 font-medium">Weight Load limit percentage (%)
+</span>
+                <span className="text-gray-900">{vehicle.loadLimitPercent}%</span>
+              </div>
               {vehicle.vehicleType === 'truck' && vehicle.dimensions && (
                 <>
                   <div className="flex justify-between py-2 border-b">

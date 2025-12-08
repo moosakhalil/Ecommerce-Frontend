@@ -325,7 +325,7 @@ const AddVehicleStep2 = () => {
             {/* Load Limit */}
             <div>
               <label className="block text-sm font-medium text-gray-700 mb-2">
-                Load Limit Percentage: {formData.loadLimitPercent}%
+                Weight Load limit percentage (kg) : : {formData.loadLimitPercent}%
               </label>
               <input
                 type="range"
