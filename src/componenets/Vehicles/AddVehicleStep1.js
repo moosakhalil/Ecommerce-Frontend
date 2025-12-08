@@ -23,23 +23,23 @@ const AddVehicleStep1 = () => {
     maxPackages: '',
   });
 
-  // Fetch incomplete vehicles on component mount
+  // Fetch templates on component mount
   React.useEffect(() => {
-    const fetchIncompleteVehicles = async () => {
+    const fetchTemplates = async () => {
       try {
-        const response = await axios.get('http://localhost:5000/api/vehicles?status=incomplete');
+        const response = await axios.get('http://localhost:5000/api/vehicle-templates');
         if (response.data.success && response.data.data.length > 0) {
           setSavedVehicles(response.data.data);
           setShowTable(true);
         }
       } catch (err) {
-        console.error('Error fetching incomplete vehicles:', err);
+        console.error('Error fetching templates:', err);
       } finally {
         setLoading(false);
       }
     };
     
-    fetchIncompleteVehicles();
+    fetchTemplates();
   }, []);
 
   const handleChange = (e) => {
@@ -77,36 +77,32 @@ const AddVehicleStep1 = () => {
     setSaving(true);
 
     try {
-      const vehicleData = {
+      const templateData = {
         vehicleType,
-        status: 'incomplete', // Mark as incomplete until details are added
         weightMaxKg: Number(formData.weightMaxKg),
-        numberPlate: 'TEMP-' + Date.now(),
       };
 
       if (vehicleType === 'truck') {
-        vehicleData.truckTypeName = formData.truckTypeName;
-        vehicleData.name = formData.truckTypeName;
-        vehicleData.maxPackageLength = Number(formData.maxPackageLength);
-        vehicleData.dimensions = {
+        templateData.truckTypeName = formData.truckTypeName;
+        templateData.maxPackageLength = Number(formData.maxPackageLength);
+        templateData.dimensions = {
           heightCm: Number(formData.heightCm),
           widthCm: Number(formData.widthCm),
           lengthCm: Number(formData.lengthCm),
         };
       } else {
-        vehicleData.scooterTypeName = formData.scooterTypeName;
-        vehicleData.name = formData.scooterTypeName;
-        vehicleData.maxPackages = Number(formData.maxPackages);
-        vehicleData.maxPackageLength = 100; // Default for scooter
+        templateData.scooterTypeName = formData.scooterTypeName;
+        templateData.maxPackages = Number(formData.maxPackages);
+        templateData.maxPackageLength = 100; // Default for scooter
       }
 
-      console.log('Sending vehicle data:', vehicleData);
+      console.log('Sending template data:', templateData);
 
-      const response = await axios.post('http://localhost:5000/api/vehicles', vehicleData);
+      const response = await axios.post('http://localhost:5000/api/vehicle-templates', templateData);
 
       if (response.data.success) {
-        const newVehicle = response.data.data;
-        setSavedVehicles(prev => [...prev, newVehicle]);
+        const newTemplate = response.data.data;
+        setSavedVehicles(prev => [...prev, newTemplate]);
         setShowTable(true);
         
         // Reset form
@@ -122,10 +118,10 @@ const AddVehicleStep1 = () => {
         });
       }
     } catch (err) {
-      console.error('Error saving vehicle:', err);
+      console.error('Error saving template:', err);
       console.error('Error response:', err.response?.data);
       
-      let errorMessage = 'Failed to save vehicle';
+      let errorMessage = 'Failed to save template';
       
       if (err.response?.data?.errors) {
         // Validation errors
@@ -471,9 +467,10 @@ const AddVehicleStep1 = () => {
           )}
         </div>
       </div>
-    </div>
+      </div>
     </div>
   );
 };
 
 export default AddVehicleStep1;
+    

@@ -11,7 +11,7 @@ const AddVehicleStep2 = () => {
   const [saving, setSaving] = useState(false);
   const [error, setError] = useState('');
   const [success, setSuccess] = useState('');
-  const [vehicle, setVehicle] = useState(null);
+  const [template, setTemplate] = useState(null);
   
   const [formData, setFormData] = useState({
     name: '',
@@ -49,18 +49,18 @@ const AddVehicleStep2 = () => {
       navigate('/admin/vehicles/select');
       return;
     }
-    fetchVehicle();
+    fetchTemplate();
   }, [id, navigate]);
 
-  const fetchVehicle = async () => {
+  const fetchTemplate = async () => {
     try {
       setLoading(true);
-      const response = await axios.get(`http://localhost:5000/api/vehicles/${id}`);
+      const response = await axios.get(`http://localhost:5000/api/vehicle-templates/${id}`);
       if (response.data.success) {
-        setVehicle(response.data.data);
+        setTemplate(response.data.data);
       }
     } catch (err) {
-      setError('Failed to fetch vehicle details');
+      setError('Failed to fetch template details');
       console.error(err);
     } finally {
       setLoading(false);
@@ -105,7 +105,10 @@ const AddVehicleStep2 = () => {
     try {
       const formDataToSend = new FormData();
       
-      // Update only the new data, specifications are already saved
+      // Link to template
+      formDataToSend.append('templateId', id);
+      
+      // Vehicle instance details
       formDataToSend.append('name', formData.name);
       formDataToSend.append('numberPlate', formData.numberPlate);
       formDataToSend.append('status', formData.status);
@@ -128,20 +131,20 @@ const AddVehicleStep2 = () => {
         }
       });
 
-      const response = await axios.put(`http://localhost:5000/api/vehicles/${id}`, formDataToSend, {
+      const response = await axios.post('http://localhost:5000/api/vehicles', formDataToSend, {
         headers: {
           'Content-Type': 'multipart/form-data',
         },
       });
 
       if (response.data.success) {
-        setSuccess('Vehicle details added successfully!');
+        setSuccess('Vehicle added successfully!');
         setTimeout(() => {
           navigate('/admin/vehicles');
         }, 2000);
       }
     } catch (err) {
-      setError(err.response?.data?.message || 'Failed to update vehicle');
+      setError(err.response?.data?.message || 'Failed to create vehicle');
       console.error(err);
     } finally {
       setSaving(false);
@@ -157,13 +160,13 @@ const AddVehicleStep2 = () => {
       <div className="flex items-center justify-center min-h-screen">
         <div className="text-center">
           <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-blue-600 mx-auto"></div>
-          <p className="mt-4 text-gray-600">Loading vehicle...</p>
+          <p className="mt-4 text-gray-600">Loading template...</p>
         </div>
       </div>
     );
   }
 
-  if (!vehicle) {
+  if (!template) {
     return null;
   }
 
@@ -198,56 +201,43 @@ const AddVehicleStep2 = () => {
             <div className="grid grid-cols-2 gap-4 text-base">
               <div className="flex justify-between">
                 <span className="text-gray-600">Vehicle Type:</span>
-                <span className="font-medium capitalize">{vehicle.vehicleType}</span>
+                <span className="font-medium capitalize">{template.vehicleType}</span>
               </div>
-              {vehicle.vehicleType === 'truck' && vehicle.truckTypeName && (
+              {template.vehicleType === 'truck' && template.truckTypeName && (
                 <div className="flex justify-between">
                   <span className="text-gray-600">Truck Type:</span>
-                  <span className="font-medium">{vehicle.truckTypeName}</span>
+                  <span className="font-medium">{template.truckTypeName}</span>
                 </div>
               )}
-              {vehicle.vehicleType === 'scooter' && vehicle.scooterTypeName && (
+              {template.vehicleType === 'scooter' && template.scooterTypeName && (
                 <div className="flex justify-between">
                   <span className="text-gray-600">Scooter Type:</span>
-                  <span className="font-medium">{vehicle.scooterTypeName}</span>
+                  <span className="font-medium">{template.scooterTypeName}</span>
                 </div>
               )}
               <div className="flex justify-between">
                 <span className="text-gray-600">Weight Max:</span>
-                <span className="font-medium">{vehicle.weightMaxKg} kg</span>
+                <span className="font-medium">{template.weightMaxKg} kg</span>
               </div>
-              {vehicle.vehicleType === 'truck' && vehicle.dimensions && (
+              {template.vehicleType === 'truck' && template.dimensions && (
                 <>
                   <div className="flex justify-between">
                     <span className="text-gray-600">Dimensions:</span>
                     <span className="font-medium">
-                      {vehicle.dimensions.heightCm}×{vehicle.dimensions.widthCm}×{vehicle.dimensions.lengthCm} cm
+                      {template.dimensions.heightCm}×{template.dimensions.widthCm}×{template.dimensions.lengthCm} cm
                     </span>
                   </div>
-                  {vehicle.totalDimensionsCubicCm && (
-                    <div className="flex flex-col">
-                      <div className="flex justify-between">
-                        <span className="text-gray-600">Total Volume:</span>
-                        <span className="font-medium text-blue-600">
-                          {vehicle.totalDimensionsCubicCm.toLocaleString()} cm³
-                        </span>
-                      </div>
-                      <div className="flex justify-end text-gray-500">
-                        ({(vehicle.totalDimensionsCubicCm / 1000000).toFixed(2)} m³)
-                      </div>
-                    </div>
-                  )}
                   <div className="flex justify-between">
                     <span className="text-gray-600">Max Package Length:</span>
-                    <span className="font-medium">{vehicle.maxPackageLength} cm</span>
+                    <span className="font-medium">{template.maxPackageLength} cm</span>
                   </div>
                 </>
               )}
-              {vehicle.vehicleType === 'scooter' && (
+              {template.vehicleType === 'scooter' && (
                 <>
                   <div className="flex justify-between">
                     <span className="text-gray-600">Max Packages:</span>
-                    <span className="font-medium">{vehicle.maxPackages}</span>
+                    <span className="font-medium">{template.maxPackages}</span>
                   </div>
                 </>
               )}
