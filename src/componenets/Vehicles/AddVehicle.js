@@ -25,6 +25,7 @@ const AddVehicle = () => {
     
     // Scooter fields
     maxPackages: '',
+    packageLimitPercent: 80,
     
     // Optional fields
     fuelType: 'Diesel',
@@ -191,6 +192,7 @@ const AddVehicle = () => {
                     value={formData.name}
                     onChange={handleChange}
                     required
+                    autoComplete="off"
                     className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
                     placeholder="e.g., Truck #1"
                   />
@@ -206,6 +208,7 @@ const AddVehicle = () => {
                     value={formData.numberPlate}
                     onChange={handleChange}
                     required
+                    autoComplete="off"
                     className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
                     placeholder="ABC1234"
                   />
@@ -221,6 +224,7 @@ const AddVehicle = () => {
                     value={formData.weightMaxKg}
                     onChange={handleChange}
                     required
+                    autoComplete="off"
                     className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
                     placeholder={formData.vehicleType === 'truck' ? '5000' : '80'}
                   />
@@ -230,12 +234,13 @@ const AddVehicle = () => {
 
                 <div>
                   <label className="block text-sm font-medium text-gray-700 mb-2">
-                    Status
+                    Status *
                   </label>
                   <select
                     name="status"
                     value={formData.status}
                     onChange={handleChange}
+                    required
                     className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
                   >
                     <option value="active">Active</option>
@@ -253,13 +258,15 @@ const AddVehicle = () => {
                 <div className="grid grid-cols-3 gap-4">
                   <div>
                     <label className="block text-sm font-medium text-gray-700 mb-2">
-                      H (Height) cm
+                      H (Height) cm *
                     </label>
                     <input
                       type="number"
                       name="heightCm"
                       value={formData.heightCm}
                       onChange={handleChange}
+                      required
+                      autoComplete="off"
                       className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
                       placeholder="600"
                     />
@@ -267,13 +274,15 @@ const AddVehicle = () => {
 
                   <div>
                     <label className="block text-sm font-medium text-gray-700 mb-2">
-                      W (Width) cm
+                      W (Width) cm *
                     </label>
                     <input
                       type="number"
                       name="widthCm"
                       value={formData.widthCm}
                       onChange={handleChange}
+                      required
+                      autoComplete="off"
                       className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
                       placeholder="220"
                     />
@@ -281,13 +290,15 @@ const AddVehicle = () => {
 
                   <div>
                     <label className="block text-sm font-medium text-gray-700 mb-2">
-                      L (Length) cm
+                      L (Length) cm *
                     </label>
                     <input
                       type="number"
                       name="lengthCm"
                       value={formData.lengthCm}
                       onChange={handleChange}
+                      required
+                      autoComplete="off"
                       className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
                       placeholder="600"
                     />
@@ -297,11 +308,18 @@ const AddVehicle = () => {
                 {/* Total Dimensions Display */}
                 {formData.heightCm && formData.widthCm && formData.lengthCm && (
                   <div className="mt-4 p-4 bg-blue-50 border border-blue-200 rounded-lg">
-                    <div className="flex items-center justify-between">
-                      <span className="text-sm font-medium text-gray-700">Total Dimensions (Volume):</span>
-                      <span className="text-lg font-bold text-blue-600">
-                        {(formData.heightCm * formData.widthCm * formData.lengthCm).toLocaleString()} cm³
-                      </span>
+                    <div className="space-y-2">
+                      <div className="flex items-center justify-between">
+                        <span className="text-sm font-medium text-gray-700">Total Volume:</span>
+                        <span className="text-lg font-bold text-blue-600">
+                          {(formData.heightCm * formData.widthCm * formData.lengthCm).toLocaleString()} cm³
+                        </span>
+                      </div>
+                      <div className="flex items-center justify-end mt-2">
+                        <span style={{ fontSize: '48px', fontWeight: 'bold', color: '#1d4ed8', lineHeight: '1' }}>
+                          ({(formData.heightCm * formData.widthCm * formData.lengthCm / 1000000).toFixed(2)} m³)
+                        </span>
+                      </div>
                     </div>
                   </div>
                 )}
@@ -318,6 +336,7 @@ const AddVehicle = () => {
                     value={formData.maxPackageLength}
                     onChange={handleChange}
                     required
+                    autoComplete="off"
                     className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
                     placeholder="150"
                   />
@@ -330,17 +349,57 @@ const AddVehicle = () => {
                 <div className="grid grid-cols-2 gap-4">
                   <div>
                     <label className="block text-sm font-medium text-gray-700 mb-2">
-                      Max number of packages
+                      Max number of packages *
                     </label>
                     <input
                       type="number"
                       name="maxPackages"
                       value={formData.maxPackages}
                       onChange={handleChange}
+                      required
+                      autoComplete="off"
                       className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
                       placeholder="3"
                     />
                   </div>
+                </div>
+                
+                {/* Package Limit */}
+                <div className="mt-6">
+                  <label className="block text-sm font-medium text-gray-700 mb-2">
+                    Package Limit % (recommended 80%) *
+                  </label>
+                  <input
+                    type="range"
+                    name="packageLimitPercent"
+                    min="0"
+                    max="100"
+                    value={formData.packageLimitPercent}
+                    onChange={handleChange}
+                    required
+                    className="w-full"
+                  />
+                  <div className="flex justify-between text-sm text-gray-600 mt-2">
+                    <span>0%</span>
+                    <span className="font-semibold text-blue-600">{formData.packageLimitPercent}%</span>
+                    <span>100%</span>
+                  </div>
+                  <p className="text-sm text-gray-500 mt-2">Do not go above 80%</p>
+                  
+                  {/* Recommended Max Packages Display */}
+                  {formData.maxPackages && formData.packageLimitPercent && (
+                    <div className="mt-4 p-4 bg-purple-50 border border-purple-200 rounded-lg">
+                      <div className="flex items-center justify-between">
+                        <span className="text-sm font-medium text-gray-700">Recommended Max Packages:</span>
+                        <span className="text-lg font-bold text-purple-600">
+                          {Math.round((formData.maxPackages * formData.packageLimitPercent) / 100)}
+                        </span>
+                      </div>
+                      <p className="text-xs text-gray-500 mt-1">
+                        Based on {formData.packageLimitPercent}% of {formData.maxPackages} maximum packages
+                      </p>
+                    </div>
+                  )}
                 </div>
               </div>
             )}
@@ -350,7 +409,7 @@ const AddVehicle = () => {
               <h3 className="text-lg font-semibold mb-4">Load Limit</h3>
               <div>
                 <label className="block text-sm font-medium text-gray-700 mb-2">
-                  Limit % (recommended 80%)
+                  Limit % (recommended 80%) *
                 </label>
                 <input
                   type="range"
@@ -359,6 +418,7 @@ const AddVehicle = () => {
                   max="100"
                   value={formData.loadLimitPercent}
                   onChange={handleChange}
+                  required
                   className="w-full"
                 />
                 <div className="flex justify-between text-sm text-gray-600 mt-2">
@@ -367,6 +427,21 @@ const AddVehicle = () => {
                   <span>100%</span>
                 </div>
                 <p className="text-sm text-gray-500 mt-2">Do not go above 80%</p>
+                
+                {/* Recommended Weight Max Display */}
+                {formData.weightMaxKg && formData.loadLimitPercent && (
+                  <div className="mt-4 p-4 bg-green-50 border border-green-200 rounded-lg">
+                    <div className="flex items-center justify-between">
+                      <span className="text-sm font-medium text-gray-700">Recommended Weight Max:</span>
+                      <span className="text-lg font-bold text-green-600">
+                        {Math.round((formData.weightMaxKg * formData.loadLimitPercent) / 100)} kg
+                      </span>
+                    </div>
+                    <p className="text-xs text-gray-500 mt-1">
+                      Based on {formData.loadLimitPercent}% of {formData.weightMaxKg} kg maximum capacity
+                    </p>
+                  </div>
+                )}
               </div>
             </div>
 
@@ -376,12 +451,13 @@ const AddVehicle = () => {
               <div className="grid grid-cols-2 gap-4">
                 <div>
                   <label className="block text-sm font-medium text-gray-700 mb-2">
-                    Fuel type
+                    Fuel type *
                   </label>
                   <select
                     name="fuelType"
                     value={formData.fuelType}
                     onChange={handleChange}
+                    required
                     className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
                   >
                     <option value="Diesel">Diesel</option>
@@ -394,12 +470,13 @@ const AddVehicle = () => {
 
                 <div>
                   <label className="block text-sm font-medium text-gray-700 mb-2">
-                    Transmission
+                    Transmission *
                   </label>
                   <select
                     name="transmission"
                     value={formData.transmission}
                     onChange={handleChange}
+                    required
                     className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
                   >
                     <option value="Manual">Manual</option>
@@ -409,13 +486,15 @@ const AddVehicle = () => {
 
                 <div>
                   <label className="block text-sm font-medium text-gray-700 mb-2">
-                    Vehicle year / model
+                    Vehicle year / model *
                   </label>
                   <input
                     type="number"
                     name="yearModel"
                     value={formData.yearModel}
                     onChange={handleChange}
+                    required
+                    autoComplete="off"
                     className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
                     placeholder="2018"
                   />
@@ -423,13 +502,15 @@ const AddVehicle = () => {
 
                 <div>
                   <label className="block text-sm font-medium text-gray-700 mb-2">
-                    Engine size (cc)
+                    Engine size (cc) *
                   </label>
                   <input
                     type="number"
                     name="engineSizeCc"
                     value={formData.engineSizeCc}
                     onChange={handleChange}
+                    required
+                    autoComplete="off"
                     className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
                     placeholder="3000"
                   />
@@ -437,13 +518,15 @@ const AddVehicle = () => {
 
                 <div>
                   <label className="block text-sm font-medium text-gray-700 mb-2">
-                    Odometer (km)
+                    Odometer (km) *
                   </label>
                   <input
                     type="number"
                     name="odometerKm"
                     value={formData.odometerKm}
                     onChange={handleChange}
+                    required
+                    autoComplete="off"
                     className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
                     placeholder="120000"
                   />
@@ -451,39 +534,45 @@ const AddVehicle = () => {
 
                 <div>
                   <label className="block text-sm font-medium text-gray-700 mb-2">
-                    Service due date
+                    Service due date *
                   </label>
                   <input
                     type="date"
                     name="serviceDueDate"
                     value={formData.serviceDueDate}
                     onChange={handleChange}
+                    required
+                    autoComplete="off"
                     className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
                   />
                 </div>
 
                 <div>
                   <label className="block text-sm font-medium text-gray-700 mb-2">
-                    Insurance expiry date
+                    Insurance expiry date *
                   </label>
                   <input
                     type="date"
                     name="insuranceExpiryDate"
                     value={formData.insuranceExpiryDate}
                     onChange={handleChange}
+                    required
+                    autoComplete="off"
                     className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
                   />
                 </div>
 
                 <div>
                   <label className="block text-sm font-medium text-gray-700 mb-2">
-                    Chassis number
+                    Chassis number *
                   </label>
                   <input
                     type="text"
                     name="chassisNumber"
                     value={formData.chassisNumber}
                     onChange={handleChange}
+                    required
+                    autoComplete="off"
                     className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
                     placeholder="1234567890ABCDEGH"
                   />
@@ -497,7 +586,7 @@ const AddVehicle = () => {
               <div className="grid grid-cols-2 gap-4">
                 <div>
                   <label className="block text-sm font-medium text-gray-700 mb-2">
-                    Upload STNK photo
+                    Upload STNK photo *
                   </label>
                   <div className="border-2 border-dashed border-gray-300 rounded-lg p-4 text-center hover:border-blue-400 transition-colors">
                     <input
@@ -505,6 +594,7 @@ const AddVehicle = () => {
                       name="stnkPhoto"
                       onChange={handleImageChange}
                       accept="image/*"
+                      required
                       className="hidden"
                       id="stnkPhoto"
                     />
@@ -523,7 +613,7 @@ const AddVehicle = () => {
 
                 <div>
                   <label className="block text-sm font-medium text-gray-700 mb-2">
-                    Upload BPKB photo
+                    Upload BPKB photo *
                   </label>
                   <div className="border-2 border-dashed border-gray-300 rounded-lg p-4 text-center hover:border-blue-400 transition-colors">
                     <input
@@ -531,6 +621,7 @@ const AddVehicle = () => {
                       name="bpkbPhoto"
                       onChange={handleImageChange}
                       accept="image/*"
+                      required
                       className="hidden"
                       id="bpkbPhoto"
                     />
@@ -549,7 +640,7 @@ const AddVehicle = () => {
 
                 <div>
                   <label className="block text-sm font-medium text-gray-700 mb-2">
-                    Upload STNK icon photo
+                    Upload STNK icon photo *
                   </label>
                   <div className="border-2 border-dashed border-gray-300 rounded-lg p-4 text-center hover:border-blue-400 transition-colors">
                     <input
@@ -557,6 +648,7 @@ const AddVehicle = () => {
                       name="stnkIconPhoto"
                       onChange={handleImageChange}
                       accept="image/*"
+                      required
                       className="hidden"
                       id="stnkIconPhoto"
                     />
@@ -575,7 +667,7 @@ const AddVehicle = () => {
 
                 <div>
                   <label className="block text-sm font-medium text-gray-700 mb-2">
-                    Upload codec photo
+                    Upload codec photo *
                   </label>
                   <div className="border-2 border-dashed border-gray-300 rounded-lg p-4 text-center hover:border-blue-400 transition-colors">
                     <input
@@ -583,6 +675,7 @@ const AddVehicle = () => {
                       name="codecPhoto"
                       onChange={handleImageChange}
                       accept="image/*"
+                      required
                       className="hidden"
                       id="codecPhoto"
                     />

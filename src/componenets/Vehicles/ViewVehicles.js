@@ -222,6 +222,12 @@ const ViewVehicles = () => {
                       <span className="text-gray-600">Weight Max:</span>
                       <span className="font-medium">{vehicle.weightMaxKg} kg</span>
                     </div>
+                    {vehicle.weightMaxKg && vehicle.loadLimitPercent && (
+                      <div className="flex justify-between text-sm bg-green-50 -mx-4 px-4 py-1">
+                        <span className="text-gray-600 font-medium">Recommended Weight:</span>
+                        <span className="font-bold text-green-600">{Math.round((vehicle.weightMaxKg * vehicle.loadLimitPercent) / 100)} kg</span>
+                      </div>
+                    )}
                     {vehicle.maxPackageLength && (
                       <div className="flex justify-between text-sm">
                         <span className="text-gray-600">Max Pkg Length:</span>
@@ -244,7 +250,7 @@ const ViewVehicles = () => {
                                 {vehicle.totalDimensionsCubicCm.toLocaleString()} cm³
                               </span>
                             </div>
-                            <div className="flex justify-end text-gray-500">
+                            <div className="flex justify-end text-base font-bold text-blue-700 mt-1">
                               ({(vehicle.totalDimensionsCubicCm / 1000000).toFixed(2)} m³)
                             </div>
                           </div>
@@ -252,10 +258,18 @@ const ViewVehicles = () => {
                       </>
                     )}
                     {vehicle.vehicleType === 'scooter' && vehicle.maxPackages && (
-                      <div className="flex justify-between text-sm">
-                        <span className="text-gray-600">Max Packages:</span>
-                        <span className="font-medium">{vehicle.maxPackages}</span>
-                      </div>
+                      <>
+                        <div className="flex justify-between text-sm">
+                          <span className="text-gray-600">Max Packages:</span>
+                          <span className="font-medium">{vehicle.maxPackages}</span>
+                        </div>
+                        <div className="flex justify-between text-sm bg-purple-50 -mx-4 px-4 py-1">
+                          <span className="text-gray-600 font-medium">Recommended Max Packages:</span>
+                          <span className="font-bold text-purple-600">
+                            {Math.round((vehicle.maxPackages * (vehicle.packageLimitPercent || 80)) / 100)}
+                          </span>
+                        </div>
+                      </>
                     )}
                     {vehicle.fuelType && (
                       <div className="flex justify-between text-sm">

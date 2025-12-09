@@ -30,6 +30,7 @@ const EditVehicle = () => {
     
     // Scooter fields
     maxPackages: '',
+    packageLimitPercent: 80,
     
     // Optional fields
     fuelType: 'Diesel',
@@ -80,6 +81,7 @@ const EditVehicle = () => {
           widthCm: vehicle.dimensions?.widthCm || '',
           lengthCm: vehicle.dimensions?.lengthCm || '',
           maxPackages: vehicle.maxPackages || '',
+          packageLimitPercent: vehicle.packageLimitPercent || 80,
           fuelType: vehicle.fuelType || 'Diesel',
           transmission: vehicle.transmission || 'Manual',
           yearModel: vehicle.yearModel || '',
@@ -148,6 +150,7 @@ const EditVehicle = () => {
 
       // Add scooter fields
       if (formData.vehicleType === 'scooter') {
+        if (formData.packageLimitPercent) submitData.append('packageLimitPercent', formData.packageLimitPercent);
         if (formData.maxPackages) submitData.append('maxPackages', formData.maxPackages);
       }
 
@@ -287,6 +290,7 @@ const EditVehicle = () => {
                   value={formData.name}
                   onChange={handleChange}
                   required
+                  autoComplete="off"
                   className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
                   placeholder="e.g., Truck #1"
                 />
@@ -394,11 +398,18 @@ const EditVehicle = () => {
                 {/* Total Dimensions Display */}
                 {formData.heightCm && formData.widthCm && formData.lengthCm && (
                   <div className="mt-4 p-4 bg-blue-50 border border-blue-200 rounded-lg">
-                    <div className="flex items-center justify-between">
-                      <span className="text-sm font-medium text-gray-700">Total Dimensions (Volume):</span>
-                      <span className="text-lg font-bold text-blue-600">
-                        {(formData.heightCm * formData.widthCm * formData.lengthCm).toLocaleString()} cm³
-                      </span>
+                    <div className="space-y-2">
+                      <div className="flex items-center justify-between">
+                        <span className="text-sm font-medium text-gray-700">Total Volume:</span>
+                        <span className="text-lg font-bold text-blue-600">
+                          {(formData.heightCm * formData.widthCm * formData.lengthCm).toLocaleString()} cm³
+                        </span>
+                      </div>
+                      <div className="flex items-center justify-end mt-2">
+                        <span style={{ fontSize: '48px', fontWeight: 'bold', color: '#1d4ed8', lineHeight: '1' }}>
+                          ({(formData.heightCm * formData.widthCm * formData.lengthCm / 1000000).toFixed(2)} m³)
+                        </span>
+                      </div>
                     </div>
                   </div>
                 )}
@@ -422,6 +433,38 @@ const EditVehicle = () => {
                     />
                   </div>
                 </div>
+                
+                {/* Package Limit */}
+                <div className="mt-6">
+                  <label className="block text-sm font-medium text-gray-700 mb-2">
+                    Package Limit Percentage: {formData.packageLimitPercent}%
+                  </label>
+                  <input
+                    type="range"
+                    name="packageLimitPercent"
+                    min="0"
+                    max="100"
+                    value={formData.packageLimitPercent}
+                    onChange={handleChange}
+                    className="w-full"
+                  />
+                  <p className="text-sm text-gray-500 mt-1">Recommended: 80% for safety</p>
+                  
+                  {/* Recommended Max Packages Display */}
+                  {formData.maxPackages && formData.packageLimitPercent && (
+                    <div className="mt-4 p-4 bg-purple-50 border border-purple-200 rounded-lg">
+                      <div className="flex items-center justify-between">
+                        <span className="text-sm font-medium text-gray-700">Recommended Max Packages:</span>
+                        <span className="text-lg font-bold text-purple-600">
+                          {Math.round((formData.maxPackages * formData.packageLimitPercent) / 100)}
+                        </span>
+                      </div>
+                      <p className="text-xs text-gray-500 mt-1">
+                        Based on {formData.packageLimitPercent}% of {formData.maxPackages} maximum packages
+                      </p>
+                    </div>
+                  )}
+                </div>
               </div>
             )}
 
@@ -440,6 +483,21 @@ const EditVehicle = () => {
                 className="w-full"
               />
               <p className="text-sm text-gray-500 mt-1">Recommended: 80% for safety</p>
+              
+              {/* Recommended Weight Max Display */}
+              {formData.weightMaxKg && formData.loadLimitPercent && (
+                <div className="mt-4 p-4 bg-green-50 border border-green-200 rounded-lg">
+                  <div className="flex items-center justify-between">
+                    <span className="text-sm font-medium text-gray-700">Recommended Weight Max:</span>
+                    <span className="text-lg font-bold text-green-600">
+                      {Math.round((formData.weightMaxKg * formData.loadLimitPercent) / 100)} kg
+                    </span>
+                  </div>
+                  <p className="text-xs text-gray-500 mt-1">
+                    Based on {formData.loadLimitPercent}% of {formData.weightMaxKg} kg maximum capacity
+                  </p>
+                </div>
+              )}
             </div>
 
             {/* Vehicle Details */}
@@ -499,8 +557,9 @@ const EditVehicle = () => {
                     name="odometerKm"
                     value={formData.odometerKm}
                     onChange={handleChange}
+                    autoComplete="off"
                     className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
-                    placeholder="e.g., 50000"
+                    placeholder="120000"
                   />
                 </div>
 
@@ -511,6 +570,7 @@ const EditVehicle = () => {
                     name="serviceDueDate"
                     value={formData.serviceDueDate}
                     onChange={handleChange}
+                    autoComplete="off"
                     className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
                   />
                 </div>
@@ -522,6 +582,7 @@ const EditVehicle = () => {
                     name="insuranceExpiryDate"
                     value={formData.insuranceExpiryDate}
                     onChange={handleChange}
+                    autoComplete="off"
                     className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
                   />
                 </div>

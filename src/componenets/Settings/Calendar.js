@@ -301,13 +301,13 @@ const CalendarComponent = () => {
                       key={origIndex}
                       className={displayIndex % 2 === 0 ? "bg-yellow-50" : "bg-yellow-100"}
                     >
-                      <td className="px-4 py-3 text-sm font-medium text-gray-900 border border-gray-300 whitespace-nowrap">
+                      <td className="px-4 py-3 text-xl font-medium text-gray-900 border border-gray-300 whitespace-nowrap">
                         week {day.weekNumber}
                       </td>
-                      <td className="px-4 py-3 text-sm text-gray-700 border border-gray-300 whitespace-nowrap">
+                      <td className="px-4 py-3 text-xl text-gray-700 border border-gray-300 whitespace-nowrap">
                         {day.date}
                       </td>
-                      <td className="px-4 py-3 text-sm text-gray-700 border border-gray-300 capitalize whitespace-nowrap">
+                      <td className="px-4 py-3 text-xl text-gray-700 border border-gray-300 capitalize whitespace-nowrap">
                         {day.weekDay}
                       </td>
                       <td className="px-4 py-3 border border-gray-300">
@@ -316,7 +316,7 @@ const CalendarComponent = () => {
                           value={day.holiday}
                           onChange={(e) => updateHoliday(origIndex, e.target.value)}
                           placeholder="Enter holiday name"
-                          className="border border-blue-300 rounded px-3 py-2 text-sm w-full focus:outline-none focus:ring-2 focus:ring-blue-400 bg-white"
+                          className="border border-blue-300 rounded px-3 py-2 text-2xl w-full focus:outline-none focus:ring-2 focus:ring-blue-400 bg-white"
                         />
                       </td>
                       <td className="px-4 py-3 border border-gray-300">
@@ -337,21 +337,21 @@ const CalendarComponent = () => {
                       <td className="px-4 py-3 border border-gray-300">
                         <div className="flex gap-2 items-center">
                           <div className="flex flex-col flex-1">
-                            <label className="text-xs text-gray-600 mb-1">From</label>
+                            <label className="text-xl text-gray-600 mb-1">From</label>
                             <input
                               type="time"
                               value={day.closingHoursFrom || ""}
                               onChange={(e) => updateClosingHours(origIndex, 'closingHoursFrom', e.target.value)}
-                              className="border border-blue-300 rounded px-2 py-1 text-sm w-full focus:outline-none focus:ring-2 focus:ring-blue-400 bg-white"
+                              className="border border-blue-300 rounded px-2 py-1 text-xl w-full focus:outline-none focus:ring-2 focus:ring-blue-400 bg-white"
                             />
                           </div>
                           <div className="flex flex-col flex-1">
-                            <label className="text-xs text-gray-600 mb-1">To</label>
+                            <label className="text-sm text-gray-600 mb-1">To</label>
                             <input
                               type="time"
                               value={day.closingHoursTo || ""}
                               onChange={(e) => updateClosingHours(origIndex, 'closingHoursTo', e.target.value)}
-                              className="border border-blue-300 rounded px-2 py-1 text-sm w-full focus:outline-none focus:ring-2 focus:ring-blue-400 bg-white"
+                              className="border border-blue-300 rounded px-2 py-1 text-xl w-full focus:outline-none focus:ring-2 focus:ring-blue-400 bg-white"
                             />
                           </div>
                         </div>
@@ -362,7 +362,7 @@ const CalendarComponent = () => {
                           value={day.notes}
                           onChange={(e) => updateNotes(origIndex, e.target.value)}
                           placeholder="Enter text here"
-                          className="border border-blue-300 rounded px-3 py-2 text-sm w-full focus:outline-none focus:ring-2 focus:ring-blue-400 bg-white"
+                          className="border border-blue-300 rounded px-3 py-2 text-2xl w-full focus:outline-none focus:ring-2 focus:ring-blue-400 bg-white"
                         />
                       </td>
                     </tr>

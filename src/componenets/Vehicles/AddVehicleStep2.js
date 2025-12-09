@@ -18,6 +18,7 @@ const AddVehicleStep2 = () => {
     numberPlate: '',
     status: 'active',
     loadLimitPercent: 80,
+    packageLimitPercent: 80,
     
     // Optional fields
     fuelType: 'Diesel',
@@ -113,6 +114,9 @@ const AddVehicleStep2 = () => {
       formDataToSend.append('numberPlate', formData.numberPlate);
       formDataToSend.append('status', formData.status);
       formDataToSend.append('loadLimitPercent', formData.loadLimitPercent);
+      if (template.vehicleType === 'scooter') {
+        formDataToSend.append('packageLimitPercent', formData.packageLimitPercent);
+      }
       
       // Add optional fields
       if (formData.fuelType) formDataToSend.append('fuelType', formData.fuelType);
@@ -273,6 +277,7 @@ const AddVehicleStep2 = () => {
                     value={formData.name}
                     onChange={handleChange}
                     required
+                    autoComplete="off"
                     className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
                     placeholder="e.g., Truck #1"
                   />
@@ -296,12 +301,13 @@ const AddVehicleStep2 = () => {
 
                 <div>
                   <label className="block text-sm font-medium text-gray-700 mb-2">
-                    Status
+                    Status <span className="text-red-500">*</span>
                   </label>
                   <select
                     name="status"
                     value={formData.status}
                     onChange={handleChange}
+                    required
                     className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
                   >
                     <option value="active">Active</option>
@@ -315,7 +321,7 @@ const AddVehicleStep2 = () => {
             {/* Load Limit */}
             <div>
               <label className="block text-sm font-medium text-gray-700 mb-2">
-                Weight Load limit percentage (kg) : : {formData.loadLimitPercent}%
+                Weight Load limit percentage (kg) <span className="text-red-500">*</span> : {formData.loadLimitPercent}%
               </label>
               <input
                 type="range"
@@ -324,23 +330,40 @@ const AddVehicleStep2 = () => {
                 max="100"
                 value={formData.loadLimitPercent}
                 onChange={handleChange}
+                required
                 className="w-full"
               />
               <p className="text-sm text-gray-500 mt-1">Recommended: 80% for safety</p>
+              
+              {/* Recommended Weight Max Display */}
+              {template.weightMaxKg && formData.loadLimitPercent && (
+                <div className="mt-4 p-4 bg-green-50 border border-green-200 rounded-lg">
+                  <div className="flex items-center justify-between">
+                    <span className="text-sm font-medium text-gray-700">Recommended Weight Max:</span>
+                    <span className="text-lg font-bold text-green-600">
+                      {Math.round((template.weightMaxKg * formData.loadLimitPercent) / 100)} kg
+                    </span>
+                  </div>
+                  <p className="text-xs text-gray-500 mt-1">
+                    Based on {formData.loadLimitPercent}% of {template.weightMaxKg} kg maximum capacity
+                  </p>
+                </div>
+              )}
             </div>
 
             {/* Vehicle Details */}
             <div className="border-t pt-6">
-              <h3 className="text-lg font-semibold mb-4">Vehicle Details (Optional)</h3>
+              <h3 className="text-lg font-semibold mb-4">Vehicle Details</h3>
               <div className="grid grid-cols-2 gap-4">
                 <div>
                   <label className="block text-sm font-medium text-gray-700 mb-2">
-                    Fuel Type
+                    Fuel Type <span className="text-red-500">*</span>
                   </label>
                   <select
                     name="fuelType"
                     value={formData.fuelType}
                     onChange={handleChange}
+                    required
                     className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
                   >
                     <option value="Diesel">Diesel</option>
@@ -352,12 +375,13 @@ const AddVehicleStep2 = () => {
 
                 <div>
                   <label className="block text-sm font-medium text-gray-700 mb-2">
-                    Transmission
+                    Transmission <span className="text-red-500">*</span>
                   </label>
                   <select
                     name="transmission"
                     value={formData.transmission}
                     onChange={handleChange}
+                    required
                     className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
                   >
                     <option value="Manual">Manual</option>
@@ -367,7 +391,7 @@ const AddVehicleStep2 = () => {
 
                 <div>
                   <label className="block text-sm font-medium text-gray-700 mb-2">
-                    Year Model
+                    Year Model <span className="text-red-500">*</span>
                   </label>
                   <input
                     type="number"
@@ -375,6 +399,7 @@ const AddVehicleStep2 = () => {
                     value={formData.yearModel}
                     onChange={handleChange}
                     autoComplete="off"
+                    required
                     className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
                     placeholder="2023"
                   />
@@ -382,7 +407,7 @@ const AddVehicleStep2 = () => {
 
                 <div>
                   <label className="block text-sm font-medium text-gray-700 mb-2">
-                    Engine size (cc)
+                    Engine size (cc) <span className="text-red-500">*</span>
                   </label>
                   <input
                     type="number"
@@ -390,6 +415,7 @@ const AddVehicleStep2 = () => {
                     value={formData.engineSizeCc}
                     onChange={handleChange}
                     autoComplete="off"
+                    required
                     className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
                     placeholder="2500"
                   />
@@ -397,7 +423,7 @@ const AddVehicleStep2 = () => {
 
                 <div>
                   <label className="block text-sm font-medium text-gray-700 mb-2">
-                    Odometer (km)
+                    Odometer (km) <span className="text-red-500">*</span>
                   </label>
                   <input
                     type="number"
@@ -405,6 +431,7 @@ const AddVehicleStep2 = () => {
                     value={formData.odometerKm}
                     onChange={handleChange}
                     autoComplete="off"
+                    required
                     className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
                     placeholder="0"
                   />
@@ -412,33 +439,35 @@ const AddVehicleStep2 = () => {
 
                 <div>
                   <label className="block text-sm font-medium text-gray-700 mb-2">
-                    Service due date
+                    Service due date <span className="text-red-500">*</span>
                   </label>
                   <input
                     type="date"
                     name="serviceDueDate"
                     value={formData.serviceDueDate}
                     onChange={handleChange}
+                    required
                     className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
                   />
                 </div>
 
                 <div>
                   <label className="block text-sm font-medium text-gray-700 mb-2">
-                    Insurance expiry date
+                    Insurance expiry date <span className="text-red-500">*</span>
                   </label>
                   <input
                     type="date"
                     name="insuranceExpiryDate"
                     value={formData.insuranceExpiryDate}
                     onChange={handleChange}
+                    required
                     className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
                   />
                 </div>
 
                 <div>
                   <label className="block text-sm font-medium text-gray-700 mb-2">
-                    Chassis number
+                    Chassis number <span className="text-red-500">*</span>
                   </label>
                   <input
                     type="text"
@@ -446,12 +475,49 @@ const AddVehicleStep2 = () => {
                     value={formData.chassisNumber}
                     onChange={handleChange}
                     autoComplete="off"
+                    required
                     className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
                     placeholder="1234567890ABCDEGH"
                   />
                 </div>
               </div>
             </div>
+
+            {/* Package Limit for Scooter */}
+            {template.vehicleType === 'scooter' && template.maxPackages && (
+              <div className="border-t pt-6">
+                <h3 className="text-lg font-semibold mb-4">Package Limit</h3>
+                <div>
+                  <label className="block text-sm font-medium text-gray-700 mb-2">
+                    Package Limit % <span className="text-red-500">*</span> : {formData.packageLimitPercent}%
+                  </label>
+                  <input
+                    type="range"
+                    name="packageLimitPercent"
+                    min="0"
+                    max="100"
+                    value={formData.packageLimitPercent}
+                    onChange={handleChange}
+                    required
+                    className="w-full"
+                  />
+                  <p className="text-sm text-gray-500 mt-1">Recommended: 80% for safety</p>
+                  
+                  {/* Recommended Max Packages Display */}
+                  <div className="mt-4 p-4 bg-purple-50 border border-purple-200 rounded-lg">
+                    <div className="flex items-center justify-between">
+                      <span className="text-sm font-medium text-gray-700">Recommended Max Packages:</span>
+                      <span className="text-lg font-bold text-purple-600">
+                        {Math.round((template.maxPackages * formData.packageLimitPercent) / 100)}
+                      </span>
+                    </div>
+                    <p className="text-xs text-gray-500 mt-1">
+                      Based on {formData.packageLimitPercent}% of {template.maxPackages} maximum packages
+                    </p>
+                  </div>
+                </div>
+              </div>
+            )}
 
             {/* Upload Documents */}
             <div className="border-t pt-6">
@@ -460,7 +526,7 @@ const AddVehicleStep2 = () => {
                 {['stnkPhoto', 'bpkbPhoto', 'stnkIconPhoto', 'codecPhoto'].map((imageType) => (
                   <div key={imageType}>
                     <label className="block text-sm font-medium text-gray-700 mb-2 capitalize">
-                      {imageType.replace(/([A-Z])/g, ' $1').replace('Photo', ' photo').trim()}
+                      {imageType.replace(/([A-Z])/g, ' $1').replace('Photo', ' photo').trim()} <span className="text-red-500">*</span>
                     </label>
                     <div className="border-2 border-dashed border-gray-300 rounded-lg p-4 text-center hover:border-blue-400 transition-colors">
                       <input
@@ -468,6 +534,7 @@ const AddVehicleStep2 = () => {
                         name={imageType}
                         onChange={handleImageChange}
                         accept="image/*"
+                        required
                         className="hidden"
                         id={imageType}
                       />

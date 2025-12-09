@@ -201,6 +201,17 @@ const ViewVehicle = () => {
 </span>
                 <span className="text-gray-900">{vehicle.loadLimitPercent}%</span>
               </div>
+              {vehicle.weightMaxKg && vehicle.loadLimitPercent && (
+                <div className="py-2 border-b bg-green-50">
+                  <div className="flex justify-between">
+                    <span className="text-gray-700 font-semibold">Recommended Weight Max:</span>
+                    <span className="text-green-600 font-bold">{Math.round((vehicle.weightMaxKg * vehicle.loadLimitPercent) / 100)} kg</span>
+                  </div>
+                  <div className="flex justify-end text-xs text-gray-500 mt-1">
+                    ({vehicle.loadLimitPercent}% of {vehicle.weightMaxKg} kg)
+                  </div>
+                </div>
+              )}
               {vehicle.vehicleType === 'truck' && vehicle.dimensions && (
                 <>
                   <div className="flex justify-between py-2 border-b">
@@ -221,7 +232,7 @@ const ViewVehicle = () => {
                         <span className="text-gray-700 font-semibold">Total Volume:</span>
                         <span className="text-blue-600 font-bold">{vehicle.totalDimensionsCubicCm.toLocaleString()} cm³</span>
                       </div>
-                      <div className="flex justify-end text-gray-500">
+                      <div className="flex justify-end text-xl font-bold text-blue-700 mt-1">
                         ({(vehicle.totalDimensionsCubicCm / 1000000).toFixed(2)} m³)
                       </div>
                     </div>
@@ -234,6 +245,23 @@ const ViewVehicle = () => {
                     <div className="flex justify-between py-2 border-b">
                       <span className="text-gray-600 font-medium">Max Packages:</span>
                       <span className="text-gray-900">{vehicle.maxPackages}</span>
+                    </div>
+                  )}
+                  {vehicle.packageLimitPercent && (
+                    <div className="flex justify-between py-2 border-b">
+                      <span className="text-gray-600 font-medium">Package Limit Percentage:</span>
+                      <span className="text-gray-900">{vehicle.packageLimitPercent}%</span>
+                    </div>
+                  )}
+                  {vehicle.maxPackages && vehicle.packageLimitPercent && (
+                    <div className="py-2 border-b bg-purple-50">
+                      <div className="flex justify-between">
+                        <span className="text-gray-700 font-semibold">Recommended Max Packages:</span>
+                        <span className="text-purple-600 font-bold">{Math.round((vehicle.maxPackages * vehicle.packageLimitPercent) / 100)}</span>
+                      </div>
+                      <div className="flex justify-end text-xs text-gray-500 mt-1">
+                        ({vehicle.packageLimitPercent}% of {vehicle.maxPackages} packages)
+                      </div>
                     </div>
                   )}
                 </>
