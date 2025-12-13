@@ -969,26 +969,12 @@ const AddEmployee = ({ employeeId }) => {
                               permissions: [...permissions, component.id],
                             });
                           } else {
-                            // Remove the permission
+                            // Remove only this permission
                             const newPermissions = permissions.filter((id) => id !== component.id);
-                            
-                            // Check if this permission belongs to any selected role
-                            const rolesToDeselect = availableRoles
-                              .filter((role) => 
-                                formData.roles.includes(role._id) && 
-                                role.permissions?.includes(component.id)
-                              )
-                              .map((role) => role._id);
-                            
-                            // Remove those roles
-                            const newRoles = formData.roles.filter(
-                              (roleId) => !rolesToDeselect.includes(roleId)
-                            );
                             
                             setFormData({
                               ...formData,
                               permissions: newPermissions,
-                              roles: newRoles,
                             });
                           }
                         }}
