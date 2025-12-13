@@ -15,13 +15,12 @@ const AddEmployee = ({ employeeId }) => {
     emergencyContact: "",
     homeLocation: "",
     addedOn: new Date().toISOString().slice(0, 10),
-    employeeCategory: "",
     roles: [],
   });
 
   // Separate state for contacts
   const [contacts, setContacts] = useState([
-    { name: "", relation: "", phoneNumber: "" },
+    { name: "", relation: "", phoneNumber: "", note: "", employeeId: "" },
   ]);
 
   const [profilePicture, setProfilePicture] = useState(null);
@@ -29,8 +28,11 @@ const AddEmployee = ({ employeeId }) => {
   const [idCardBack, setIdCardBack] = useState(null);
   const [passportFront, setPassportFront] = useState(null);
   const [passportBack, setPassportBack] = useState(null);
+  const [contractPdf, setContractPdf] = useState(null);
   const [otherDoc1, setOtherDoc1] = useState(null);
   const [otherDoc2, setOtherDoc2] = useState(null);
+  const [otherDoc3, setOtherDoc3] = useState(null);
+  const [otherDoc4, setOtherDoc4] = useState(null);
   const [isSidebarOpen, setIsSidebarOpen] = useState(true);
   const [validationError, setValidationError] = useState("");
 
@@ -40,13 +42,18 @@ const AddEmployee = ({ employeeId }) => {
     idCardBack: null,
     passportFront: null,
     passportBack: null,
+    contractPdf: null,
     otherDoc1: null,
     otherDoc2: null,
+    otherDoc3: null,
+    otherDoc4: null,
   });
 
   const [isActivated, setIsActivated] = useState(true);
   const [isBlocked, setIsBlocked] = useState(false);
   const [showSuccessMessage, setShowSuccessMessage] = useState(false);
+  const [availableRoles, setAvailableRoles] = useState([]);
+  const [loadingRoles, setLoadingRoles] = useState(false);
   const [successModal, setSuccessModal] = useState({
     isOpen: false,
     message: "",
@@ -75,19 +82,119 @@ const AddEmployee = ({ employeeId }) => {
   const idCardBackRef = useRef(null);
   const passportFrontRef = useRef(null);
   const passportBackRef = useRef(null);
+  const contractPdfRef = useRef(null);
   const otherDoc1Ref = useRef(null);
   const otherDoc2Ref = useRef(null);
+  const otherDoc3Ref = useRef(null);
+  const otherDoc4Ref = useRef(null);
 
-  // Available roles - MUST match Employee schema enum values
-  const availableRoles = [
-    { id: "packing-staff", name: "Packing Staff" },
-    { id: "storage-officer", name: "Storage Officer" },
-    { id: "dispatch-officer-1", name: "Dispatch Officer 1" },
-    { id: "dispatch-officer-2", name: "Dispatch Officer 2" },
-    { id: "driver", name: "Driver" },
-    { id: "driver-on-delivery", name: "Driver on Delivery" },
-    { id: "complaint-manager", name: "Complaint Manager" },
+  // Component mapping for permissions - matching sidebar names
+  const allComponents = [
+    { id: 1, name: "Orders to cart not ordered yet ( everyone )" },
+    { id: 2, name: "Transaction control... paid / or not ( articial emp finance )" },
+    { id: 3, name: "All Orders ( emp office ) ( everyone allows )" },
+    { id: 4, name: "Order management delivery ( driver and emp on filing delivery )" },
+    { id: 6, name: "Non-delivered orders or issues ( office...complain office )" },
+    { id: 7, name: "Refund / complain ( office...complain office )" },
+    { id: 8, name: "History orders same # 3" },
+    { id: 9, name: "Delivery system" },
+    { id: 10, name: "Videos Management" },
+    { id: 11, name: "Add a new vehicle" },
+    { id: 12, name: "View vehicles" },
+    { id: 15, name: "Vendor Dashboard" },
+    { id: 16, name: "Vendor outsource Dashboard" },
+    { id: 28, name: "Product list everyone ( View can only check )" },
+    { id: 33, name: "Inventory check ( just controlling staff to double check and corret )" },
+    { id: 35, name: "Out of Stock...order stock" },
+    { id: 36, name: "Sales data for products" },
+    { id: 37, name: "Lost Stock Management" },
+    { id: 61, name: "Create a new product (articial emp)" },
+    { id: 54, name: "Fill inventory (articial emp)" },
+    { id: 55, name: "Inventory control (articial emp)" },
+    { id: 56, name: "Categories" },
+    { id: 71, name: "Create discount (articial emp)" },
+    { id: 72, name: "All Discount list, everyone )" },
+    { id: 73, name: "Discounted product inventory" },
+    { id: 74, name: "Discount policies action (articial emp)" },
+    { id: 81, name: "Suppliers (articial emp)" },
+    { id: 82, name: "employees (articial emp)" },
+    { id: 83, name: "Customers ( articial emp )" },
+    { id: 90, name: "History orders supplier (Admin office)" },
+    { id: 101, name: "Finances (articial emp)" },
+    { id: 105, name: "ANALYTICS" },
+    { id: 100, name: "Admin" },
+    { id: 102, name: "Truck Drivers" },
+    { id: 106, name: "Products" },
+    { id: 107, name: "Delivery Areas" },
+    { id: 108, name: "Delivery Types" },
+    { id: 109, name: "Employee Permission" },
+    { id: 110, name: "Employee Roles" },
+    { id: 150, name: "Referrals video verification" },
+    { id: 151, name: "Referrals data" },
+    { id: 155, name: "Referrals foreman income" },
+    { id: 159, name: "Referral demo video" },
+    { id: 160, name: "Introduction videos Management" },
   ];
+
+  // Fetch available roles from API
+  useEffect(() => {
+    const fetchRoles = async () => {
+      try {
+        setLoadingRoles(true);
+        
+        // Default system roles
+        const defaultRoles = [
+          { _id: "packing-staff", name: "Packing Staff", isSystem: true, permissions: [] },
+          { _id: "storage-officer", name: "Storage Officer", isSystem: true, permissions: [] },
+          { _id: "dispatch-officer-1", name: "Dispatch Officer 1", isSystem: true, permissions: [] },
+          { _id: "dispatch-officer-2", name: "Dispatch Officer 2", isSystem: true, permissions: [] },
+          { _id: "driver", name: "Driver", isSystem: true, permissions: [] },
+          { _id: "driver-on-delivery", name: "Driver on Delivery", isSystem: true, permissions: [] },
+          { _id: "complaint-manager", name: "Complaint Manager", isSystem: true, permissions: [] },
+        ];
+        
+        const response = await axios.get(`${API_BASE_URL}/employee-roles`);
+        const customRoles = response.data.roles || [];
+        
+        // Combine default roles with custom roles from database
+        setAvailableRoles([...defaultRoles, ...customRoles]);
+        console.log('Fetched roles:', [...defaultRoles, ...customRoles]);
+      } catch (error) {
+        console.error("Error fetching roles:", error);
+        setAvailableRoles([]);
+      } finally {
+        setLoadingRoles(false);
+      }
+    };
+    fetchRoles();
+  }, []);
+
+  // Auto-select all permissions when roles change
+  useEffect(() => {
+    if (formData.roles.length > 0 && availableRoles.length > 0) {
+      const rolePermissions = availableRoles
+        .filter((role) => formData.roles.includes(role._id))
+        .flatMap((role) => role.permissions || []);
+      const uniquePermissions = [...new Set(rolePermissions)];
+      
+      // Only update if permissions have changed to avoid infinite loop
+      const currentPerms = formData.permissions || [];
+      if (JSON.stringify(currentPerms.sort()) !== JSON.stringify(uniquePermissions.sort())) {
+        setFormData((prev) => ({
+          ...prev,
+          permissions: uniquePermissions,
+        }));
+      }
+    } else if (formData.roles.length === 0) {
+      // Clear permissions if no roles selected
+      if (formData.permissions && formData.permissions.length > 0) {
+        setFormData((prev) => ({
+          ...prev,
+          permissions: [],
+        }));
+      }
+    }
+  }, [formData.roles, availableRoles]);
 
   // Relation options
   const relationOptions = [
@@ -161,8 +268,11 @@ const AddEmployee = ({ employeeId }) => {
       setPreviewIfExists("idCardBack", employeeData.idCardBack);
       setPreviewIfExists("passportFront", employeeData.passportFront);
       setPreviewIfExists("passportBack", employeeData.passportBack);
+      setPreviewIfExists("contractPdf", employeeData.contractPdf);
       setPreviewIfExists("otherDoc1", employeeData.otherDoc1);
       setPreviewIfExists("otherDoc2", employeeData.otherDoc2);
+      setPreviewIfExists("otherDoc3", employeeData.otherDoc3);
+      setPreviewIfExists("otherDoc4", employeeData.otherDoc4);
 
       setPreviewUrls(updatedPreviewUrls);
     } catch (error) {
@@ -186,7 +296,7 @@ const AddEmployee = ({ employeeId }) => {
   };
 
   const addContact = () => {
-    setContacts([...contacts, { name: "", relation: "", phoneNumber: "" }]);
+    setContacts([...contacts, { name: "", relation: "", phoneNumber: "", note: "", employeeId: "" }]);
   };
 
   const removeContact = (index) => {
@@ -198,12 +308,22 @@ const AddEmployee = ({ employeeId }) => {
 
   const handleRoleToggle = (roleId) => {
     setFormData((prevData) => {
-      if (prevData.roles.includes(roleId)) {
+      const isRoleSelected = prevData.roles.includes(roleId);
+      
+      if (isRoleSelected) {
+        // Unchecking role - remove its permissions
+        const role = availableRoles.find((r) => r._id === roleId);
+        const rolePermissions = role?.permissions || [];
+        
         return {
           ...prevData,
           roles: prevData.roles.filter((id) => id !== roleId),
+          permissions: (prevData.permissions || []).filter(
+            (permId) => !rolePermissions.includes(permId)
+          ),
         };
       } else {
+        // Checking role - permissions will be added by useEffect
         return {
           ...prevData,
           roles: [...prevData.roles, roleId],
@@ -315,9 +435,23 @@ const AddEmployee = ({ employeeId }) => {
     submitData.append("addedOn", formData.addedOn);
     submitData.append("employeeCategory", formData.employeeCategory);
     submitData.append("roles", JSON.stringify(formData.roles));
+    
+    // Log contacts before sending
+    console.log("Contacts being sent:", contacts);
     submitData.append("contacts", JSON.stringify(contacts));
+    
     submitData.append("isActivated", isActivated);
     submitData.append("isBlocked", isBlocked);
+
+    // Validate Contract PDF is uploaded (mandatory)
+    if (!contractPdf && !previewUrls.contractPdf) {
+      setValidationError("Contract PDF is required");
+      window.scrollTo({
+        top: document.querySelector(".id-docs-section").offsetTop - 100,
+        behavior: "smooth",
+      });
+      return;
+    }
 
     // Append files if they exist
     if (profilePicture) submitData.append("profilePicture", profilePicture);
@@ -325,8 +459,11 @@ const AddEmployee = ({ employeeId }) => {
     if (idCardBack) submitData.append("idCardBack", idCardBack);
     if (passportFront) submitData.append("passportFront", passportFront);
     if (passportBack) submitData.append("passportBack", passportBack);
+    if (contractPdf) submitData.append("contractPdf", contractPdf);
     if (otherDoc1) submitData.append("otherDoc1", otherDoc1);
     if (otherDoc2) submitData.append("otherDoc2", otherDoc2);
+    if (otherDoc3) submitData.append("otherDoc3", otherDoc3);
+    if (otherDoc4) submitData.append("otherDoc4", otherDoc4);
 
     try {
       let response;
@@ -482,7 +619,7 @@ const AddEmployee = ({ employeeId }) => {
             {isEditMode ? "EDIT EMPLOYEE DETAILS" : "ADD EMPLOYEE DETAILS"}
           </h1>
 
-          <form onSubmit={handleSubmit}>
+          <form onSubmit={handleSubmit} autoComplete="off">
             <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
               <div className="col-span-1">
                 <div className="mb-6">
@@ -510,6 +647,7 @@ const AddEmployee = ({ employeeId }) => {
                     value={formData.email}
                     onChange={handleInputChange}
                     className="w-full p-2 border border-gray-300 rounded"
+                    autoComplete="new-email"
                     required
                   />
                 </div>
@@ -524,6 +662,7 @@ const AddEmployee = ({ employeeId }) => {
                     value={formData.address}
                     onChange={handleInputChange}
                     className="w-full p-2 border border-gray-300 rounded"
+                    autoComplete="new-address"
                     required
                   />
                 </div>
@@ -538,6 +677,7 @@ const AddEmployee = ({ employeeId }) => {
                     value={formData.homeLocation}
                     onChange={handleInputChange}
                     className="w-full p-2 border border-gray-300 rounded"
+                    autoComplete="off"
                     required
                   />
                 </div>
@@ -554,6 +694,7 @@ const AddEmployee = ({ employeeId }) => {
                     value={formData.name}
                     onChange={handleInputChange}
                     className="w-full p-2 border border-gray-300 rounded"
+                    autoComplete="new-name"
                     required
                   />
                 </div>
@@ -568,6 +709,7 @@ const AddEmployee = ({ employeeId }) => {
                     value={formData.phone}
                     onChange={handleInputChange}
                     className="w-full p-2 border border-gray-300 rounded"
+                    autoComplete="new-phone"
                     required
                   />
                 </div>
@@ -583,6 +725,7 @@ const AddEmployee = ({ employeeId }) => {
                     value={formData.emergencyContact}
                     onChange={handleInputChange}
                     className="w-full p-2 border border-gray-300 rounded"
+                    autoComplete="off"
                     required
                   />
                 </div>
@@ -643,64 +786,103 @@ const AddEmployee = ({ employeeId }) => {
               {contacts.map((contact, index) => (
                 <div
                   key={index}
-                  className="flex flex-wrap md:flex-nowrap gap-4 mb-4 pb-4 border-b border-gray-100 relative"
+                  className="mb-4 pb-4 border-b border-gray-100 relative"
                 >
-                  <div className="w-full md:w-1/3">
-                    <label className="block text-sm font-medium text-gray-700 mb-1">
-                      Name <span className="text-red-500">*</span>
-                    </label>
-                    <input
-                      type="text"
-                      value={contact.name}
-                      onChange={(e) =>
-                        handleContactChange(index, "name", e.target.value)
-                      }
-                      className="w-full p-2 border border-gray-300 rounded"
-                      required
-                    />
-                  </div>
-
-                  <div className="w-full md:w-1/3">
-                    <label className="block text-sm font-medium text-gray-700 mb-1">
-                      Relation <span className="text-red-500">*</span>
-                    </label>
-                    <div className="relative">
-                      <select
-                        value={contact.relation}
+                  <div className="flex flex-wrap gap-4 mb-4">
+                    <div className="w-full md:w-[calc(25%-12px)]">
+                      <label className="block text-sm font-medium text-gray-700 mb-1">
+                        Name <span className="text-red-500">*</span>
+                      </label>
+                      <input
+                        type="text"
+                        value={contact.name}
                         onChange={(e) =>
-                          handleContactChange(index, "relation", e.target.value)
+                          handleContactChange(index, "name", e.target.value)
                         }
-                        className="appearance-none w-full p-2 border border-gray-300 rounded pr-8"
+                        className="w-full p-2 border border-gray-300 rounded"
+                        autoComplete="off"
                         required
-                      >
-                        <option value="">Select relation</option>
-                        {relationOptions.map((option) => (
-                          <option key={option} value={option}>
-                            {option}
-                          </option>
-                        ))}
-                      </select>
-                      <div className="pointer-events-none absolute inset-y-0 right-0 flex items-center px-2 text-gray-700">
-                        <ChevronDown size={16} />
+                      />
+                    </div>
+
+                    <div className="w-full md:w-[calc(25%-12px)]">
+                      <label className="block text-sm font-medium text-gray-700 mb-1">
+                        Relation <span className="text-red-500">*</span>
+                      </label>
+                      <div className="relative">
+                        <select
+                          value={contact.relation}
+                          onChange={(e) =>
+                            handleContactChange(index, "relation", e.target.value)
+                          }
+                          className="appearance-none w-full p-2 border border-gray-300 rounded pr-8"
+                          required
+                        >
+                          <option value="">Select relation</option>
+                          {relationOptions.map((option) => (
+                            <option key={option} value={option}>
+                              {option}
+                            </option>
+                          ))}
+                        </select>
+                        <div className="pointer-events-none absolute inset-y-0 right-0 flex items-center px-2 text-gray-700">
+                          <ChevronDown size={16} />
+                        </div>
                       </div>
+                    </div>
+
+                    <div className="w-full md:w-[calc(25%-12px)]">
+                      <label className="block text-sm font-medium text-gray-700 mb-1">
+                        Phone Number <span className="text-red-500">*</span>
+                      </label>
+                      <input
+                        type="tel"
+                        value={contact.phoneNumber}
+                        onChange={(e) =>
+                          handleContactChange(
+                            index,
+                            "phoneNumber",
+                            e.target.value
+                          )
+                        }
+                        className="w-full p-2 border border-gray-300 rounded"
+                        autoComplete="off"
+                        required
+                      />
+                    </div>
+
+                    <div className="w-full md:w-[calc(25%-12px)]">
+                      <label className="block text-sm font-medium text-gray-700 mb-1">
+                        Employee ID (Optional)
+                      </label>
+                      <input
+                        type="text"
+                        value={contact.employeeId || ""}
+                        onChange={(e) =>
+                          handleContactChange(
+                            index,
+                            "employeeId",
+                            e.target.value
+                          )
+                        }
+                        className="w-full p-2 border border-gray-300 rounded"
+                        autoComplete="off"
+                      />
                     </div>
                   </div>
 
-                  <div className="w-full md:w-1/3">
+                  <div className="w-full">
                     <label className="block text-sm font-medium text-gray-700 mb-1">
-                      Phone Number <span className="text-red-500">*</span>
+                      Note <span className="text-red-500">*</span>
                     </label>
-                    <input
-                      type="tel"
-                      value={contact.phoneNumber}
+                    <textarea
+                      value={contact.note || ""}
                       onChange={(e) =>
-                        handleContactChange(
-                          index,
-                          "phoneNumber",
-                          e.target.value
-                        )
+                        handleContactChange(index, "note", e.target.value)
                       }
                       className="w-full p-2 border border-gray-300 rounded"
+                      autoComplete="off"
+                      rows="2"
                       required
                     />
                   </div>
@@ -721,43 +903,104 @@ const AddEmployee = ({ employeeId }) => {
 
             <div className="border-t border-b py-6 my-6">
               <label className="block text-sm font-medium text-gray-700 mb-3">
-                Employee Roles
+                Employee Roles (Select multiple)
               </label>
-              <div className="flex flex-wrap gap-2">
-                {availableRoles.map((role) => (
-                  <div
-                    key={role.id}
-                    onClick={() => handleRoleToggle(role.id)}
-                    className={`px-3 py-1 rounded text-sm cursor-pointer ${
-                      formData.roles.includes(role.id)
-                        ? "bg-blue-600 text-white"
-                        : "bg-gray-200 text-gray-700 hover:bg-gray-300"
-                    }`}
-                  >
-                    {role.name}
+              {loadingRoles ? (
+                <div className="text-sm text-gray-500">Loading roles...</div>
+              ) : (
+                <div className="space-y-4">
+                  <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-3">
+                    {availableRoles.map((role) => (
+                      <div key={role._id}>
+                        <label className="flex items-center space-x-2 p-3 border border-gray-300 rounded-lg cursor-pointer hover:bg-gray-50 transition">
+                          <input
+                            type="checkbox"
+                            checked={formData.roles.includes(role._id)}
+                            onChange={() => handleRoleToggle(role._id)}
+                            className="w-4 h-4 text-blue-600 rounded focus:ring-2 focus:ring-blue-500"
+                          />
+                          <span className="text-sm font-medium text-gray-700">
+                            {role.name}
+                          </span>
+                        </label>
+                      </div>
+                    ))}
                   </div>
-                ))}
-              </div>
+                </div>
+              )}
             </div>
 
-            <div className="mb-6">
-              <label className="block text-sm font-medium text-gray-700 mb-1">
-                Employee Category <span className="text-red-500">*</span>
+            {/* Individual Permissions Section */}
+            <div className="border-t border-b py-6 my-6">
+              <label className="block text-sm font-medium text-gray-700 mb-3">
+                Individual Permissions
               </label>
-              <select
-                name="employeeCategory"
-                value={formData.employeeCategory}
-                onChange={handleInputChange}
-                className="w-full p-2 border border-gray-300 rounded"
-                required
-              >
-                <option value="">Select Category</option>
-                <option value="Driver">Driver</option>
-                <option value="Order Manager">Order Manager</option>
-                <option value="Packing">Packing</option>
-                <option value="Storage">Storage</option>
-                <option value="Dispatch">Dispatch</option>
-              </select>
+              <p className="text-xs text-gray-500 mb-4">
+                Permissions from selected roles are automatically checked. Unchecking a role's permission will deselect that role.
+              </p>
+              <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-2">
+                {allComponents.map((component) => {
+                  // Check which roles have this permission
+                  const rolesWithThisPermission = availableRoles
+                    .filter((role) => 
+                      formData.roles.includes(role._id) && 
+                      role.permissions?.includes(component.id)
+                    );
+                  
+                  const isFromSelectedRole = rolesWithThisPermission.length > 0;
+                  
+                  return (
+                    <label
+                      key={component.id}
+                      className={`flex items-center space-x-2 p-2 border rounded cursor-pointer transition ${
+                        isFromSelectedRole 
+                          ? 'border-blue-300 bg-blue-50' 
+                          : 'border-gray-200 hover:bg-gray-50'
+                      }`}
+                    >
+                      <input
+                        type="checkbox"
+                        checked={formData.permissions?.includes(component.id)}
+                        onChange={(e) => {
+                          const permissions = formData.permissions || [];
+                          if (e.target.checked) {
+                            setFormData({
+                              ...formData,
+                              permissions: [...permissions, component.id],
+                            });
+                          } else {
+                            // Remove the permission
+                            const newPermissions = permissions.filter((id) => id !== component.id);
+                            
+                            // Check if this permission belongs to any selected role
+                            const rolesToDeselect = availableRoles
+                              .filter((role) => 
+                                formData.roles.includes(role._id) && 
+                                role.permissions?.includes(component.id)
+                              )
+                              .map((role) => role._id);
+                            
+                            // Remove those roles
+                            const newRoles = formData.roles.filter(
+                              (roleId) => !rolesToDeselect.includes(roleId)
+                            );
+                            
+                            setFormData({
+                              ...formData,
+                              permissions: newPermissions,
+                              roles: newRoles,
+                            });
+                          }
+                        }}
+                        className="w-3 h-3 text-blue-600 rounded focus:ring-2 focus:ring-blue-500"
+                      />
+                      <span className="text-xs text-gray-700">
+                        {component.name}
+                      </span>
+                    </label>
+                  );
+                })}
+              </div>
             </div>
 
             <div className="mb-6">
@@ -770,6 +1013,7 @@ const AddEmployee = ({ employeeId }) => {
                 value={formData.addedOn}
                 onChange={handleInputChange}
                 className="w-full p-2 border border-gray-300 rounded"
+                autoComplete="off"
               />
             </div>
 
@@ -969,6 +1213,96 @@ const AddEmployee = ({ employeeId }) => {
                 one form of identification (either ID card or passport)
               </p>
 
+              {/* Contract PDF Section - Mandatory */}
+              <div className="mt-6 bg-blue-50 border-l-4 border-blue-500 p-4 rounded">
+                <label className="block text-sm font-medium text-gray-700 mb-2">
+                  Contract PDF <span className="text-red-500">*</span>
+                </label>
+                <p className="text-xs text-gray-600 mb-3">
+                  Upload the employee contract document (PDF only, required)
+                </p>
+                <div
+                  className={`border-2 border-dashed ${
+                    validationError && !contractPdf && !previewUrls.contractPdf
+                      ? "border-red-400 bg-red-50"
+                      : "border-blue-300 bg-white"
+                  } rounded-lg p-4 flex items-center justify-center cursor-pointer hover:bg-blue-50 transition-colors`}
+                  onClick={() => triggerFileInput(contractPdfRef)}
+                >
+                  {previewUrls.contractPdf ? (
+                    <div className="flex items-center gap-3">
+                      <div className="text-red-600">
+                        <svg
+                          xmlns="http://www.w3.org/2000/svg"
+                          className="h-10 w-10"
+                          fill="none"
+                          viewBox="0 0 24 24"
+                          stroke="currentColor"
+                        >
+                          <path
+                            strokeLinecap="round"
+                            strokeLinejoin="round"
+                            strokeWidth={2}
+                            d="M7 21h10a2 2 0 002-2V9.414a1 1 0 00-.293-.707l-5.414-5.414A1 1 0 0012.586 3H7a2 2 0 00-2 2v14a2 2 0 002 2z"
+                          />
+                        </svg>
+                      </div>
+                      <div className="flex-1">
+                        <p className="text-sm font-medium text-gray-900">
+                          Contract PDF Uploaded
+                        </p>
+                        <p className="text-xs text-gray-500">
+                          Click to replace
+                        </p>
+                      </div>
+                      <a
+                        href={previewUrls.contractPdf}
+                        target="_blank"
+                        rel="noopener noreferrer"
+                        className="px-3 py-1 bg-blue-600 text-white text-xs rounded hover:bg-blue-700"
+                        onClick={(e) => e.stopPropagation()}
+                      >
+                        View PDF
+                      </a>
+                    </div>
+                  ) : (
+                    <div className="text-center">
+                      <div className="text-blue-600 mb-2">
+                        <svg
+                          xmlns="http://www.w3.org/2000/svg"
+                          className="h-12 w-12 mx-auto"
+                          fill="none"
+                          viewBox="0 0 24 24"
+                          stroke="currentColor"
+                        >
+                          <path
+                            strokeLinecap="round"
+                            strokeLinejoin="round"
+                            strokeWidth={2}
+                            d="M7 16a4 4 0 01-.88-7.903A5 5 0 1115.9 6L16 6a5 5 0 011 9.9M15 13l-3-3m0 0l-3 3m3-3v12"
+                          />
+                        </svg>
+                      </div>
+                      <p className="text-sm font-medium text-gray-700">
+                        Click to upload Contract PDF
+                      </p>
+                      <p className="text-xs text-gray-500 mt-1">
+                        PDF files only (Required)
+                      </p>
+                    </div>
+                  )}
+                  <input
+                    type="file"
+                    ref={contractPdfRef}
+                    onChange={(e) =>
+                      handleFileChange(e, setContractPdf, "contractPdf")
+                    }
+                    className="hidden"
+                    accept=".pdf,application/pdf"
+                  />
+                </div>
+              </div>
+
               <div className="mt-6">
                 <label className="block text-sm font-medium text-gray-700 mb-1">
                   Any other doc
@@ -1022,6 +1356,60 @@ const AddEmployee = ({ employeeId }) => {
                       ref={otherDoc2Ref}
                       onChange={(e) =>
                         handleFileChange(e, setOtherDoc2, "otherDoc2")
+                      }
+                      className="hidden"
+                      accept="image/*,.pdf"
+                    />
+                  </div>
+
+                  <div
+                    className="border border-gray-300 rounded h-32 flex items-center justify-center overflow-hidden relative cursor-pointer"
+                    onClick={() => triggerFileInput(otherDoc3Ref)}
+                  >
+                    {previewUrls.otherDoc3 ? (
+                      <img
+                        src={previewUrls.otherDoc3}
+                        alt="Other Document 3"
+                        className="w-full h-full object-cover"
+                      />
+                    ) : (
+                      <div className="text-center p-4">
+                        <Upload size={24} className="mx-auto text-gray-400" />
+                        <p className="text-xs text-gray-500 mt-1">Upload</p>
+                      </div>
+                    )}
+                    <input
+                      type="file"
+                      ref={otherDoc3Ref}
+                      onChange={(e) =>
+                        handleFileChange(e, setOtherDoc3, "otherDoc3")
+                      }
+                      className="hidden"
+                      accept="image/*,.pdf"
+                    />
+                  </div>
+
+                  <div
+                    className="border border-gray-300 rounded h-32 flex items-center justify-center overflow-hidden relative cursor-pointer"
+                    onClick={() => triggerFileInput(otherDoc4Ref)}
+                  >
+                    {previewUrls.otherDoc4 ? (
+                      <img
+                        src={previewUrls.otherDoc4}
+                        alt="Other Document 4"
+                        className="w-full h-full object-cover"
+                      />
+                    ) : (
+                      <div className="text-center p-4">
+                        <Upload size={24} className="mx-auto text-gray-400" />
+                        <p className="text-xs text-gray-500 mt-1">Upload</p>
+                      </div>
+                    )}
+                    <input
+                      type="file"
+                      ref={otherDoc4Ref}
+                      onChange={(e) =>
+                        handleFileChange(e, setOtherDoc4, "otherDoc4")
                       }
                       className="hidden"
                       accept="image/*,.pdf"

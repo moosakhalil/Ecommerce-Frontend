@@ -48,6 +48,9 @@ import InventoryControlCheckDiscount from "./componenets/Discounts/Inventorycont
 import ReferralProfit from "./componenets/Refferal/referralProfits";
 import ScooterDelivery from "./componenets/Order-management/ScooterDelivery";
 import SalesData from "./componenets/Sales/salesdata";
+import EmployeePermission from "./componenets/Admin/EmployeePermission";
+import EmployeeRoles from "./componenets/Admin/EmployeeRoles";
+import TruckDrivers from "./componenets/Admin/TruckDrivers";
 import ReferralData from "./componenets/Refferal/referaldata";
 import CalendarComponent from "./componenets/Settings/Calendar";
 import CustomerPage from "./componenets/Customers/viewCustomers";
@@ -258,6 +261,30 @@ function App() {
           element={
             <>
               <DeliveryManagementDashboard />
+            </>
+          }
+        />
+        <Route
+          path="/admin/employee-permission"
+          element={
+            <>
+              <EmployeePermission />
+            </>
+          }
+        />
+        <Route
+          path="/admin/employee-roles"
+          element={
+            <>
+              <EmployeeRoles />
+            </>
+          }
+        />
+        <Route
+          path="/admin/drivers"
+          element={
+            <>
+              <TruckDrivers />
             </>
           }
         />

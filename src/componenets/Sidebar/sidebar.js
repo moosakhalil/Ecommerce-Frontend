@@ -21,6 +21,7 @@ const Percent = () => <span>%</span>;
 const Users = () => <span>👥</span>;
 const FileText = () => <span>📄</span>;
 const Settings = () => <span>⚙️</span>;
+const UserCog = () => <span>👤⚙️</span>;
 const HelpCircle = () => <span>❓</span>;
 const ChevronRight = () => <span>›</span>;
 const ChevronDown = () => <span>⌄</span>;
@@ -32,8 +33,10 @@ const Sidebar = ({ onSectionClick }) => {
   const [isOpen, setIsOpen] = useState(true);
   const [isMobile, setIsMobile] = useState(false);
   const [currentUser, setCurrentUser] = useState(null);
-  const [adminOpen, setAdminOpen] = useState(false);
   const [settingsOpen, setSettingsOpen] = useState(false);
+  const [employeeOpen, setEmployeeOpen] = useState(false);
+  const [supplierOpen, setSupplierOpen] = useState(false);
+  const [customerOpen, setCustomerOpen] = useState(false);
 
   const navigate = useNavigate();
 
@@ -76,12 +79,20 @@ const Sidebar = ({ onSectionClick }) => {
     setIsOpen(!isOpen);
   };
 
-  const toggleAdmin = () => {
-    setAdminOpen(!adminOpen);
-  };
-
   const toggleSettings = () => {
     setSettingsOpen(!settingsOpen);
+  };
+
+  const toggleEmployee = () => {
+    setEmployeeOpen(!employeeOpen);
+  };
+
+  const toggleSupplier = () => {
+    setSupplierOpen(!supplierOpen);
+  };
+
+  const toggleCustomer = () => {
+    setCustomerOpen(!customerOpen);
   };
   const handleClick = () => {
     navigate("/dashboard");
@@ -202,110 +213,8 @@ const Sidebar = ({ onSectionClick }) => {
     return text;
   };
 
-  // Admin sub items with permission checking
-  const adminSubItems = [
-    {
-      id: "admin-lower",
-      componentId: "admin-lower",
-      number: "1.",
-      name: "lower admin",
-      path: "/admin/lower",
-      icon: <Settings />,
-    },
-    {
-      id: "admin-drivers",
-      componentId: "admin-drivers",
-      number: "2.",
-      name: "truck drivers",
-      path: "/admin/drivers",
-      icon: <Truck />,
-    },
-    {
-      id: "admin-employee",
-      componentId: "admin-employee",
-      number: "3.",
-      name: "employee",
-      icon: <Users />,
-      subItems: [
-        {
-          id: "admin-employee-add",
-          componentId: "admin-employee-add",
-          name: "a. add",
-          path: "/admin/employee/add",
-          icon: <Plus />,
-        },
-        {
-          id: "admin-employee-edit",
-          componentId: "admin-employee-edit",
-          name: "b. edit",
-          path: "/admin/employee/edit",
-          icon: <Edit />,
-        },
-      ],
-    },
-    {
-      id: "admin-supplier",
-      componentId: "admin-supplier",
-      number: "4.",
-      name: "supplier",
-      icon: <Users />,
-      subItems: [
-        {
-          id: "admin-supplier-add",
-          componentId: "admin-supplier-add",
-          name: "a. add supplier",
-          path: "/admin/supplier/add",
-          icon: <Plus />,
-        },
-        {
-          id: "admin-supplier-edit",
-          componentId: "admin-supplier-edit",
-          name: "b. edit supplier",
-          path: "/admin/supplier/edit",
-          icon: <Edit />,
-        },
-      ],
-    },
-    {
-      id: "admin-customer",
-      componentId: "admin-customer",
-      number: "5.",
-      name: "customer",
-      icon: <Users />,
-      subItems: [
-        {
-          id: "admin-customer-edit",
-          componentId: "admin-customer-edit",
-          name: "a. edit",
-          path: "/admin/customer/edit",
-          icon: <Edit />,
-        },
-      ],
-    },
-    {
-      id: "admin-products",
-      componentId: "admin-products",
-      number: "6.",
-      name: "Products",
-      path: "/admin/Products/edit",
-      icon: <Package />,
-    },
-    {
-      id: "delivery-areas",
-      componentId: "admin-delivery-control",
-      number: "7.",
-      name: "Delivery Areas",
-      path: "/admin/delivery-areas",
-      icon: <AreaChart />,
-    },
-    {
-      id: "delivery-types",
-      componentId: "admin-delivery-control",
-      number: "7.",
-      name: "Delivery Types",
-      path: "/admin/delivery-types",
-    },
-  ];
+  // Admin sub items - keeping for backwards compatibility but will not be used as collapsible
+  const adminSubItems = [];
 
   // Section groups with component IDs for permission checking
   const sectionGroups = [
@@ -654,8 +563,141 @@ const Sidebar = ({ onSectionClick }) => {
           icon: <Settings />,
           name: "Admin",
           access: "",
+          path: "/admin",
+        },
+        {
+          id: 101,
+          componentId: "admin-lower",
+          number: "101.",
+          icon: <Settings />,
+          name: "Lower Admin",
+          access: "",
+          path: "/admin/lower",
+        },
+        {
+          id: 102,
+          componentId: "admin-drivers",
+          number: "102.",
+          icon: <Truck />,
+          name: "Truck Drivers",
+          access: "",
+          path: "/admin/drivers",
+        },
+        {
+          id: 103,
+          componentId: "admin-employee",
+          number: "103.",
+          icon: <Users />,
+          name: "Employee",
+          access: "",
           isCollapsible: true,
-          onClick: toggleAdmin,
+          onClick: toggleEmployee,
+          subItems: [
+            {
+              id: "admin-employee-add",
+              componentId: "admin-employee-add",
+              name: "a. add",
+              path: "/admin/employee/add",
+              icon: <Plus />,
+            },
+            {
+              id: "admin-employee-edit",
+              componentId: "admin-employee-edit",
+              name: "b. edit",
+              path: "/admin/employee/edit",
+              icon: <Edit />,
+            },
+          ],
+        },
+        {
+          id: 104,
+          componentId: "admin-supplier",
+          number: "104.",
+          icon: <Users />,
+          name: "Supplier",
+          access: "",
+          isCollapsible: true,
+          onClick: toggleSupplier,
+          subItems: [
+            {
+              id: "admin-supplier-add",
+              componentId: "admin-supplier-add",
+              name: "a. add supplier",
+              path: "/admin/supplier/add",
+              icon: <Plus />,
+            },
+            {
+              id: "admin-supplier-edit",
+              componentId: "admin-supplier-edit",
+              name: "b. edit supplier",
+              path: "/admin/supplier/edit",
+              icon: <Edit />,
+            },
+          ],
+        },
+        {
+          id: 105,
+          componentId: "admin-customer",
+          number: "105.",
+          icon: <Users />,
+          name: "Customer",
+          access: "",
+          isCollapsible: true,
+          onClick: toggleCustomer,
+          subItems: [
+            {
+              id: "admin-customer-edit",
+              componentId: "admin-customer-edit",
+              name: "a. edit",
+              path: "/admin/customer/edit",
+              icon: <Edit />,
+            },
+          ],
+        },
+        {
+          id: 106,
+          componentId: "admin-products",
+          number: "106.",
+          icon: <Package />,
+          name: "Products",
+          access: "",
+          path: "/admin/Products/edit",
+        },
+        {
+          id: 107,
+          componentId: "admin-delivery-control",
+          number: "107.",
+          icon: <AreaChart />,
+          name: "Delivery Areas",
+          access: "",
+          path: "/admin/delivery-areas",
+        },
+        {
+          id: 108,
+          componentId: "admin-delivery-control",
+          number: "108.",
+          icon: <Truck />,
+          name: "Delivery Types",
+          access: "",
+          path: "/admin/delivery-types",
+        },
+        {
+          id: 109,
+          componentId: "admin-employee-permission",
+          number: "109.",
+          icon: <Settings />,
+          name: "Employee Permission",
+          access: "",
+          path: "/admin/employee-permission",
+        },
+        {
+          id: 110,
+          componentId: "admin-employee-roles",
+          number: "110.",
+          icon: <UserCog />,
+          name: "Employee Roles",
+          access: "",
+          path: "/admin/employee-roles",
         },
       ],
     },
@@ -767,17 +809,12 @@ const Sidebar = ({ onSectionClick }) => {
     return sectionGroups
       .map((group) => {
         const filteredSections = group.sections.filter((section) => {
-          // Special handling for admin section - check if user has access to any admin component
-          if (section.componentId === "admin") {
-            const hasAnyAdminAccess = adminSubItems.some((item) => {
-              if (item.subItems) {
-                return item.subItems.some((subItem) =>
-                  hasAccess(subItem.componentId)
-                );
-              }
-              return hasAccess(item.componentId);
-            });
-            return hasAnyAdminAccess;
+          // Special handling for sections with subItems
+          if (section.subItems) {
+            const filteredSubItems = section.subItems.filter((subItem) =>
+              hasAccess(subItem.componentId)
+            );
+            return filteredSubItems.length > 0;
           }
 
           // Special handling for settings and support - check for specific components
@@ -789,6 +826,17 @@ const Sidebar = ({ onSectionClick }) => {
           }
 
           return hasAccess(section.componentId);
+        }).map((section) => {
+          // Filter subItems if they exist
+          if (section.subItems) {
+            return {
+              ...section,
+              subItems: section.subItems.filter((subItem) =>
+                hasAccess(subItem.componentId)
+              ),
+            };
+          }
+          return section;
         });
 
         return {
@@ -797,33 +845,6 @@ const Sidebar = ({ onSectionClick }) => {
         };
       })
       .filter((group) => group.sections.length > 0); // Only show groups that have accessible sections
-  }, [currentUser, hasAccess]);
-
-  // Filter admin sub items based on user access
-  const filteredAdminSubItems = useMemo(() => {
-    if (!currentUser) return [];
-
-    return adminSubItems
-      .filter((item) => {
-        if (item.subItems) {
-          const filteredSubItems = item.subItems.filter((subItem) =>
-            hasAccess(subItem.componentId)
-          );
-          return filteredSubItems.length > 0;
-        }
-        return hasAccess(item.componentId);
-      })
-      .map((item) => {
-        if (item.subItems) {
-          return {
-            ...item,
-            subItems: item.subItems.filter((subItem) =>
-              hasAccess(subItem.componentId)
-            ),
-          };
-        }
-        return item;
-      });
   }, [currentUser, hasAccess]);
 
   // Show loading state if no user
@@ -973,8 +994,14 @@ const Sidebar = ({ onSectionClick }) => {
                           }
                           ${
                             (section.isCollapsible &&
-                              section.id === 100 &&
-                              adminOpen) ||
+                              section.id === 103 &&
+                              employeeOpen) ||
+                            (section.isCollapsible &&
+                              section.id === 104 &&
+                              supplierOpen) ||
+                            (section.isCollapsible &&
+                              section.id === 105 &&
+                              customerOpen) ||
                             (section.isCollapsible &&
                               section.id === "settings" &&
                               settingsOpen)
@@ -1001,8 +1028,20 @@ const Sidebar = ({ onSectionClick }) => {
                             {formatMenuText(section.name)}
                           </span>
                           <div className="flex-shrink-0 ml-2">
-                            {section.isCollapsible && section.id === 100 ? (
-                              adminOpen ? (
+                            {section.isCollapsible && section.id === 103 ? (
+                              employeeOpen ? (
+                                <ChevronUp />
+                              ) : (
+                                <ChevronDown />
+                              )
+                            ) : section.isCollapsible && section.id === 104 ? (
+                              supplierOpen ? (
+                                <ChevronUp />
+                              ) : (
+                                <ChevronDown />
+                              )
+                            ) : section.isCollapsible && section.id === 105 ? (
+                              customerOpen ? (
                                 <ChevronUp />
                               ) : (
                                 <ChevronDown />
@@ -1021,52 +1060,68 @@ const Sidebar = ({ onSectionClick }) => {
                         </div>
                       </button>
 
-                      {/* Admin Submenu */}
-                      {section.id === 100 && adminOpen && (
+                      {/* Employee Submenu */}
+                      {section.id === 103 && employeeOpen && section.subItems && (
                         <div className="ml-6 lg:ml-8 mt-1 space-y-1 border-l border-gray-700 pl-2">
-                          {filteredAdminSubItems.map((item) => (
-                            <div key={item.id}>
-                              <button
-                                onClick={() =>
-                                  handleSectionClick(item.id, item.path)
-                                }
-                                className="w-full text-left px-2 lg:px-3 py-2 flex items-center gap-2 rounded-md hover:bg-gray-800 transition-colors text-xs lg:text-sm"
-                              >
-                                {item.number && (
-                                  <span className="text-green-400 text-xs">
-                                    {item.number}
-                                  </span>
-                                )}
-                                <span className="text-blue-400">
-                                  {item.icon}
-                                </span>
-                                <span className="text-gray-300 truncate">
-                                  {item.name}
-                                </span>
-                              </button>
+                          {section.subItems.map((subItem) => (
+                            <button
+                              key={subItem.id}
+                              onClick={() =>
+                                handleSectionClick(subItem.id, subItem.path)
+                              }
+                              className="w-full text-left px-2 lg:px-3 py-2 flex items-center gap-2 rounded-md hover:bg-gray-800 transition-colors text-xs lg:text-sm"
+                            >
+                              <span className="text-blue-400">
+                                {subItem.icon}
+                              </span>
+                              <span className="text-gray-300 truncate">
+                                {subItem.name}
+                              </span>
+                            </button>
+                          ))}
+                        </div>
+                      )}
 
-                              {/* Third level */}
-                              {item.subItems && (
-                                <div className="ml-3 lg:ml-4 mt-1 space-y-1 border-l border-gray-700 pl-2">
-                                  {item.subItems.map((sub) => (
-                                    <button
-                                      key={sub.id}
-                                      onClick={() =>
-                                        handleSectionClick(sub.id, sub.path)
-                                      }
-                                      className="w-full text-left px-2 lg:px-3 py-2 flex items-center gap-2 rounded-md hover:bg-gray-800 transition-colors text-xs lg:text-sm"
-                                    >
-                                      <span className="text-blue-400">
-                                        {sub.icon}
-                                      </span>
-                                      <span className="text-gray-300 truncate">
-                                        {sub.name}
-                                      </span>
-                                    </button>
-                                  ))}
-                                </div>
-                              )}
-                            </div>
+                      {/* Supplier Submenu */}
+                      {section.id === 104 && supplierOpen && section.subItems && (
+                        <div className="ml-6 lg:ml-8 mt-1 space-y-1 border-l border-gray-700 pl-2">
+                          {section.subItems.map((subItem) => (
+                            <button
+                              key={subItem.id}
+                              onClick={() =>
+                                handleSectionClick(subItem.id, subItem.path)
+                              }
+                              className="w-full text-left px-2 lg:px-3 py-2 flex items-center gap-2 rounded-md hover:bg-gray-800 transition-colors text-xs lg:text-sm"
+                            >
+                              <span className="text-blue-400">
+                                {subItem.icon}
+                              </span>
+                              <span className="text-gray-300 truncate">
+                                {subItem.name}
+                              </span>
+                            </button>
+                          ))}
+                        </div>
+                      )}
+
+                      {/* Customer Submenu */}
+                      {section.id === 105 && customerOpen && section.subItems && (
+                        <div className="ml-6 lg:ml-8 mt-1 space-y-1 border-l border-gray-700 pl-2">
+                          {section.subItems.map((subItem) => (
+                            <button
+                              key={subItem.id}
+                              onClick={() =>
+                                handleSectionClick(subItem.id, subItem.path)
+                              }
+                              className="w-full text-left px-2 lg:px-3 py-2 flex items-center gap-2 rounded-md hover:bg-gray-800 transition-colors text-xs lg:text-sm"
+                            >
+                              <span className="text-blue-400">
+                                {subItem.icon}
+                              </span>
+                              <span className="text-gray-300 truncate">
+                                {subItem.name}
+                              </span>
+                            </button>
                           ))}
                         </div>
                       )}

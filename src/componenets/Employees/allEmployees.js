@@ -13,17 +13,7 @@ const AllEmployees = () => {
   const [currentPage, setCurrentPage] = useState(1);
   const [itemsPerPage, setItemsPerPage] = useState(10);
   const [totalItems, setTotalItems] = useState(0);
-
-  // Available role options for filtering
-  const roleOptions = [
-    "All employees",
-    "Add products",
-    "Product List",
-    "Finance",
-    "Orders",
-    "Customer Service",
-    "truck driver",
-  ];
+  const [categoryOptions, setCategoryOptions] = useState(["All employees"]);
 
   // Fetch employees data from the API
   useEffect(() => {
@@ -33,8 +23,15 @@ const AllEmployees = () => {
         const response = await axios.get(
           "http://localhost:5000/api/employees"
         );
-        setEmployees(response.data.data);
-        setTotalItems(response.data.count);
+        setEmployees(response.data.employees);
+        setTotalItems(response.data.total);
+        
+        // Extract unique employee categories
+        const uniqueCategories = [...new Set(
+          (response.data.employees || []).map(emp => emp.employeeCategory).filter(Boolean)
+        )];
+        setCategoryOptions(["All employees", ...uniqueCategories]);
+        
         setLoading(false);
       } catch (error) {
         console.error("Error fetching employees:", error);
@@ -47,29 +44,20 @@ const AllEmployees = () => {
   }, []);
 
   // Filter employees based on search term and selected employee type
-  const filteredEmployees = employees.filter((employee) => {
+  const filteredEmployees = (employees || []).filter((employee) => {
     // Search filter
     const matchesSearch =
       employee.name?.toLowerCase().includes(searchTerm.toLowerCase()) ||
       employee.email?.toLowerCase().includes(searchTerm.toLowerCase()) ||
       employee.employeeId?.toLowerCase().includes(searchTerm.toLowerCase());
 
-    // Role filter
-    let matchesRole = true;
+    // Category filter
+    let matchesCategory = true;
     if (employeeType !== "All employees") {
-      // Convert employeeType to match the format stored in the database
-      const roleToMatch = employeeType.toLowerCase().replace(/\s+/g, "-");
-
-      matchesRole = employee.roles?.some(
-        (role) =>
-          role === roleToMatch ||
-          role === employeeType.toLowerCase() ||
-          (employeeType === "Add products" && role === "add-products") ||
-          (employeeType === "truck driver" && role === "truck-driver")
-      );
+      matchesCategory = employee.employeeCategory === employeeType;
     }
 
-    return matchesSearch && matchesRole;
+    return matchesSearch && matchesCategory;
   });
 
   // Calculate pagination
@@ -187,9 +175,9 @@ const AllEmployees = () => {
                       value={employeeType}
                       onChange={handleEmployeeTypeChange}
                     >
-                      {roleOptions.map((role) => (
-                        <option key={role} value={role}>
-                          {role}
+                      {categoryOptions.map((category) => (
+                        <option key={category} value={category}>
+                          {category}
                         </option>
                       ))}
                     </select>
