@@ -93,8 +93,8 @@ const EmployeePermission = () => {
     {
       section: "FINANCE",
       items: [
-        { id: 95, name: "Finances (articial emp)" },
-        { id: 96, name: "ANALYTICS" },
+        { id: 101, name: "Finances (articial emp)" },
+        { id: 105, name: "ANALYTICS" },
       ]
     },
     {
@@ -103,21 +103,16 @@ const EmployeePermission = () => {
         { id: 100, name: "Admin" },
         { id: 101, name: "Lower Admin" },
         { id: 102, name: "Truck Drivers" },
-        { id: 103, name: "Employee", subItems: [
-          { id: "103a", name: "Add Employee" },
-          { id: "103b", name: "Edit Employee" },
-        ]},
-        { id: 104, name: "Supplier", subItems: [
-          { id: "104a", name: "Add Supplier" },
-          { id: "104b", name: "Edit Supplier" },
-        ]},
-        { id: 105, name: "Customer", subItems: [
-          { id: "105a", name: "Edit Customer" },
-        ]},
+        { id: "admin-employee-add", name: "Employee - add" },
+        { id: "admin-employee-edit", name: "Employee - edit" },
+        { id: "admin-supplier-add", name: "Supplier - add" },
+        { id: "admin-supplier-edit", name: "Supplier - edit" },
+        { id: "admin-customer-edit", name: "Customer - edit" },
         { id: 106, name: "Products" },
         { id: 107, name: "Delivery Areas" },
         { id: 108, name: "Delivery Types" },
         { id: 109, name: "Employee Permission" },
+        { id: 110, name: "Employee Roles" },
       ]
     },
     {
@@ -128,6 +123,25 @@ const EmployeePermission = () => {
         { id: 155, name: "Referrals foreman income" },
         { id: 159, name: "Referral demo video" },
         { id: 160, name: "Introduction videos Management" },
+      ]
+    },
+    {
+      section: "FOREMAN",
+      items: [
+        { id: 160, name: "from human earning structure" },
+      ]
+    },
+    {
+      section: "SETTINGS",
+      items: [
+        { id: "calendar", name: "Calendar" },
+        { id: "vehicle-types", name: "Vehicle Types" },
+      ]
+    },
+    {
+      section: "SUPPORT",
+      items: [
+        { id: "support", name: "Support" },
       ]
     },
   ];

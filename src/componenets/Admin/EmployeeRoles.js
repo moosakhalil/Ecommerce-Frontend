@@ -101,6 +101,11 @@ const EmployeeRoles = () => {
         { id: 100, name: "Admin" },
         { id: 101, name: "Lower Admin" },
         { id: 102, name: "Truck Drivers" },
+        { id: "admin-employee-add", name: "Employee - add" },
+        { id: "admin-employee-edit", name: "Employee - edit" },
+        { id: "admin-supplier-add", name: "Supplier - add" },
+        { id: "admin-supplier-edit", name: "Supplier - edit" },
+        { id: "admin-customer-edit", name: "Customer - edit" },
         { id: 106, name: "Products" },
         { id: 107, name: "Delivery Areas" },
         { id: 108, name: "Delivery Types" },
@@ -116,6 +121,25 @@ const EmployeeRoles = () => {
         { id: 155, name: "Referrals foreman income" },
         { id: 159, name: "Referral demo video" },
         { id: 160, name: "Introduction videos Management" },
+      ],
+    },
+    {
+      section: "FOREMAN",
+      items: [
+        { id: 160, name: "from human earning structure" },
+      ],
+    },
+    {
+      section: "SETTINGS",
+      items: [
+        { id: "calendar", name: "Calendar" },
+        { id: "vehicle-types", name: "Vehicle Types" },
+      ],
+    },
+    {
+      section: "SUPPORT",
+      items: [
+        { id: "support", name: "Support" },
       ],
     },
   ];
