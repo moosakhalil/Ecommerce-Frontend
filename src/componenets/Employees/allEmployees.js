@@ -15,6 +15,8 @@ const AllEmployees = () => {
   const [totalItems, setTotalItems] = useState(0);
   const [categoryOptions, setCategoryOptions] = useState(["All employees"]);
   const [roles, setRoles] = useState([]);
+  const [selectedEmployee, setSelectedEmployee] = useState(null);
+  const [isModalOpen, setIsModalOpen] = useState(false);
 
   // Fetch roles data
   useEffect(() => {
@@ -176,6 +178,18 @@ const AllEmployees = () => {
     setCurrentPage(1); // Reset to first page when filtering
   };
 
+  // Open modal with employee details
+  const handleViewDetails = (employee) => {
+    setSelectedEmployee(employee);
+    setIsModalOpen(true);
+  };
+
+  // Close modal
+  const handleCloseModal = () => {
+    setIsModalOpen(false);
+    setSelectedEmployee(null);
+  };
+
   return (
     <div className="flex h-screen bg-gray-100">
       {/* Sidebar */}
@@ -243,19 +257,20 @@ const AllEmployees = () => {
                       <th className="pb-3 px-4">NAME</th>
                       <th className="pb-3 px-4">Date Added</th>
                       <th className="pb-3 px-4">Roles</th>
+                      <th className="pb-3 px-4">ACTIONS</th>
                     </tr>
                   </thead>
                   <tbody>
                     {loading ? (
                       <tr>
-                        <td colSpan="4" className="py-4 text-center">
+                        <td colSpan="5" className="py-4 text-center">
                           Loading employees...
                         </td>
                       </tr>
                     ) : error ? (
                       <tr>
                         <td
-                          colSpan="4"
+                          colSpan="5"
                           className="py-4 text-center text-red-500"
                         >
                           {error}
@@ -263,7 +278,7 @@ const AllEmployees = () => {
                       </tr>
                     ) : currentItems.length === 0 ? (
                       <tr>
-                        <td colSpan="4" className="py-4 text-center">
+                        <td colSpan="5" className="py-4 text-center">
                           No employees found
                         </td>
                       </tr>
@@ -299,6 +314,34 @@ const AllEmployees = () => {
                                 <span className="text-gray-400 text-sm">No roles assigned</span>
                               )}
                             </div>
+                          </td>
+                          <td className="py-4 px-4">
+                            <button
+                              onClick={() => handleViewDetails(employee)}
+                              className="text-blue-600 hover:text-blue-900"
+                              title="View Details"
+                            >
+                              <svg
+                                xmlns="http://www.w3.org/2000/svg"
+                                className="h-5 w-5"
+                                fill="none"
+                                viewBox="0 0 24 24"
+                                stroke="currentColor"
+                              >
+                                <path
+                                  strokeLinecap="round"
+                                  strokeLinejoin="round"
+                                  strokeWidth={2}
+                                  d="M15 12a3 3 0 11-6 0 3 3 0 016 0z"
+                                />
+                                <path
+                                  strokeLinecap="round"
+                                  strokeLinejoin="round"
+                                  strokeWidth={2}
+                                  d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z"
+                                />
+                              </svg>
+                            </button>
                           </td>
                         </tr>
                       ))
@@ -375,6 +418,150 @@ const AllEmployees = () => {
           </div>
         </main>
       </div>
+
+      {/* Employee Details Modal */}
+      {isModalOpen && selectedEmployee && (
+        <div className="fixed inset-0 bg-black bg-opacity-50 z-50 flex justify-center items-center overflow-y-auto">
+          <div className="bg-white rounded-lg shadow-xl max-w-3xl w-full m-4 p-6 relative max-h-[90vh] overflow-y-auto">
+            {/* Close button */}
+            <button
+              onClick={handleCloseModal}
+              className="absolute top-4 right-4 text-gray-400 hover:text-gray-600"
+            >
+              <svg
+                xmlns="http://www.w3.org/2000/svg"
+                className="h-6 w-6"
+                fill="none"
+                viewBox="0 0 24 24"
+                stroke="currentColor"
+              >
+                <path
+                  strokeLinecap="round"
+                  strokeLinejoin="round"
+                  strokeWidth={2}
+                  d="M6 18L18 6M6 6l12 12"
+                />
+              </svg>
+            </button>
+
+            <h2 className="text-2xl font-bold mb-6 text-gray-800">
+              Employee Details
+            </h2>
+
+            {/* Basic Information */}
+            <div className="mb-6 grid grid-cols-1 md:grid-cols-2 gap-4">
+              <div>
+                <label className="block text-sm font-medium text-gray-500 mb-1">
+                  Employee ID
+                </label>
+                <p className="text-gray-900">
+                  #{selectedEmployee.employeeId?.split("-")[1] || selectedEmployee.employeeId}
+                </p>
+              </div>
+              <div>
+                <label className="block text-sm font-medium text-gray-500 mb-1">
+                  Name
+                </label>
+                <p className="text-gray-900">{selectedEmployee.name}</p>
+              </div>
+              <div>
+                <label className="block text-sm font-medium text-gray-500 mb-1">
+                  Email
+                </label>
+                <p className="text-gray-900">{selectedEmployee.email || "N/A"}</p>
+              </div>
+              <div>
+                <label className="block text-sm font-medium text-gray-500 mb-1">
+                  Phone
+                </label>
+                <p className="text-gray-900">{selectedEmployee.phone || "N/A"}</p>
+              </div>
+              <div>
+                <label className="block text-sm font-medium text-gray-500 mb-1">
+                  Address
+                </label>
+                <p className="text-gray-900">{selectedEmployee.address || "N/A"}</p>
+              </div>
+              <div>
+                <label className="block text-sm font-medium text-gray-500 mb-1">
+                  Date Added
+                </label>
+                <p className="text-gray-900">
+                  {formatDate(selectedEmployee.createdAt || selectedEmployee.updatedAt)}
+                </p>
+              </div>
+            </div>
+
+            {/* Roles */}
+            <div className="mb-6">
+              <label className="block text-sm font-medium text-gray-500 mb-2">
+                Assigned Roles
+              </label>
+              <div className="flex flex-wrap gap-2">
+                {selectedEmployee.roles && selectedEmployee.roles.length > 0 ? (
+                  selectedEmployee.roles.map((role, index) => (
+                    <span
+                      key={index}
+                      className={`px-3 py-1 rounded-full text-sm ${getRoleBadgeColor(role)}`}
+                    >
+                      {getRoleDisplayName(role)}
+                    </span>
+                  ))
+                ) : (
+                  <span className="text-gray-400">No roles assigned</span>
+                )}
+              </div>
+            </div>
+
+            {/* Permissions */}
+            {selectedEmployee.permissions && Object.keys(selectedEmployee.permissions).length > 0 && (
+              <div className="mb-6">
+                <label className="block text-sm font-medium text-gray-500 mb-2">
+                  Permissions
+                </label>
+                <div className="bg-gray-50 rounded-lg p-4">
+                  <div className="grid grid-cols-2 md:grid-cols-3 gap-3">
+                    {Object.entries(selectedEmployee.permissions).map(([key, value]) => (
+                      <div key={key} className="flex items-center space-x-2">
+                        <span className={`inline-block w-2 h-2 rounded-full ${value ? 'bg-green-500' : 'bg-red-500'}`}></span>
+                        <span className="text-sm text-gray-700 capitalize">{key.replace(/([A-Z])/g, ' $1').trim()}</span>
+                      </div>
+                    ))}
+                  </div>
+                </div>
+              </div>
+            )}
+
+            {/* Status */}
+            <div className="mb-6">
+              <label className="block text-sm font-medium text-gray-500 mb-1">
+                Status
+              </label>
+              <span
+                className={`px-3 py-1 inline-flex text-sm font-semibold rounded-full ${
+                  selectedEmployee.status === "active"
+                    ? "bg-green-100 text-green-800"
+                    : "bg-red-100 text-red-800"
+                }`}
+              >
+                {selectedEmployee.status === "active" ? "Active" : "Inactive"}
+              </span>
+            </div>
+
+            {/* Additional Information */}
+            {selectedEmployee.notes && (
+              <div className="mb-6">
+                <label className="block text-sm font-medium text-gray-500 mb-1">
+                  Notes
+                </label>
+                <p className="text-gray-900 bg-gray-50 p-3 rounded">
+                  {selectedEmployee.notes}
+                </p>
+              </div>
+            )}
+          </div>
+        </div>
+      )}
     </div>
   );
 };

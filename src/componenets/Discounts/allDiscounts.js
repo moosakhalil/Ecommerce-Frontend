@@ -1,4 +1,5 @@
 import React, { useState, useEffect } from "react";
+import Sidebar from "../Sidebar/sidebar";
 import {
   Bell,
   Home,
@@ -423,6 +424,9 @@ export default function AllDiscounts() {
   } = getPaginatedDiscounts();
 
   return (
+    <div className="flex">
+      <Sidebar />
+      <div className="flex-1 ml-64 p-12">
     <div className="flex min-h-screen">
       <div className="w-full bg-gradient-to-br from-purple-50 via-blue-50 to-indigo-100 p-4 transition-all duration-300">
         {/* Header */}
@@ -842,6 +846,8 @@ export default function AllDiscounts() {
           </div>
         )}
       </div>
+    </div>
+    </div>
     </div>
   );
 }

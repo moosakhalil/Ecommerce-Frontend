@@ -10,6 +10,8 @@ const SupplierViewOnly = () => {
   const [itemsPerPage, setItemsPerPage] = useState(10);
   const [isSidebarOpen, setIsSidebarOpen] = useState(true);
   const [searchTerm, setSearchTerm] = useState("");
+  const [selectedSupplier, setSelectedSupplier] = useState(null);
+  const [isModalOpen, setIsModalOpen] = useState(false);
 
   // Fetch suppliers on component mount
   useEffect(() => {
@@ -60,6 +62,18 @@ const SupplierViewOnly = () => {
     startIndex,
     startIndex + itemsPerPage
   );
+
+  // Open modal with supplier details
+  const handleViewDetails = (supplier) => {
+    setSelectedSupplier(supplier);
+    setIsModalOpen(true);
+  };
+
+  // Close modal
+  const handleCloseModal = () => {
+    setIsModalOpen(false);
+    setSelectedSupplier(null);
+  };
 
   return (
     <div className="flex bg-gray-100 min-h-screen">
@@ -136,18 +150,24 @@ const SupplierViewOnly = () => {
                   >
                     STATUS
                   </th>
+                  <th
+                    scope="col"
+                    className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider"
+                  >
+                    ACTIONS
+                  </th>
                 </tr>
               </thead>
               <tbody className="bg-white divide-y divide-gray-200">
                 {loading ? (
                   <tr>
-                    <td colSpan="4" className="px-6 py-4 text-center">
+                    <td colSpan="5" className="px-6 py-4 text-center">
                       Loading...
                     </td>
                   </tr>
                 ) : paginatedSuppliers.length === 0 ? (
                   <tr>
-                    <td colSpan="4" className="px-6 py-4 text-center">
+                    <td colSpan="5" className="px-6 py-4 text-center">
                       No suppliers found
                     </td>
                   </tr>
@@ -199,6 +219,34 @@ const SupplierViewOnly = () => {
                         >
                           {supplier.status === "blocked" ? "Blocked" : "Active"}
                         </span>
+                      </td>
+                      <td className="px-6 py-4 whitespace-nowrap text-sm font-medium">
+                        <button
+                          onClick={() => handleViewDetails(supplier)}
+                          className="text-blue-600 hover:text-blue-900"
+                          title="View Details"
+                        >
+                          <svg
+                            xmlns="http://www.w3.org/2000/svg"
+                            className="h-5 w-5"
+                            fill="none"
+                            viewBox="0 0 24 24"
+                            stroke="currentColor"
+                          >
+                            <path
+                              strokeLinecap="round"
+                              strokeLinejoin="round"
+                              strokeWidth={2}
+                              d="M15 12a3 3 0 11-6 0 3 3 0 016 0z"
+                            />
+                            <path
+                              strokeLinecap="round"
+                              strokeLinejoin="round"
+                              strokeWidth={2}
+                              d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z"
+                            />
+                          </svg>
+                        </button>
                       </td>
                     </tr>
                   ))
@@ -355,6 +403,268 @@ const SupplierViewOnly = () => {
           </div>
         </div>
       </div>
+
+      {/* Supplier Details Modal */}
+      {isModalOpen && selectedSupplier && (
+        <div className="fixed inset-0 bg-black bg-opacity-50 z-50 flex justify-center items-center overflow-y-auto">
+          <div className="bg-white rounded-lg shadow-xl max-w-4xl w-full m-4 p-6 relative max-h-[90vh] overflow-y-auto">
+            {/* Close button */}
+            <button
+              onClick={handleCloseModal}
+              className="absolute top-4 right-4 text-gray-400 hover:text-gray-600"
+            >
+              <svg
+                xmlns="http://www.w3.org/2000/svg"
+                className="h-6 w-6"
+                fill="none"
+                viewBox="0 0 24 24"
+                stroke="currentColor"
+              >
+                <path
+                  strokeLinecap="round"
+                  strokeLinejoin="round"
+                  strokeWidth={2}
+                  d="M6 18L18 6M6 6l12 12"
+                />
+              </svg>
+            </button>
+
+            <h2 className="text-2xl font-bold mb-6 text-gray-800">
+              Supplier Details
+            </h2>
+
+            {/* Profile Section */}
+            <div className="mb-6">
+              <div className="flex items-center space-x-4">
+                {selectedSupplier.profilePicture ? (
+                  <img
+                    src={`http://localhost:5000${selectedSupplier.profilePicture}`}
+                    alt={selectedSupplier.name}
+                    className="h-24 w-24 rounded-full object-cover"
+                  />
+                ) : (
+                  <div className="h-24 w-24 rounded-full bg-cyan-200 flex items-center justify-center text-cyan-600 font-bold text-3xl">
+                    {selectedSupplier.name.charAt(0)}
+                  </div>
+                )}
+                <div>
+                  <h3 className="text-xl font-semibold text-gray-900">
+                    {selectedSupplier.name}
+                  </h3>
+                  <p className="text-gray-600">{selectedSupplier.email}</p>
+                  <span
+                    className={`mt-2 px-3 py-1 inline-flex text-xs leading-5 font-semibold rounded-full ${
+                      selectedSupplier.status === "blocked"
+                        ? "bg-red-100 text-red-800"
+                        : "bg-green-100 text-green-800"
+                    }`}
+                  >
+                    {selectedSupplier.status === "blocked" ? "Blocked" : "Active"}
+                  </span>
+                </div>
+              </div>
+            </div>
+
+            {/* Contact Information */}
+            <div className="mb-6 grid grid-cols-1 md:grid-cols-2 gap-4">
+              <div>
+                <label className="block text-sm font-medium text-gray-500 mb-1">
+                  Phone Number
+                </label>
+                <p className="text-gray-900">{selectedSupplier.phone}</p>
+              </div>
+              {selectedSupplier.secondPhone && (
+                <div>
+                  <label className="block text-sm font-medium text-gray-500 mb-1">
+                    Second Phone Number
+                  </label>
+                  <p className="text-gray-900">{selectedSupplier.secondPhone}</p>
+                </div>
+              )}
+              <div>
+                <label className="block text-sm font-medium text-gray-500 mb-1">
+                  Address
+                </label>
+                <p className="text-gray-900">{selectedSupplier.address || "N/A"}</p>
+              </div>
+              <div>
+                <label className="block text-sm font-medium text-gray-500 mb-1">
+                  City
+                </label>
+                <p className="text-gray-900">{selectedSupplier.city || "N/A"}</p>
+              </div>
+            </div>
+
+            {/* Identification Documents */}
+            <div className="mb-6">
+              <h4 className="text-lg font-semibold text-gray-800 mb-3">
+                Identification Documents
+              </h4>
+              <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
+                {selectedSupplier.idCardFront && (
+                  <div>
+                    <label className="block text-xs text-gray-500 mb-1">
+                      ID Card Front
+                    </label>
+                    <img
+                      src={`http://localhost:5000${selectedSupplier.idCardFront}`}
+                      alt="ID Front"
+                      className="w-full h-32 object-cover rounded border"
+                    />
+                  </div>
+                )}
+                {selectedSupplier.idCardBack && (
+                  <div>
+                    <label className="block text-xs text-gray-500 mb-1">
+                      ID Card Back
+                    </label>
+                    <img
+                      src={`http://localhost:5000${selectedSupplier.idCardBack}`}
+                      alt="ID Back"
+                      className="w-full h-32 object-cover rounded border"
+                    />
+                  </div>
+                )}
+                {selectedSupplier.passportFront && (
+                  <div>
+                    <label className="block text-xs text-gray-500 mb-1">
+                      Passport Front
+                    </label>
+                    <img
+                      src={`http://localhost:5000${selectedSupplier.passportFront}`}
+                      alt="Passport Front"
+                      className="w-full h-32 object-cover rounded border"
+                    />
+                  </div>
+                )}
+                {selectedSupplier.passportBack && (
+                  <div>
+                    <label className="block text-xs text-gray-500 mb-1">
+                      Passport Back
+                    </label>
+                    <img
+                      src={`http://localhost:5000${selectedSupplier.passportBack}`}
+                      alt="Passport Back"
+                      className="w-full h-32 object-cover rounded border"
+                    />
+                  </div>
+                )}
+              </div>
+            </div>
+
+            {/* Other Documents */}
+            {selectedSupplier.otherDocs && selectedSupplier.otherDocs.length > 0 && (
+              <div className="mb-6">
+                <h4 className="text-lg font-semibold text-gray-800 mb-3">
+                  Other Documents
+                </h4>
+                <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
+                  {selectedSupplier.otherDocs.map((doc, index) => (
+                    <div key={index}>
+                      <label className="block text-xs text-gray-500 mb-1">
+                        Document {index + 1}
+                      </label>
+                      {doc.endsWith('.pdf') ? (
+                        <a
+                          href={`http://localhost:5000${doc}`}
+                          target="_blank"
+                          rel="noopener noreferrer"
+                          className="w-full h-32 flex flex-col items-center justify-center bg-gray-100 rounded border hover:bg-gray-200"
+                        >
+                          <svg
+                            className="h-12 w-12 text-red-500"
+                            fill="currentColor"
+                            viewBox="0 0 20 20"
+                          >
+                            <path
+                              fillRule="evenodd"
+                              d="M4 4a2 2 0 012-2h4.586A2 2 0 0112 2.586L15.414 6A2 2 0 0116 7.414V16a2 2 0 01-2 2H6a2 2 0 01-2-2V4z"
+                              clipRule="evenodd"
+                            />
+                          </svg>
+                          <span className="text-xs text-gray-600 mt-1">PDF</span>
+                        </a>
+                      ) : (
+                        <img
+                          src={`http://localhost:5000${doc}`}
+                          alt={`Doc ${index + 1}`}
+                          className="w-full h-32 object-cover rounded border"
+                        />
+                      )}
+                    </div>
+                  ))}
+                </div>
+              </div>
+            )}
+
+            {/* Related People */}
+            {selectedSupplier.relatedPeople && selectedSupplier.relatedPeople.length > 0 && (
+              <div className="mb-6">
+                <h4 className="text-lg font-semibold text-gray-800 mb-3">
+                  Related People to the Company
+                </h4>
+                <div className="space-y-4">
+                  {selectedSupplier.relatedPeople.map((person, index) => (
+                    <div
+                      key={index}
+                      className="grid grid-cols-1 md:grid-cols-3 gap-6 bg-gray-50 p-4 rounded-lg border"
+                    >
+                      <div className="md:col-span-2 space-y-2">
+                        <div>
+                          <label className="block text-xs text-gray-500 mb-1">
+                            Name
+                          </label>
+                          <p className="text-gray-900 font-medium">{person.name}</p>
+                        </div>
+                        <div>
+                          <label className="block text-xs text-gray-500 mb-1">
+                            Title
+                          </label>
+                          <p className="text-gray-900">{person.title}</p>
+                        </div>
+                        <div>
+                          <label className="block text-xs text-gray-500 mb-1">
+                            Phone Number
+                          </label>
+                          <p className="text-gray-900">{person.phone}</p>
+                        </div>
+                      </div>
+                      <div>
+                        <label className="block text-xs text-gray-500 mb-1">
+                          Profile Picture
+                        </label>
+                        {person.profilePicture ? (
+                          <img
+                            src={`http://localhost:5000${person.profilePicture}`}
+                            alt={person.name}
+                            className="w-full h-40 object-cover rounded border"
+                          />
+                        ) : (
+                          <div className="w-full h-40 bg-gray-200 rounded border flex items-center justify-center">
+                            <span className="text-gray-400">No image</span>
+                          </div>
+                        )}
+                      </div>
+                    </div>
+                  ))}
+                </div>
+              </div>
+            )}
+
+            {/* Additional Information */}
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+              <div>
+                <label className="block text-sm font-medium text-gray-500 mb-1">
+                  Added On
+                </label>
+                <p className="text-gray-900">
+                  {formatDate(selectedSupplier.addedOn || selectedSupplier.createdAt)}
+                </p>
+              </div>
+            </div>
+          </div>
+        </div>
+      )}
     </div>
   );
 };

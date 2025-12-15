@@ -1,4 +1,5 @@
 import React, { useState, useEffect } from "react";
+import Sidebar from "../Sidebar/sidebar";
 import {
   Lock,
   Search,
@@ -325,6 +326,9 @@ export default function CreateDiscount() {
   }, [searchTerm, selectedProduct]);
 
   return (
+    <div className="flex">
+      <Sidebar />
+      <div className="flex-1 ml-64 p-12">
     <div>
       {/* Main Content */}
 
@@ -858,6 +862,8 @@ export default function CreateDiscount() {
           </div>
         </div>
       </div>
+    </div>
+    </div>
     </div>
   );
 }

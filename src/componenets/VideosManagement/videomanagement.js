@@ -1,4 +1,5 @@
 import React, { useState, useRef, useEffect } from "react";
+import Sidebar from "../Sidebar/sidebar";
 
 // Icon components
 const Upload = () => <span>📁</span>;
@@ -231,7 +232,10 @@ const VideoManagementSystem = () => {
   };
 
   return (
-    <div className="min-h-screen bg-gray-100 p-6">
+    <div className="flex">
+      <Sidebar />
+      <div className="flex-1 ml-64 p-12">
+    <div className="min-h-screen bg-gray-100">
       <div className="max-w-7xl mx-auto">
         {/* Header */}
         <div className="bg-white rounded-lg shadow-md p-6 mb-6">
@@ -735,6 +739,8 @@ const VideoManagementSystem = () => {
           className="hidden"
         />
       </div>
+    </div>
+    </div>
     </div>
   );
 };

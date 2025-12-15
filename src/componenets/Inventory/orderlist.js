@@ -1087,7 +1087,7 @@ const OrderListApprovedStock = () => {
                               {order.canConfirm && (
                                 <button
                                   onClick={() => confirmSingleOrder(order)}
-                                  className="block w-full text-left px-4 py-2 hover:bg-green-50 text-green-600 text-sm flex items-center gap-2"
+                                  className="w-full text-left px-4 py-2 hover:bg-green-50 text-green-600 text-sm flex items-center gap-2"
                                 >
                                   <CheckCircle size={14} />
                                   Confirm This Order
@@ -1095,7 +1095,7 @@ const OrderListApprovedStock = () => {
                               )}
                               <button
                                 onClick={() => showOrderDetailsModal(order)}
-                                className="block w-full text-left px-4 py-2 hover:bg-gray-100 text-sm flex items-center gap-2"
+                                className="w-full text-left px-4 py-2 hover:bg-gray-100 text-sm flex items-center gap-2"
                               >
                                 <Eye size={14} />
                                 Show Order Details
@@ -1108,7 +1108,7 @@ const OrderListApprovedStock = () => {
                                   );
                                   setActionMenuOpen(null);
                                 }}
-                                className="block w-full text-left px-4 py-2 hover:bg-gray-100 text-sm flex items-center gap-2"
+                                className="w-full text-left px-4 py-2 hover:bg-gray-100 text-sm flex items-center gap-2"
                               >
                                 <User size={14} />
                                 Show Supplier Details
@@ -1117,7 +1117,7 @@ const OrderListApprovedStock = () => {
                               {order.canRemove && (
                                 <button
                                   onClick={() => removeFromOrderList(order)}
-                                  className="block w-full text-left px-4 py-2 hover:bg-red-50 text-red-600 text-sm flex items-center gap-2"
+                                  className="w-full text-left px-4 py-2 hover:bg-red-50 text-red-600 text-sm flex items-center gap-2"
                                 >
                                   <Trash2 size={14} />
                                   Remove from Order List

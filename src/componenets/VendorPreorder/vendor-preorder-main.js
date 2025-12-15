@@ -1,4 +1,5 @@
 import React, { useState, useRef, useEffect, useCallback } from "react";
+import Sidebar from "../Sidebar/sidebar";
 import {
   Phone,
   MapPin,
@@ -2736,7 +2737,10 @@ const VendorPreOrderDashboard = () => {
 
   // Main component render
   return (
-    <div className="min-h-screen bg-gray-50 p-6">
+    <div className="flex">
+      <Sidebar />
+      <div className="flex-1 ml-64 p-12">
+    <div className="min-h-screen bg-gray-50">
       <div className="max-w-7xl mx-auto">
         {/* Header */}
         <div className="mb-6">
@@ -3263,6 +3267,8 @@ const VendorPreOrderDashboard = () => {
         <AddVendorModal />
         <AddVendorProductSelectionModal />
       </div>
+    </div>
+    </div>
     </div>
   );
 };

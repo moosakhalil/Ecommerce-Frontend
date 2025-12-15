@@ -83,6 +83,9 @@ const EditSupplierModal = ({ supplier, onClose }) => {
     idCardBack: null,
     passportFront: null,
     passportBack: null,
+    otherDocs: [],
+    existingOtherDocs: supplier.otherDocs || [],
+    relatedPeople: supplier.relatedPeople || [],
   });
 
   // Phone number state without country code
@@ -105,6 +108,10 @@ const EditSupplierModal = ({ supplier, onClose }) => {
     passportBack: supplier.passportBack
       ? `http://localhost:5000${supplier.passportBack}`
       : null,
+    otherDocs: [],
+    existingOtherDocs: supplier.otherDocs
+      ? supplier.otherDocs.map((doc) => `http://localhost:5000${doc}`)
+      : [],
   });
 
   const [errors, setErrors] = useState({});
@@ -113,6 +120,17 @@ const EditSupplierModal = ({ supplier, onClose }) => {
     isOpen: false,
     message: "",
   });
+
+  // Related person input state
+  const [currentPerson, setCurrentPerson] = useState({
+    name: "",
+    title: "",
+    phone: "",
+    profilePicture: null,
+  });
+  const [currentPersonPhone, setCurrentPersonPhone] = useState("");
+  const [currentPersonPreview, setCurrentPersonPreview] = useState(null);
+  const [relatedPeoplePreviews, setRelatedPeoplePreviews] = useState([]);
 
   // Initialize phone values from formData
   useEffect(() => {
@@ -126,6 +144,16 @@ const EditSupplierModal = ({ supplier, onClose }) => {
       setSecondPhoneNumber(supplier.secondPhone.substring(3)); // Remove +62
     } else {
       setSecondPhoneNumber(supplier.secondPhone || "");
+    }
+
+    // Initialize related people previews
+    if (supplier.relatedPeople && supplier.relatedPeople.length > 0) {
+      const previews = supplier.relatedPeople.map((person) =>
+        person.profilePicture
+          ? `http://localhost:5000${person.profilePicture}`
+          : null
+      );
+      setRelatedPeoplePreviews(previews);
     }
   }, [supplier]);
 
@@ -183,9 +211,7 @@ const EditSupplierModal = ({ supplier, onClose }) => {
 
     // Required fields validation
     if (!formData.name?.trim()) newErrors.name = "Name is required";
-    if (!formData.email?.trim()) {
-      newErrors.email = "Email is required";
-    } else if (!validateEmail(formData.email)) {
+    if (formData.email?.trim() && !validateEmail(formData.email)) {
       newErrors.email = "Please enter a valid email address";
     }
 
@@ -237,7 +263,28 @@ const EditSupplierModal = ({ supplier, onClose }) => {
 
   const handleFileChange = (e) => {
     const { name, files } = e.target;
-    if (files && files[0]) {
+    if (files && files.length > 0) {
+      // Handle multiple files for otherDocs
+      if (name === "otherDocs") {
+        const newFiles = Array.from(files);
+        const newPreviews = newFiles.map((f) => URL.createObjectURL(f));
+
+        setFormData((prev) => ({
+          ...prev,
+          otherDocs: [...(prev.otherDocs || []), ...newFiles],
+        }));
+
+        setPreviewUrls((prev) => ({
+          ...prev,
+          otherDocs: [...(prev.otherDocs || []), ...newPreviews],
+        }));
+        
+        // Reset the input so the same file can be added again if needed
+        e.target.value = null;
+        return;
+      }
+
+      // Single file handling for other fields
       setFormData((prev) => ({ ...prev, [name]: files[0] }));
       setPreviewUrls((prev) => ({
         ...prev,
@@ -325,15 +372,167 @@ const EditSupplierModal = ({ supplier, onClose }) => {
     }
   };
 
+  // Remove new otherDoc by index
+  const handleRemoveOtherDoc = (index) => {
+    // Revoke object URL to avoid memory leaks
+    if (previewUrls.otherDocs && previewUrls.otherDocs[index]) {
+      URL.revokeObjectURL(previewUrls.otherDocs[index]);
+    }
+
+    setFormData((prev) => ({
+      ...prev,
+      otherDocs: prev.otherDocs.filter((_, i) => i !== index),
+    }));
+
+    setPreviewUrls((prev) => ({
+      ...prev,
+      otherDocs: prev.otherDocs.filter((_, i) => i !== index),
+    }));
+  };
+
+  // Remove existing otherDoc from server
+  const handleRemoveExistingOtherDoc = async (docPath, index) => {
+    if (!window.confirm("Are you sure you want to delete this document?")) {
+      return;
+    }
+
+    try {
+      const response = await fetch(
+        `http://localhost:5000/api/suppliers/${supplier._id}/otherDoc`,
+        {
+          method: "DELETE",
+          headers: {
+            "Content-Type": "application/json",
+          },
+          body: JSON.stringify({ filePath: docPath }),
+        }
+      );
+
+      const data = await response.json();
+
+      if (!response.ok) {
+        throw new Error(data.message || "Failed to delete document");
+      }
+
+      // Update local state
+      setFormData((prev) => ({
+        ...prev,
+        existingOtherDocs: prev.existingOtherDocs.filter((_, i) => i !== index),
+      }));
+
+      setPreviewUrls((prev) => ({
+        ...prev,
+        existingOtherDocs: prev.existingOtherDocs.filter((_, i) => i !== index),
+      }));
+
+      toast.success("Document deleted successfully");
+    } catch (error) {
+      console.error("Error deleting document:", error);
+      toast.error(error.message || "Failed to delete document");
+    }
+  };
+
+  // Handle related person phone change
+  const handlePersonPhoneChange = (e) => {
+    const { value } = e.target;
+    const sanitizedValue = value.replace(/\D/g, "").substring(0, 11);
+    setCurrentPersonPhone(sanitizedValue);
+    setCurrentPerson((prev) => ({
+      ...prev,
+      phone: sanitizedValue ? `+62${sanitizedValue}` : "",
+    }));
+  };
+
+  // Handle related person input change
+  const handlePersonInputChange = (e) => {
+    const { name, value } = e.target;
+    setCurrentPerson((prev) => ({ ...prev, [name]: value }));
+  };
+
+  // Handle related person profile picture
+  const handlePersonPictureChange = (e) => {
+    const file = e.target.files[0];
+    if (file) {
+      setCurrentPerson((prev) => ({ ...prev, profilePicture: file }));
+      setCurrentPersonPreview(URL.createObjectURL(file));
+    }
+  };
+
+  // Remove related person profile picture
+  const handleRemovePersonPicture = () => {
+    if (currentPersonPreview) {
+      URL.revokeObjectURL(currentPersonPreview);
+    }
+    setCurrentPerson((prev) => ({ ...prev, profilePicture: null }));
+    setCurrentPersonPreview(null);
+  };
+
+  // Add related person to list
+  const handleAddPerson = () => {
+    if (!currentPerson.name.trim()) {
+      toast.error("Person name is required");
+      return;
+    }
+    if (!currentPerson.title.trim()) {
+      toast.error("Person title is required");
+      return;
+    }
+    if (!currentPerson.phone) {
+      toast.error("Person phone number is required");
+      return;
+    }
+
+    const phoneRegex = /^\+62[0-9]{9,11}$/;
+    if (!phoneRegex.test(currentPerson.phone)) {
+      toast.error("Please enter a valid Indonesian phone number");
+      return;
+    }
+
+    setFormData((prev) => ({
+      ...prev,
+      relatedPeople: [...prev.relatedPeople, { ...currentPerson }],
+    }));
+
+    // Store preview URL if there's a profile picture
+    if (currentPersonPreview) {
+      setRelatedPeoplePreviews((prev) => [...prev, currentPersonPreview]);
+    } else {
+      setRelatedPeoplePreviews((prev) => [...prev, null]);
+    }
+
+    // Reset current person
+    setCurrentPerson({
+      name: "",
+      title: "",
+      phone: "",
+      profilePicture: null,
+    });
+    setCurrentPersonPhone("");
+    setCurrentPersonPreview(null);
+
+    toast.success("Person added successfully");
+  };
+
+  // Remove related person from list
+  const handleRemovePerson = (index) => {
+    const preview = relatedPeoplePreviews[index];
+    if (preview && !preview.startsWith('http://localhost:5000')) {
+      URL.revokeObjectURL(preview);
+    }
+
+    setFormData((prev) => ({
+      ...prev,
+      relatedPeople: prev.relatedPeople.filter((_, i) => i !== index),
+    }));
+
+    setRelatedPeoplePreviews((prev) => prev.filter((_, i) => i !== index));
+
+    toast.info("Person removed");
+  };
+
   const toggleBlockStatus = () => {
     const newStatus = formData.status === "unblocked" ? "blocked" : "unblocked";
     setFormData((prev) => ({ ...prev, status: newStatus }));
-  };
-
-  const toggleActiveStatus = () => {
-    const newStatus =
-      formData.activeInactive === "active" ? "inactive" : "active";
-    setFormData((prev) => ({ ...prev, activeInactive: newStatus }));
   };
 
   // Close success modal and refresh data
@@ -382,6 +581,9 @@ const EditSupplierModal = ({ supplier, onClose }) => {
           key !== "idCardBack" &&
           key !== "passportFront" &&
           key !== "passportBack" &&
+          key !== "otherDocs" &&
+          key !== "existingOtherDocs" &&
+          key !== "relatedPeople" && // Skip relatedPeople, we'll handle it separately
           key !== "orders" &&
           key !== "orderedProducts" &&
           key !== "supplyProducts" &&
@@ -439,6 +641,36 @@ const EditSupplierModal = ({ supplier, onClose }) => {
         submitData.append("passportFront", formData.passportFront);
       if (formData.passportBack)
         submitData.append("passportBack", formData.passportBack);
+
+      // Append otherDocs files
+      if (formData.otherDocs && formData.otherDocs.length > 0) {
+        formData.otherDocs.forEach((file) => {
+          submitData.append("otherDocs", file);
+        });
+      }
+
+      // Handle related people data
+      if (formData.relatedPeople && formData.relatedPeople.length > 0) {
+        // Prepare related people data
+        const relatedPeopleData = formData.relatedPeople.map((person) => ({
+          _id: person._id, // Keep existing ID if editing
+          name: person.name,
+          title: person.title,
+          phone: person.phone,
+          profilePicture: person.profilePicture && typeof person.profilePicture === 'string' 
+            ? person.profilePicture 
+            : "", // Keep existing path or empty for new upload
+        }));
+
+        submitData.append("relatedPeople", JSON.stringify(relatedPeopleData));
+
+        // Append new profile pictures
+        formData.relatedPeople.forEach((person) => {
+          if (person.profilePicture && person.profilePicture instanceof File) {
+            submitData.append("relatedPeopleImages", person.profilePicture);
+          }
+        });
+      }
 
       const response = await fetch(
         `http://localhost:5000/api/suppliers/${supplier._id}`,
@@ -532,7 +764,7 @@ const EditSupplierModal = ({ supplier, onClose }) => {
 
               <div>
                 <label className="block text-sm text-gray-700 mb-1">
-                  Email <span className="text-red-500">*</span>
+                  Email
                 </label>
                 <input
                   type="email"
@@ -1000,8 +1232,352 @@ const EditSupplierModal = ({ supplier, onClose }) => {
             </div>
           </div>
 
+          {/* Other Docs Section */}
+          <div className="mt-8">
+            <h3 className="text-lg font-medium text-gray-800 mb-4">
+              Other Documents
+              <span className="text-sm text-gray-500 ml-2">(Optional)</span>
+            </h3>
+
+            <div className="mb-4">
+              <label className="inline-block px-4 py-2 bg-blue-500 text-white rounded cursor-pointer hover:bg-blue-600 transition-colors">
+                <input
+                  type="file"
+                  name="otherDocs"
+                  onChange={handleFileChange}
+                  className="hidden"
+                  accept="image/*,application/pdf"
+                  multiple
+                />
+                + Add Document
+              </label>
+              <p className="text-xs text-gray-500 mt-2">
+                Upload additional documents (images or PDFs)
+              </p>
+            </div>
+
+            <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
+              {/* Existing Other Docs from Server */}
+              {formData.existingOtherDocs &&
+                formData.existingOtherDocs.length > 0 &&
+                formData.existingOtherDocs.map((doc, index) => (
+                  <div key={`existing-${index}`} className="relative">
+                    <div className="w-full h-32 overflow-hidden rounded border border-gray-300">
+                      {doc.includes(".pdf") ? (
+                        <div className="w-full h-full flex flex-col items-center justify-center bg-gray-100">
+                          <svg
+                            className="h-12 w-12 text-red-500"
+                            fill="currentColor"
+                            viewBox="0 0 20 20"
+                          >
+                            <path
+                              fillRule="evenodd"
+                              d="M4 4a2 2 0 012-2h4.586A2 2 0 0112 2.586L15.414 6A2 2 0 0116 7.414V16a2 2 0 01-2 2H6a2 2 0 01-2-2V4z"
+                              clipRule="evenodd"
+                            />
+                          </svg>
+                          <span className="text-xs text-gray-600 mt-1">PDF</span>
+                        </div>
+                      ) : (
+                        <img
+                          src={previewUrls.existingOtherDocs[index]}
+                          alt={`Other doc ${index + 1}`}
+                          className="w-full h-full object-cover"
+                        />
+                      )}
+                    </div>
+                    <button
+                      type="button"
+                      onClick={() => handleRemoveExistingOtherDoc(doc, index)}
+                      className="absolute -top-2 -right-2 bg-red-500 text-white rounded-full p-1 hover:bg-red-600 transition-colors"
+                      title="Remove document"
+                    >
+                      <svg
+                        xmlns="http://www.w3.org/2000/svg"
+                        className="h-4 w-4"
+                        fill="none"
+                        viewBox="0 0 24 24"
+                        stroke="currentColor"
+                      >
+                        <path
+                          strokeLinecap="round"
+                          strokeLinejoin="round"
+                          strokeWidth={2}
+                          d="M6 18L18 6M6 6l12 12"
+                        />
+                      </svg>
+                    </button>
+                    <p className="text-xs text-gray-600 mt-1 truncate">
+                      Existing Doc {index + 1}
+                    </p>
+                  </div>
+                ))}
+
+              {/* Newly Added Other Docs */}
+              {formData.otherDocs &&
+                formData.otherDocs.length > 0 &&
+                formData.otherDocs.map((doc, index) => (
+                  <div key={`new-${index}`} className="relative">
+                    <div className="w-full h-32 overflow-hidden rounded border border-green-300">
+                      {doc.type && doc.type.includes("pdf") ? (
+                        <div className="w-full h-full flex flex-col items-center justify-center bg-green-50">
+                          <svg
+                            className="h-12 w-12 text-red-500"
+                            fill="currentColor"
+                            viewBox="0 0 20 20"
+                          >
+                            <path
+                              fillRule="evenodd"
+                              d="M4 4a2 2 0 012-2h4.586A2 2 0 0112 2.586L15.414 6A2 2 0 0116 7.414V16a2 2 0 01-2 2H6a2 2 0 01-2-2V4z"
+                              clipRule="evenodd"
+                            />
+                          </svg>
+                          <span className="text-xs text-gray-600 mt-1">PDF</span>
+                        </div>
+                      ) : (
+                        <img
+                          src={previewUrls.otherDocs[index]}
+                          alt={`New doc ${index + 1}`}
+                          className="w-full h-full object-cover"
+                        />
+                      )}
+                    </div>
+                    <button
+                      type="button"
+                      onClick={() => handleRemoveOtherDoc(index)}
+                      className="absolute -top-2 -right-2 bg-red-500 text-white rounded-full p-1 hover:bg-red-600 transition-colors"
+                      title="Remove document"
+                    >
+                      <svg
+                        xmlns="http://www.w3.org/2000/svg"
+                        className="h-4 w-4"
+                        fill="none"
+                        viewBox="0 0 24 24"
+                        stroke="currentColor"
+                      >
+                        <path
+                          strokeLinecap="round"
+                          strokeLinejoin="round"
+                          strokeWidth={2}
+                          d="M6 18L18 6M6 6l12 12"
+                        />
+                      </svg>
+                    </button>
+                    <p className="text-xs text-gray-600 mt-1 truncate">
+                      {doc.name}
+                    </p>
+                    <span className="absolute top-1 left-1 bg-green-500 text-white text-xs px-2 py-0.5 rounded">
+                      New
+                    </span>
+                  </div>
+                ))}
+            </div>
+          </div>
+
+          {/* Related People to the Company Section */}
+          <div className="mt-8">
+            <h3 className="text-lg font-medium text-gray-800 mb-4">
+              Related People to the Company
+            </h3>
+
+            <div className="grid grid-cols-1 md:grid-cols-3 gap-6 bg-gray-50 p-4 rounded-lg mb-4">
+              {/* Left side - Input fields */}
+              <div className="md:col-span-2 space-y-4">
+                <div>
+                  <label className="block text-sm text-gray-700 mb-1">
+                    Name of Person <span className="text-red-500">*</span>
+                  </label>
+                  <input
+                    type="text"
+                    name="name"
+                    value={currentPerson.name}
+                    onChange={handlePersonInputChange}
+                    className="w-full p-2 border border-gray-300 rounded"
+                    placeholder="Enter person name"
+                  />
+                </div>
+
+                <div>
+                  <label className="block text-sm text-gray-700 mb-1">
+                    Title <span className="text-red-500">*</span>
+                  </label>
+                  <input
+                    type="text"
+                    name="title"
+                    value={currentPerson.title}
+                    onChange={handlePersonInputChange}
+                    className="w-full p-2 border border-gray-300 rounded"
+                    placeholder="e.g., Manager, Director, Partner"
+                  />
+                </div>
+
+                <div>
+                  <label className="block text-sm text-gray-700 mb-1">
+                    Phone Number <span className="text-red-500">*</span>
+                  </label>
+                  <div className="flex">
+                    <div className="flex items-center bg-white border border-r-0 border-gray-300 rounded-l px-2">
+                      <IndonesianFlag />
+                      <span className="text-gray-600">+62</span>
+                    </div>
+                    <input
+                      type="text"
+                      value={currentPersonPhone}
+                      onChange={handlePersonPhoneChange}
+                      className="w-full p-2 border border-gray-300 rounded-r"
+                      placeholder="Enter 11 digits"
+                    />
+                  </div>
+                </div>
+              </div>
+
+              {/* Right side - Profile Picture */}
+              <div>
+                <label className="block text-sm text-gray-700 mb-1">
+                  Profile Picture
+                </label>
+                <div className="relative">
+                  <div className="w-full h-40 overflow-hidden rounded border border-gray-300">
+                    {currentPersonPreview ? (
+                      <div className="relative h-full">
+                        <img
+                          src={currentPersonPreview}
+                          alt="Person"
+                          className="w-full h-full object-cover"
+                        />
+                        <button
+                          type="button"
+                          onClick={handleRemovePersonPicture}
+                          className="absolute top-2 right-2 bg-red-500 text-white rounded-full p-1 hover:bg-red-600 transition-colors"
+                          title="Remove image"
+                        >
+                          <svg
+                            xmlns="http://www.w3.org/2000/svg"
+                            className="h-4 w-4"
+                            fill="none"
+                            viewBox="0 0 24 24"
+                            stroke="currentColor"
+                          >
+                            <path
+                              strokeLinecap="round"
+                              strokeLinejoin="round"
+                              strokeWidth={2}
+                              d="M6 18L18 6M6 6l12 12"
+                            />
+                          </svg>
+                        </button>
+                      </div>
+                    ) : (
+                      <div className="w-full h-full flex items-center justify-center bg-gray-100">
+                        <span className="text-gray-400">No image</span>
+                      </div>
+                    )}
+                  </div>
+                  <input
+                    type="file"
+                    onChange={handlePersonPictureChange}
+                    className="absolute inset-0 opacity-0 cursor-pointer"
+                    accept="image/*"
+                  />
+                </div>
+              </div>
+            </div>
+
+            <button
+              type="button"
+              onClick={handleAddPerson}
+              className="px-4 py-2 bg-green-500 text-white rounded hover:bg-green-600 transition-colors"
+            >
+              + Add Person
+            </button>
+
+            {/* List of added people */}
+            {formData.relatedPeople.length > 0 && (
+              <div className="mt-6 space-y-4">
+                <h4 className="text-md font-medium text-gray-700">
+                  Related People ({formData.relatedPeople.length})
+                </h4>
+                {formData.relatedPeople.map((person, index) => (
+                  <div
+                    key={index}
+                    className="grid grid-cols-1 md:grid-cols-3 gap-6 bg-white p-4 rounded-lg border border-gray-200 relative"
+                  >
+                    {/* Left side - Person details */}
+                    <div className="md:col-span-2 space-y-3">
+                      <div>
+                        <label className="block text-sm text-gray-500 mb-1">
+                          Name of Person
+                        </label>
+                        <p className="text-gray-900 font-medium">
+                          {person.name}
+                        </p>
+                      </div>
+
+                      <div>
+                        <label className="block text-sm text-gray-500 mb-1">
+                          Title
+                        </label>
+                        <p className="text-gray-900">{person.title}</p>
+                      </div>
+
+                      <div>
+                        <label className="block text-sm text-gray-500 mb-1">
+                          Phone Number
+                        </label>
+                        <p className="text-gray-900">{person.phone}</p>
+                      </div>
+                    </div>
+
+                    {/* Right side - Profile Picture */}
+                    <div>
+                      <label className="block text-sm text-gray-500 mb-1">
+                        Profile Picture
+                      </label>
+                      <div className="w-full h-40 overflow-hidden rounded border border-gray-300">
+                        {relatedPeoplePreviews[index] ? (
+                          <img
+                            src={relatedPeoplePreviews[index]}
+                            alt={person.name}
+                            className="w-full h-full object-cover"
+                          />
+                        ) : (
+                          <div className="w-full h-full flex items-center justify-center bg-gray-100">
+                            <span className="text-gray-400">No image</span>
+                          </div>
+                        )}
+                      </div>
+                    </div>
+
+                    {/* Delete button */}
+                    <button
+                      type="button"
+                      onClick={() => handleRemovePerson(index)}
+                      className="absolute top-2 right-2 bg-red-500 text-white rounded-full p-1 hover:bg-red-600 transition-colors"
+                      title="Remove person"
+                    >
+                      <svg
+                        xmlns="http://www.w3.org/2000/svg"
+                        className="h-5 w-5"
+                        fill="none"
+                        viewBox="0 0 24 24"
+                        stroke="currentColor"
+                      >
+                        <path
+                          strokeLinecap="round"
+                          strokeLinejoin="round"
+                          strokeWidth={2}
+                          d="M6 18L18 6M6 6l12 12"
+                        />
+                      </svg>
+                    </button>
+                  </div>
+                ))}
+              </div>
+            )}
+          </div>
+
           {/* Status Section */}
-          <div className="mt-8 grid grid-cols-1 md:grid-cols-3 gap-6 border-t border-b py-6 border-gray-300">
+          <div className="mt-8 grid grid-cols-1 md:grid-cols-2 gap-6 border-t border-b py-6 border-gray-300">
             <div>
               <button
                 type="button"
@@ -1041,32 +1617,6 @@ const EditSupplierModal = ({ supplier, onClose }) => {
                   onChange={handleInputChange}
                   className="w-full p-2 border border-gray-300 rounded"
                   placeholder="Assigned"
-                />
-              </div>
-            </div>
-
-            <div>
-              <button
-                type="button"
-                onClick={toggleActiveStatus}
-                className={
-                  formData.activeInactive === "active"
-                    ? "bg-gray-200 rounded-lg p-2 inline-block text-gray-800 font-medium mb-2 hover:bg-gray-300"
-                    : "bg-gray-600 rounded-lg p-2 inline-block text-white font-medium mb-2 hover:bg-gray-700"
-                }
-              >
-                {formData.activeInactive === "active"
-                  ? "Deactivate"
-                  : "Activate"}
-              </button>
-              <div>
-                <input
-                  type="text"
-                  value={
-                    formData.activeInactive === "active" ? "Active" : "Inactive"
-                  }
-                  className="w-full p-2 border border-gray-300 rounded bg-gray-50"
-                  readOnly
                 />
               </div>
             </div>

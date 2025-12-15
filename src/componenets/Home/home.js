@@ -1,4 +1,5 @@
 import React, { useState, useEffect, useCallback, useMemo } from "react";
+import Sidebar from "../Sidebar/sidebar";
 import {
   Shield,
   Users,
@@ -670,7 +671,10 @@ const AdminDashboard = () => {
     );
 
     return (
-      <div className="space-y-8">
+      <div className="flex">
+        <Sidebar />
+        <div className="flex-1">
+          <div className="space-y-8">
         {/* Header Section */}
         <div className="relative overflow-hidden bg-gradient-to-br from-slate-900 via-blue-900 to-indigo-900 rounded-3xl p-8 text-white">
           <div className="absolute inset-0 bg-gradient-to-r from-blue-600/20 to-purple-600/20"></div>
@@ -876,6 +880,8 @@ const AdminDashboard = () => {
             </div>
           </div>
         )}
+      </div>
+      </div>
       </div>
     );
   }, [currentUser, getAccessibleComponents]);

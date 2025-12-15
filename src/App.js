@@ -19,6 +19,7 @@ import SupplierProfile from "./componenets/Supplier/AddSupplier";
 import { Home } from "lucide-react";
 import SuppliersList from "./componenets/Supplier/EditSupplier";
 import SupplierViewOnly from "./componenets/Supplier/ViewSuppliers";
+import AddProductsToSupplier from "./componenets/Supplier/AddProductsToSupplier";
 import ViewProducts from "./componenets/Products/viewProducts";
 import AddCategory from "./componenets/Products/addProductCategory";
 import OrdersInCart from "./componenets/Orders/ordersIncart";
@@ -67,6 +68,16 @@ import IntroductionVideoManagement159B from "./componenets/Refferal/Introduction
 import SupportManagement from "./componenets/Support/supportManagemnt";
 import AreasManagement from "./componenets/Delivery&complaints/DeliveryAreas";
 import DeliveryManagementSystem from "./componenets/DeliverySystem/maindeliverysystem";
+import OrderOverviewPage from "./componenets/DeliverySystem/OrderOverviewPage";
+import PackingStaffPage from "./componenets/DeliverySystem/PackingStaffPage";
+import DeliveryStorageOfficerPage from "./componenets/DeliverySystem/DeliveryStorageOfficerPage";
+import DispatchOfficer1Page from "./componenets/DeliverySystem/DispatchOfficer1Page";
+import DispatchOfficer2Page from "./componenets/DeliverySystem/DispatchOfficer2Page";
+import DriverPage from "./componenets/DeliverySystem/DriverPage";
+import DriverOnDeliveryPage from "./componenets/DeliverySystem/DriverOnDeliveryPage";
+import DeliveredOrdersPage from "./componenets/DeliverySystem/DeliveredOrdersPage";
+import ComplaintWithin24Page from "./componenets/DeliverySystem/ComplaintWithin24Page";
+import ComplaintAfter24Page from "./componenets/DeliverySystem/ComplaintAfter24Page";
 import VendorManagementDashboard from "./componenets/VendorManagement/VendorManagemet";
 import AllOrdersComponent from "./componenets/VendorManagement/ordersDashboard";
 import AssignAreasToVendors from "./componenets/VendorManagement/assignAreas";
@@ -329,6 +340,46 @@ function App() {
           }
         />
         <Route
+          path="/delivery/order-overview"
+          element={<OrderOverviewPage />}
+        />
+        <Route
+          path="/delivery/packing-staff"
+          element={<PackingStaffPage />}
+        />
+        <Route
+          path="/delivery/storage-officer"
+          element={<DeliveryStorageOfficerPage />}
+        />
+        <Route
+          path="/delivery/dispatch-officer-1"
+          element={<DispatchOfficer1Page />}
+        />
+        <Route
+          path="/delivery/dispatch-officer-2"
+          element={<DispatchOfficer2Page />}
+        />
+        <Route
+          path="/delivery/driver"
+          element={<DriverPage />}
+        />
+        <Route
+          path="/delivery/driver-on-delivery"
+          element={<DriverOnDeliveryPage />}
+        />
+        <Route
+          path="/delivery/delivered-orders"
+          element={<DeliveredOrdersPage />}
+        />
+        <Route
+          path="/delivery/complaint-within-24"
+          element={<ComplaintWithin24Page />}
+        />
+        <Route
+          path="/delivery/complaint-after-24"
+          element={<ComplaintAfter24Page />}
+        />
+        <Route
           path="/vendor-dashboard"
           element={
             <>
@@ -580,6 +631,10 @@ function App() {
         />
         {/* detail view for a given customer ID */}
         <Route path="/customers/:id" element={<CustomerDetail />} />
+        <Route
+          path="/add-products-to-supplier"
+          element={<AddProductsToSupplier />}
+        />
         <Route
           path="admin/supplier/edit"
           element={

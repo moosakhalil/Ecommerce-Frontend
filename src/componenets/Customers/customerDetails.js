@@ -1,5 +1,6 @@
 import React, { useState, useEffect } from "react";
 import { useNavigate, useParams } from "react-router-dom";
+import Sidebar from "../Sidebar/sidebar";
 import {
   ChevronLeft,
   Edit,
@@ -297,7 +298,10 @@ const CustomerDetail = () => {
   const isBlocked = customer.conversationState === "blocked";
 
   return (
-    <div className="w-full p-6">
+    <div className="flex">
+      <Sidebar />
+      <div className="flex-1 ml-64 p-12">
+    <div className="w-full">
       <div className="max-w-7xl mx-auto space-y-6">
         {/* Top Bar */}
         <div className="flex items-center justify-between">
@@ -941,6 +945,8 @@ const CustomerDetail = () => {
           </div>
         )}
       </div>
+    </div>
+    </div>
     </div>
   );
 };

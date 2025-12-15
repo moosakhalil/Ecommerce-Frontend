@@ -27,7 +27,12 @@ const AddProduct = () => {
   const [showSearchResults, setShowSearchResults] = useState(false);
   const [searchResults, setSearchResults] = useState([]);
   const [isSearchingParents, setIsSearchingParents] = useState(false);
-  const [isSearchingSuppliers, setIsSearchingSuppliers] = useState(false);
+  
+  // Supplier selection (optional)
+  const [suppliers, setSuppliers] = useState([]);
+  const [selectedSupplier, setSelectedSupplier] = useState(null);
+  const [supplierSearchTerm, setSupplierSearchTerm] = useState("");
+  const [showSupplierDropdown, setShowSupplierDropdown] = useState(false);
 
   // ✅ NEW: Error state for displaying errors
   const [showError, setShowError] = useState(false);
@@ -87,13 +92,6 @@ const AddProduct = () => {
     inventoryInDays: "5days",
     deliveryPeriod: "1 days",
     orderTimeBackupInventory: "",
-    alternateSupplier: "",
-    supplierInformation: "",
-    supplierWebsite: "",
-    supplierContact: "",
-    supplierName: "",
-    supplierAddress: "",
-    supplierEmail: "",
     anyDiscount: "",
     NormalPrice: "",
     Stock: "",
@@ -112,6 +110,7 @@ const AddProduct = () => {
     noChildHideParent: false,
     subCategories: "",
     packageSize: "Large",
+    selectedSupplierId: "", // Optional supplier allocation
   });
 
   const toBase64 = (file) =>
@@ -136,16 +135,6 @@ const AddProduct = () => {
   // For the tag selection
   const [selectedTags, setSelectedTags] = useState([]);
   const availableTags = ["Popular", "Sale", "New"];
-
-  // For the suppliers suggestions
-  const [suppliers, setSuppliers] = useState([
-    { id: 1, name: "Almond", date: "2 Jun 2020", active: "Active" },
-    { id: 11, name: "Hornet", date: "2 Jun 2020", active: "Active" },
-    { id: 12, name: "Hornet", date: "2 Jun 2020", active: "Active" },
-    { id: 13, name: "Hornet", date: "2 Jun 2020", active: "Active" },
-  ]);
-  const [filteredSuppliers, setFilteredSuppliers] = useState([]);
-  const [showSuggestions, setShowSuggestions] = useState(false);
 
   // Refs for image upload
   const masterImageRef = useRef(null);
@@ -193,7 +182,6 @@ const AddProduct = () => {
         const response = await axios.get(`${API_URL}/api/suppliers`);
         if (response.data && response.data.success) {
           setSuppliers(response.data.data);
-          setFilteredSuppliers(response.data.data);
         }
       } catch (error) {
         console.error("Error fetching suppliers:", error);
@@ -204,83 +192,22 @@ const AddProduct = () => {
     fetchSuppliers();
   }, []);
 
-  // right after your fetchParentProducts / fetchSuppliers useEffect:
+  // Close supplier dropdown when clicking outside
   useEffect(() => {
-    if (productType === "Child" && formData.parentProduct) {
-      const parent = parentProducts.find(
-        (p) => p.productId === formData.parentProduct
-      );
-      if (parent) {
-        setFormData((fd) => ({
-          ...fd,
-          supplierName: parent.supplierName,
-          supplierContact: parent.supplierContact,
-          supplierAddress: parent.supplierAddress,
-          supplierEmail: parent.supplierEmail,
-        }));
+    const handleClickOutside = (event) => {
+      if (!event.target.closest('.supplier-dropdown-container')) {
+        setShowSupplierDropdown(false);
       }
+    };
+
+    if (showSupplierDropdown) {
+      document.addEventListener('mousedown', handleClickOutside);
     }
-  }, [productType, formData.parentProduct, parentProducts]);
 
-  // Filter suppliers based on search term
-  useEffect(() => {
-    if (formData.alternateSupplier) {
-      const filtered = suppliers.filter((supplier) =>
-        supplier.name
-          .toLowerCase()
-          .includes(formData.alternateSupplier.toLowerCase())
-      );
-      setFilteredSuppliers(filtered);
-    } else {
-      setFilteredSuppliers(suppliers);
-    }
-  }, [formData.alternateSupplier, suppliers]);
-
-  // Debounced search for suppliers
-  const searchSuppliers = useCallback(
-    async (term) => {
-      if (!term || term.length < 2) {
-        setFilteredSuppliers(suppliers.slice(0, 5));
-        setShowSuggestions(false);
-        return;
-      }
-
-      setIsSearchingSuppliers(true);
-      try {
-        const response = await axios.get(`${API_URL}/api/suppliers/search`, {
-          params: { term },
-        });
-
-        if (response.data && response.data.success) {
-          setFilteredSuppliers(response.data.data);
-          setShowSuggestions(true);
-        }
-      } catch (error) {
-        console.error("Error searching suppliers:", error);
-        const filtered = suppliers.filter((supplier) =>
-          supplier.name.toLowerCase().includes(term.toLowerCase())
-        );
-        setFilteredSuppliers(filtered);
-        setShowSuggestions(true);
-      } finally {
-        setIsSearchingSuppliers(false);
-      }
-    },
-    [suppliers]
-  );
-
-  // Use effect to trigger search on input change
-  useEffect(() => {
-    const delayDebounceFn = setTimeout(() => {
-      if (formData.alternateSupplier) {
-        searchSuppliers(formData.alternateSupplier);
-      } else {
-        setShowSuggestions(false);
-      }
-    }, 300);
-
-    return () => clearTimeout(delayDebounceFn);
-  }, [formData.alternateSupplier, searchSuppliers]);
+    return () => {
+      document.removeEventListener('mousedown', handleClickOutside);
+    };
+  }, [showSupplierDropdown]);
 
   // Handle product type change
   const handleProductTypeChange = (type) => {
@@ -395,30 +322,13 @@ const AddProduct = () => {
     setMoreImages(newMoreImages);
   };
 
-  // Handle selecting a suggested supplier
-  const selectSupplier = (supplier) => {
-    setFormData((prev) => ({
-      ...prev,
-      alternateSupplier: supplier.name,
-      supplierName: supplier.name,
-      supplierEmail: supplier.email || "",
-      supplierAddress: supplier.address || "",
-      supplierContact: supplier.phone || "",
-      supplierWebsite: supplier.website || "",
-    }));
-    setShowSuggestions(false);
-  };
-
   // Handle input changes
   const handleChange = (e) => {
     const { name, value } = e.target;
     setFormData((prev) => {
       const updatedFormData = { ...prev, [name]: value };
 
-      // If alternateSupplier changes, sync with supplierName
-      if (name === "alternateSupplier") {
-        updatedFormData.supplierName = value;
-      }
+
 
       return updatedFormData;
     });
@@ -486,22 +396,16 @@ const AddProduct = () => {
         "productName",
         "brand",
         "description",
-        "supplierName",
-        "supplierContact",
       ],
       Child: [
         "parentProduct",
         "varianceName",
         "subtitleDescription",
-        "supplierName",
-        "supplierContact",
       ],
       Normal: [
         "productName",
         "brand",
         "description",
-        "supplierName",
-        "supplierContact",
       ],
     };
 
@@ -528,8 +432,6 @@ const AddProduct = () => {
         productName: "Product Name",
         brand: "Brand",
         description: "Description",
-        supplierName: "Supplier Name",
-        supplierContact: "Supplier Contact",
         parentProduct: "Parent Product",
         varianceName: "Variance Name",
         subtitleDescription: "Subtitle Description",
@@ -566,8 +468,6 @@ const AddProduct = () => {
         productType: payload.productType,
         productName: payload.productName,
         categories: payload.categories,
-        supplierName: payload.supplierName,
-        supplierContact: payload.supplierContact,
       });
 
       // 2) Convert masterImage File to Base64
@@ -617,7 +517,6 @@ const AddProduct = () => {
         productType: payload.productType,
         productName: payload.productName,
         categories: payload.categories,
-        supplierName: payload.supplierName,
         hasImages: !!payload.masterImage,
         moreImagesCount: payload.moreImages?.length || 0,
       });
@@ -1014,129 +913,6 @@ const AddProduct = () => {
               )}
             </div>
 
-            {/* Only Supplier Information for Parent */}
-            <div className="border border-red-300 p-3 rounded-lg mb-4">
-              <div className="flex justify-between">
-                <div className="text-xs font-medium">Allocate Supplier</div>
-                <div className="flex">
-                  <div className="text-xs px-2 border-r border-gray-300">
-                    Supplier information
-                  </div>
-                  <div className="text-xs px-2 border-r border-gray-300">
-                    Supplier Name
-                  </div>
-                  <div className="text-xs px-2">Supplier contact</div>
-                </div>
-              </div>
-            </div>
-
-            {/* Supplier details */}
-            <div className="mb-4">
-              <div className="flex gap-2 text-xs mb-1">
-                <span>or use time supplier</span>
-                <span className="ml-auto">search supplier</span>
-              </div>
-
-              <div className="space-y-2">
-                <label className="block text-xs font-medium mb-1">
-                  Supplier name <span className="text-red-500">*</span>
-                </label>
-                <div className="relative">
-                  <input
-                    type="text"
-                    name="alternateSupplier"
-                    value={formData.alternateSupplier}
-                    onChange={handleChange}
-                    onFocus={() => {
-                      if (formData.alternateSupplier) {
-                        setShowSuggestions(true);
-                      }
-                    }}
-                    onBlur={() => {
-                      setTimeout(() => setShowSuggestions(false), 200);
-                    }}
-                    placeholder="Search or enter supplier name"
-                    className="w-full border border-gray-300 p-1 rounded text-sm"
-                  />
-                  {isSearchingSuppliers && (
-                    <div className="absolute right-2 top-1/2 transform -translate-y-1/2">
-                      <div className="animate-spin h-4 w-4 border-2 border-purple-500 rounded-full border-t-transparent"></div>
-                    </div>
-                  )}
-
-                  {showSuggestions && filteredSuppliers.length > 0 && (
-                    <div className="absolute z-10 w-full mt-1 bg-white border border-gray-300 rounded shadow-lg max-h-40 overflow-y-auto">
-                      {filteredSuppliers.map((supplier) => (
-                        <div
-                          key={supplier._id || supplier.id}
-                          className="p-2 hover:bg-purple-50 cursor-pointer border-b border-gray-200"
-                          onClick={() => selectSupplier(supplier)}
-                        >
-                          <div className="font-medium text-sm">
-                            {supplier.name}
-                          </div>
-                          {supplier.email && (
-                            <div className="text-xs text-gray-500">
-                              {supplier.email}
-                            </div>
-                          )}
-                        </div>
-                      ))}
-                    </div>
-                  )}
-                </div>
-
-                <div>
-                  <label className="block text-xs font-medium mb-1">
-                    Supplier contact <span className="text-red-500">*</span>
-                  </label>
-                  <input
-                    type="text"
-                    name="supplierContact"
-                    value={formData.supplierContact}
-                    onChange={handleChange}
-                    className="w-full border border-gray-300 p-1 rounded text-sm"
-                  />
-                </div>
-
-                <div>
-                  <label className="block text-xs font-medium mb-1">
-                    Supplier address
-                  </label>
-                  <input
-                    type="text"
-                    name="supplierAddress"
-                    value={formData.supplierAddress}
-                    onChange={handleChange}
-                    className="w-full border border-gray-300 p-1 rounded text-sm"
-                  />
-                </div>
-
-                <div>
-                  <label className="block text-xs font-medium mb-1">
-                    Supplier Email
-                  </label>
-                  <input
-                    type="email"
-                    name="supplierEmail"
-                    value={formData.supplierEmail}
-                    onChange={handleChange}
-                    className="w-full border border-gray-300 p-1 rounded text-sm"
-                  />
-                </div>
-              </div>
-            </div>
-
-            {/* Add Supplier Button */}
-            <div className="flex justify-end mb-4">
-              <button
-                type="button"
-                className="bg-orange-500 text-white rounded-full w-8 h-8 flex items-center justify-center"
-              >
-                <PlusIcon size={20} />
-              </button>
-            </div>
-
             {/* Main content sections - only show for chosen product type */}
             {productType && (
               <div className="grid grid-cols-1 lg:grid-cols-3 gap-4">
@@ -1287,15 +1063,15 @@ const AddProduct = () => {
                         <div className="mb-4 p-4 bg-gradient-to-r from-blue-50 to-indigo-50 rounded-lg border border-blue-200">
                           <h3 className="text-sm font-semibold mb-3 text-gray-800 flex items-center">
                             <Package className="w-4 h-4 mr-2 text-blue-600" />
-                            Package Size <span className="text-red-500 ml-1">*</span>
+                            Package Size
                           </h3>
                           <p className="text-xs text-gray-600 mb-3">
-                            Select the package size for delivery options. Small packages can be delivered by scooter, large packages require truck delivery.
+                            By default, products are large (truck delivery). Click below to mark as small package (scooter delivery).
                           </p>
                           <div className="flex gap-3">
                             <button
                               type="button"
-                              onClick={() => setFormData({ ...formData, packageSize: "Small" })}
+                              onClick={() => setFormData({ ...formData, packageSize: formData.packageSize === "Small" ? "Large" : "Small" })}
                               className={`flex-1 px-4 py-3 rounded-lg border-2 transition-all duration-200 ${
                                 formData.packageSize === "Small"
                                   ? "border-green-500 bg-green-50 text-green-700 font-semibold shadow-md"
@@ -1304,26 +1080,17 @@ const AddProduct = () => {
                             >
                               <div className="flex items-center justify-center">
                                 <Bike className="w-5 h-5 mr-2" />
-                                <span>Small Package</span>
+                                <span>{formData.packageSize === "Small" ? "Small Package (Selected)" : "Mark as Small Package"}</span>
                               </div>
                               <div className="text-xs mt-1">(Scooter Delivery)</div>
                             </button>
-                            <button
-                              type="button"
-                              onClick={() => setFormData({ ...formData, packageSize: "Large" })}
-                              className={`flex-1 px-4 py-3 rounded-lg border-2 transition-all duration-200 ${
-                                formData.packageSize === "Large"
-                                  ? "border-blue-500 bg-blue-50 text-blue-700 font-semibold shadow-md"
-                                  : "border-gray-300 bg-white text-gray-600 hover:border-blue-300 hover:bg-blue-50"
-                              }`}
-                            >
-                              <div className="flex items-center justify-center">
-                                <Truck className="w-5 h-5 mr-2" />
-                                <span>Large Package</span>
-                              </div>
-                              <div className="text-xs mt-1">(Truck Delivery)</div>
-                            </button>
                           </div>
+                          {formData.packageSize === "Large" && (
+                            <div className="mt-2 text-xs text-gray-500 flex items-center">
+                              <Truck className="w-4 h-4 mr-1" />
+                              <span>Currently set as Large Package (Truck Delivery)</span>
+                            </div>
+                          )}
                         </div>
 
                         {/* Inventory section - simplified layout */}
@@ -1655,6 +1422,77 @@ const AddProduct = () => {
                           {tag}
                         </button>
                       ))}
+                    </div>
+                  </div>
+
+                  {/* Optional Supplier Allocation */}
+                  <div className="mb-4 supplier-dropdown-container">
+                    <h3 className="text-sm font-medium mb-2 text-gray-700">
+                      Allocate Supplier <span className="text-xs text-gray-500">(Optional)</span>
+                    </h3>
+                    <div className="relative">
+                      <input
+                        type="text"
+                        placeholder="Search and select supplier..."
+                        value={supplierSearchTerm}
+                        onChange={(e) => {
+                          setSupplierSearchTerm(e.target.value);
+                          setShowSupplierDropdown(true);
+                        }}
+                        onFocus={() => setShowSupplierDropdown(true)}
+                        className="w-full border p-2 rounded"
+                      />
+                      {selectedSupplier && (
+                        <div className="mt-2 p-2 bg-green-50 border border-green-200 rounded flex items-center justify-between">
+                          <div className="text-sm">
+                            <span className="font-medium">{selectedSupplier.name}</span>
+                            <span className="text-gray-500 ml-2">{selectedSupplier.phone}</span>
+                          </div>
+                          <button
+                            type="button"
+                            onClick={() => {
+                              setSelectedSupplier(null);
+                              setSupplierSearchTerm("");
+                              setFormData(fd => ({ ...fd, selectedSupplierId: "" }));
+                            }}
+                            className="text-red-500 hover:text-red-700"
+                          >
+                            <XCircleIcon className="w-5 h-5" />
+                          </button>
+                        </div>
+                      )}
+                      {showSupplierDropdown && !selectedSupplier && (
+                        <div className="absolute z-10 w-full mt-1 bg-white border rounded shadow-lg max-h-60 overflow-y-auto">
+                          {suppliers
+                            .filter(s => 
+                              s.name.toLowerCase().includes(supplierSearchTerm.toLowerCase()) ||
+                              s.phone.includes(supplierSearchTerm)
+                            )
+                            .slice(0, 10)
+                            .map((supplier) => (
+                              <div
+                                key={supplier._id}
+                                onClick={() => {
+                                  setSelectedSupplier(supplier);
+                                  setSupplierSearchTerm(supplier.name);
+                                  setShowSupplierDropdown(false);
+                                  setFormData(fd => ({ ...fd, selectedSupplierId: supplier._id }));
+                                }}
+                                className="p-2 hover:bg-gray-100 cursor-pointer border-b"
+                              >
+                                <div className="font-medium text-sm">{supplier.name}</div>
+                                <div className="text-xs text-gray-500">{supplier.phone}</div>
+                              </div>
+                            ))}
+                          {suppliers.filter(s => 
+                            s.name.toLowerCase().includes(supplierSearchTerm.toLowerCase())
+                          ).length === 0 && (
+                            <div className="p-3 text-sm text-gray-500 text-center">
+                              No suppliers found
+                            </div>
+                          )}
+                        </div>
+                      )}
                     </div>
                   </div>
 
