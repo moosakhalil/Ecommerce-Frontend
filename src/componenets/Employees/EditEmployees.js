@@ -33,6 +33,7 @@ const EditEmployees = () => {
   ]);
   const [availableRoles, setAvailableRoles] = useState([]);
   const [loadingRoles, setLoadingRoles] = useState(false);
+  const [roles, setRoles] = useState([]);
   const [showSuccessMessage, setShowSuccessMessage] = useState(false);
   const [successMessage, setSuccessMessage] = useState("");
   const [validationError, setValidationError] = useState("");
@@ -206,19 +207,29 @@ const EditEmployees = () => {
     }
   }, [editFormData.roles, availableRoles]);
 
+  // Fetch roles data
+  useEffect(() => {
+    const fetchRoles = async () => {
+      try {
+        const response = await axios.get(`${API_BASE_URL}/api/employee-roles`);
+        setRoles(response.data.roles || []);
+        
+        // Also fetch available roles for the dropdown
+        setAvailableRoles(response.data.roles || []);
+      } catch (error) {
+        console.error("Error fetching roles:", error);
+      }
+    };
+    fetchRoles();
+  }, []);
+
   useEffect(() => {
     const fetchEmployees = async () => {
       try {
         setLoading(true);
         const response = await axios.get(`${API_BASE_URL}/api/employees`);
-        setEmployees(response.data.employees); // Ensure this contains employeeCategory
+        setEmployees(response.data.employees);
         setTotalItems(response.data.total);
-        
-        // Extract unique employee categories
-        const uniqueCategories = [...new Set(
-          (response.data.employees || []).map(emp => emp.employeeCategory).filter(Boolean)
-        )];
-        setCategoryOptions(["All employees", ...uniqueCategories]);
         
         setLoading(false);
       } catch (error) {
@@ -230,6 +241,57 @@ const EditEmployees = () => {
     fetchEmployees();
   }, []);
 
+  // Update category options when roles change
+  useEffect(() => {
+    if (roles.length > 0) {
+      const systemRoles = [
+        { _id: "packing-staff", name: "Packing Staff" },
+        { _id: "storage-officer", name: "Storage Officer" },
+        { _id: "dispatch-officer-1", name: "Dispatch Officer 1" },
+        { _id: "dispatch-officer-2", name: "Dispatch Officer 2" },
+        { _id: "driver", name: "Driver" },
+        { _id: "driver-on-delivery", name: "Driver on Delivery" },
+        { _id: "complaint-manager", name: "Complaint Manager" },
+      ];
+      
+      const allRoleNames = [
+        "All employees",
+        ...systemRoles.map(r => r.name),
+        ...roles.map(r => r.name)
+      ];
+      
+      setCategoryOptions(allRoleNames);
+    }
+  }, [roles]);
+
+  // Map role IDs to display names
+  const getRoleDisplayName = (roleId) => {
+    // First check if it's a custom role (ObjectId)
+    const customRole = roles.find(role => role._id === roleId);
+    if (customRole) {
+      return customRole.name;
+    }
+
+    // If not found in custom roles, use default mapping
+    const roleMap = {
+      "packing-staff": "Packing Staff",
+      "storage-officer": "Storage Officer",
+      "dispatch-officer-1": "Dispatch Officer 1",
+      "dispatch-officer-2": "Dispatch Officer 2",
+      "driver": "Driver",
+      "driver-on-delivery": "Driver on Delivery",
+      "complaint-manager": "Complaint Manager",
+      "add-products": "Add product",
+      "product-list": "Product List",
+      finance: "Finance",
+      orders: "Orders",
+      "customer-service": "Customer Service",
+      "truck-driver": "Truck Driver",
+    };
+
+    return roleMap[roleId] || roleId;
+  };
+
   // Filter employees based on search term and selected employee type
   const filteredEmployees = (employees || []).filter((employee) => {
     // Search filter
@@ -238,13 +300,16 @@ const EditEmployees = () => {
       employee.email?.toLowerCase().includes(searchTerm.toLowerCase()) ||
       employee.employeeId?.toLowerCase().includes(searchTerm.toLowerCase());
 
-    // Category filter
-    let matchesCategory = true;
+    // Role filter
+    let matchesRole = true;
     if (employeeType !== "All employees") {
-      matchesCategory = employee.employeeCategory === employeeType;
+      // Check if employee has any role that matches the selected role name
+      matchesRole = (employee.roles || []).some(roleId => {
+        return getRoleDisplayName(roleId) === employeeType;
+      });
     }
 
-    return matchesSearch && matchesCategory;
+    return matchesSearch && matchesRole;
   });
 
   // Calculate pagination
@@ -272,20 +337,6 @@ const EditEmployees = () => {
     return `${date.getDate()} ${date.toLocaleString("default", {
       month: "long",
     })}, ${date.getFullYear()}`;
-  };
-
-  // Map role IDs to display names
-  const getRoleDisplayName = (roleId) => {
-    const roleMap = {
-      "add-products": "Add product",
-      "product-list": "Product List",
-      finance: "Finance",
-      orders: "Orders",
-      "customer-service": "Customer Service",
-      "truck-driver": "truck driver",
-    };
-
-    return roleMap[roleId] || roleId;
   };
 
   // Get badge color based on role
@@ -325,7 +376,6 @@ const EditEmployees = () => {
       address: employee.address || "",
       emergencyContact: employee.emergencyContact || "",
       homeLocation: employee.homeLocation || "",
-      employeeCategory: "",
       roles: employee.roles || [],
       addedOn: employee.addedOn
         ? new Date(employee.addedOn).toISOString().slice(0, 10)
@@ -592,8 +642,11 @@ const EditEmployees = () => {
       // Append all form fields
       Object.keys(editFormData).forEach((key) => {
         if (key === "roles") {
-          formData.append(key, JSON.stringify(editFormData[key]));
-        } else {
+          // Don't stringify - backend expects it as a field that can be parsed
+          editFormData[key].forEach((role) => {
+            formData.append("roles[]", role);
+          });
+        } else if (key !== "permissions") {
           formData.append(key, editFormData[key]);
         }
       });
@@ -798,7 +851,7 @@ const EditEmployees = () => {
                 </div>
                 <div className="md:w-64">
                   <label className="block text-sm text-gray-500 mb-1">
-                    sort by employee type
+                    Filter by role
                   </label>
                   <div className="relative">
                     <select
@@ -826,8 +879,7 @@ const EditEmployees = () => {
                       <th className="pb-3 px-4">NAME</th>
                       <th className="pb-3 px-4">Date Added</th>
                       <th className="pb-3 px-4">Last Edited</th>
-                      <th className="pb-3 px-4">Employee Category</th>
-                      <th className="pb-3 px-4">PERMISSIONS</th>
+                      <th className="pb-3 px-4">ROLES</th>
                       <th className="pb-3 px-4">ACTIONS</th>
                     </tr>
                   </thead>
@@ -871,11 +923,6 @@ const EditEmployees = () => {
                           <td className="py-4 px-4 text-gray-800">
                             {formatDate(employee.updatedAt) || "-"}
                           </td>
-                          <td className="py-4 px-4 text-gray-800">
-                            {employee.employeeCategory ||
-                              "No category assigned"}
-                          </td>
-
                           <td className="py-4 px-4">
                             <div className="flex flex-wrap gap-2">
                               {employee.roles && employee.roles.length > 0 ? (
@@ -890,15 +937,7 @@ const EditEmployees = () => {
                                   </span>
                                 ))
                               ) : (
-                                // Default roles for demonstration
-                                <>
-                                  <span className="px-2 py-1 rounded text-xs bg-blue-600 text-white">
-                                    Add product
-                                  </span>
-                                  <span className="px-2 py-1 rounded text-xs bg-pink-500 text-white">
-                                    Categories
-                                  </span>
-                                </>
+                                <span className="text-gray-400 text-sm">No roles assigned</span>
                               )}
                             </div>
                           </td>

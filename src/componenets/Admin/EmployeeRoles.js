@@ -119,8 +119,8 @@ const EmployeeRoles = () => {
         { id: 150, name: "Referrals video verification" },
         { id: 151, name: "Referrals data" },
         { id: 155, name: "Referrals foreman income" },
-        { id: 159, name: "Referral demo video" },
-        { id: 160, name: "Introduction videos Management" },
+        { id: "159 A", name: "Referral demo video" },
+        { id: "159 B", name: "Introduction videos Management" },
       ],
     },
     {
@@ -218,6 +218,11 @@ const EmployeeRoles = () => {
       setTimeout(() => setSuccess(""), 3000);
     } catch (err) {
       console.error("Error saving role:", err);
+      console.error("Error details:", {
+        message: err.message,
+        response: err.response?.data,
+        status: err.response?.status,
+      });
       setError(err.response?.data?.message || "Failed to save role");
       setTimeout(() => setError(""), 3000);
     } finally {

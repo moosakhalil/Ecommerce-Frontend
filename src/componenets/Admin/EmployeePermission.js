@@ -121,8 +121,8 @@ const EmployeePermission = () => {
         { id: 150, name: "Referrals video verification" },
         { id: 151, name: "Referrals data" },
         { id: 155, name: "Referrals foreman income" },
-        { id: 159, name: "Referral demo video" },
-        { id: 160, name: "Introduction videos Management" },
+        { id: "159 A", name: "Referral demo video" },
+        { id: "159 B", name: "Introduction videos Management" },
       ]
     },
     {
@@ -160,6 +160,12 @@ const EmployeePermission = () => {
       setLoading(false);
     } catch (error) {
       console.error("Error fetching employees:", error);
+      console.error("Error details:", {
+        message: error.message,
+        response: error.response?.data,
+        status: error.response?.status,
+        url: `${API_BASE_URL}/api/employees`
+      });
       setEmployees([]);
       setLoading(false);
     }

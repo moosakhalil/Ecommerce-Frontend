@@ -16,6 +16,7 @@ const AddEmployee = ({ employeeId }) => {
     homeLocation: "",
     addedOn: new Date().toISOString().slice(0, 10),
     roles: [],
+    permissions: [],
   });
 
   // Separate state for contacts
@@ -122,9 +123,9 @@ const AddEmployee = ({ employeeId }) => {
     { id: 90, name: "History orders supplier (Admin office)" },
     { id: 101, name: "Finances (articial emp)" },
     { id: 105, name: "ANALYTICS" },
-    { id: 100, name: "Admin" },
-    { id: 101, name: "Lower Admin" },
-    { id: 102, name: "Truck Drivers" },
+    { id: "admin", name: "Admin" },
+    { id: "admin-lower", name: "Lower Admin" },
+    { id: "admin-drivers", name: "Truck Drivers" },
     { id: "admin-employee-add", name: "Employee - add" },
     { id: "admin-employee-edit", name: "Employee - edit" },
     { id: "admin-supplier-add", name: "Supplier - add" },
@@ -138,8 +139,8 @@ const AddEmployee = ({ employeeId }) => {
     { id: 150, name: "Referrals video verification" },
     { id: 151, name: "Referrals data" },
     { id: 155, name: "Referrals foreman income" },
-    { id: 159, name: "Referral demo video" },
-    { id: 160, name: "Introduction videos Management" },
+    { id: "159 A", name: "Referral demo video" },
+    { id: "159 B", name: "Introduction videos Management" },
     { id: 160, name: "from human earning structure" },
     { id: "calendar", name: "Calendar" },
     { id: "vehicle-types", name: "Vehicle Types" },
@@ -243,8 +244,8 @@ const AddEmployee = ({ employeeId }) => {
         addedOn: employeeData.addedOn
           ? employeeData.addedOn.slice(0, 10)
           : new Date().toISOString().slice(0, 10),
-        employeeCategory: employeeData.employeeCategory || "",
         roles: employeeData.roles || [],
+        permissions: employeeData.permissions || [],
       });
 
       // Set contacts
@@ -419,16 +420,16 @@ const AddEmployee = ({ employeeId }) => {
     }
 
     // Validate required fields
-    if (
-      !formData.name ||
-      !formData.email ||
-      !formData.phone ||
-      !formData.address ||
-      !formData.emergencyContact ||
-      !formData.homeLocation ||
-      !formData.employeeCategory
-    ) {
-      setErrorMessage("Please fill in all required fields");
+    const missingFields = [];
+    if (!formData.name) missingFields.push("Name");
+    if (!formData.email) missingFields.push("Email");
+    if (!formData.phone) missingFields.push("Phone");
+    if (!formData.address) missingFields.push("Address");
+    if (!formData.emergencyContact) missingFields.push("Emergency Contact");
+    if (!formData.homeLocation) missingFields.push("Home Location");
+    
+    if (missingFields.length > 0) {
+      setErrorMessage(`Please fill in all required fields: ${missingFields.join(", ")}`);
       return;
     }
 
@@ -443,7 +444,6 @@ const AddEmployee = ({ employeeId }) => {
     submitData.append("emergencyContact", formData.emergencyContact);
     submitData.append("homeLocation", formData.homeLocation);
     submitData.append("addedOn", formData.addedOn);
-    submitData.append("employeeCategory", formData.employeeCategory);
     submitData.append("roles", JSON.stringify(formData.roles));
     
     // Log contacts before sending
