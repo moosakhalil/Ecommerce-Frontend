@@ -672,7 +672,6 @@ const AdminDashboard = () => {
 
     return (
       <div className="flex">
-        <Sidebar />
         <div className="flex-1">
           <div className="space-y-8">
         {/* Header Section */}

@@ -28,6 +28,7 @@ const ChevronDown = () => <span>⌄</span>;
 const ChevronUp = () => <span>⌃</span>;
 const Edit = () => <span>✏️</span>;
 const Plus = () => <span>➕</span>;
+const MapPin = () => <span>📍</span>;
 
 const Sidebar = ({ onSectionClick }) => {
   const [isOpen, setIsOpen] = useState(true);
@@ -510,22 +511,40 @@ const Sidebar = ({ onSectionClick }) => {
       title: " FINANCE",
       sections: [
         {
-          id: 101,
-          componentId: "101",
-          number: "101.",
+          id: 251,
+          componentId: "251",
+          number: "251.",
           icon: <CreditCard />,
           name: "Finances (articial emp)",
           access: "",
           path: "/finances",
         },
         {
-          id: 105,
-          componentId: "105",
-          number: "105.",
+          id: 255,
+          componentId: "255",
+          number: "255.",
           icon: <CreditCard />,
           name: "ANALYTICS",
           access: "",
           path: "/analytics",
+        },
+        {
+          id: 256,
+          componentId: "256",
+          number: "256.",
+          icon: <CreditCard />,
+          name: "Product Sales Info",
+          access: "",
+          path: "/product-sales-info",
+        },
+        {
+          id: 257,
+          componentId: "257",
+          number: "257.",
+          icon: <CreditCard />,
+          name: "Competitors",
+          access: "",
+          path: "/competitors",
         },
       ],
     },
@@ -692,6 +711,15 @@ const Sidebar = ({ onSectionClick }) => {
           name: "View vehicle",
           access: "",
           path: "/admin/vehicles",
+        },
+        {
+          id: 113,
+          componentId: "area-management-b",
+          number: "113.",
+          icon: <MapPin />,
+          name: "Area Management B",
+          access: "",
+          path: "/area-management-b",
         },
       ],
     },

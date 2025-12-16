@@ -93,6 +93,9 @@ import SelectVehicle from "./componenets/Vehicles/SelectVehicle";
 import ViewVehicles from "./componenets/Vehicles/ViewVehicles";
 import EditVehicle from "./componenets/Vehicles/EditVehicle";
 import ViewVehicle from "./componenets/Vehicles/ViewVehicle";
+import Competitors from "./componenets/Finance/Competitors";
+import ProductSalesInfo from "./componenets/Finance/ProductSalesInfo";
+import AreaManagementB from "./componenets/Settings/AreaManagementB";
 
 
 function App() {
@@ -680,6 +683,30 @@ function App() {
           element={
             <>
               <HomePage />
+            </>
+          }
+        />
+        <Route
+          path="/competitors"
+          element={
+            <>
+              <Competitors />
+            </>
+          }
+        />
+        <Route
+          path="/product-sales-info"
+          element={
+            <>
+              <ProductSalesInfo />
+            </>
+          }
+        />
+        <Route
+          path="/area-management-b"
+          element={
+            <>
+              <AreaManagementB />
             </>
           }
         />

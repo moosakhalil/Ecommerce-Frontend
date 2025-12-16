@@ -32,7 +32,12 @@ const CalendarComponent = () => {
         date: `${currentDate.getDate()}/${currentDate.getMonth() + 1}/${year}`,
         weekDay: dayName,
         weekNumber: weekNumber,
-        holiday: "",
+        holidayName1: "",
+        specificDay1: "",
+        holidayName2: "",
+        specificDay2: "",
+        holidayName3: "",
+        specificDay3: "",
         isOpen: true,
         closingHoursFrom: "",
         closingHoursTo: "",
@@ -70,9 +75,9 @@ const CalendarComponent = () => {
     setCurrentWeek(1);
   };
 
-  const updateHoliday = (index, value) => {
+  const updateHolidayField = (index, field, value) => {
     const newData = [...yearData];
-    newData[index].holiday = value;
+    newData[index][field] = value;
     setYearData(newData);
   };
 
@@ -149,7 +154,12 @@ const CalendarComponent = () => {
                 <th>Week Number</th>
                 <th>Date</th>
                 <th>Week Day</th>
-                <th>Holiday Name</th>
+                <th>Holiday Name 1</th>
+                <th>Specific Day 1</th>
+                <th>Holiday Name 2</th>
+                <th>Specific Day 2</th>
+                <th>Holiday Name 3</th>
+                <th>Specific Day 3</th>
                 <th>Status</th>
                 <th>Closing Hours</th>
                 <th>Notes</th>
@@ -161,7 +171,12 @@ const CalendarComponent = () => {
                   <td>week ${day.weekNumber}</td>
                   <td>${day.date}</td>
                   <td>${day.weekDay}</td>
-                  <td>${day.holiday || '-'}</td>
+                  <td>${day.holidayName1 || '-'}</td>
+                  <td>${day.specificDay1 || '-'}</td>
+                  <td>${day.holidayName2 || '-'}</td>
+                  <td>${day.specificDay2 || '-'}</td>
+                  <td>${day.holidayName3 || '-'}</td>
+                  <td>${day.specificDay3 || '-'}</td>
                   <td>${day.isOpen ? 'Open' : 'Closed'}</td>
                   <td>${day.closingHoursFrom && day.closingHoursTo ? `${day.closingHoursFrom} - ${day.closingHoursTo}` : '-'}</td>
                   <td>${day.notes || '-'}</td>
@@ -181,9 +196,9 @@ const CalendarComponent = () => {
 
   const handleExport = () => {
     const csvContent = "data:text/csv;charset=utf-8," 
-      + "Week Number,Date,Week Day,Holiday Name,Closed or Open,Text Box\n"
+      + "Week Number,Date,Week Day,Holiday Name 1,Specific Day 1,Holiday Name 2,Specific Day 2,Holiday Name 3,Specific Day 3,Closed or Open,Text Box\n"
       + yearData.map(day => 
-          `${day.weekNumber},${day.date},${day.weekDay},${day.holiday},${day.isOpen ? 'Open' : 'Closed'},${day.notes}`
+          `${day.weekNumber},${day.date},${day.weekDay},${day.holidayName1 || ''},${day.specificDay1 || ''},${day.holidayName2 || ''},${day.specificDay2 || ''},${day.holidayName3 || ''},${day.specificDay3 || ''},${day.isOpen ? 'Open' : 'Closed'},${day.notes}`
         ).join("\n");
     
     const encodedUri = encodeURI(csvContent);
@@ -270,26 +285,41 @@ const CalendarComponent = () => {
               <table className="w-full border-collapse">
                 <thead className="bg-yellow-200 sticky top-0 z-10 shadow-sm">
                   <tr>
-                    <th className="px-4 py-3 text-left text-xs font-bold text-gray-700 uppercase tracking-wider border border-gray-300 whitespace-nowrap" style={{ width: '10%' }}>
-                      Week Number
+                    <th className="px-2 py-3 text-left text-xs font-bold text-gray-700 uppercase tracking-wider border border-gray-300 whitespace-nowrap" style={{ width: '6%' }}>
+                      Week #
                     </th>
-                    <th className="px-4 py-3 text-left text-xs font-bold text-gray-700 uppercase tracking-wider border border-gray-300 whitespace-nowrap" style={{ width: '10%' }}>
+                    <th className="px-2 py-3 text-left text-xs font-bold text-gray-700 uppercase tracking-wider border border-gray-300 whitespace-nowrap" style={{ width: '7%' }}>
                       Date
                     </th>
-                    <th className="px-4 py-3 text-left text-xs font-bold text-gray-700 uppercase tracking-wider border border-gray-300 whitespace-nowrap" style={{ width: '10%' }}>
-                      Week Day
+                    <th className="px-2 py-3 text-left text-xs font-bold text-gray-700 uppercase tracking-wider border border-gray-300 whitespace-nowrap" style={{ width: '7%' }}>
+                      Day
                     </th>
-                    <th className="px-4 py-3 text-left text-xs font-bold text-gray-700 uppercase tracking-wider border border-gray-300" style={{ width: '18%' }}>
-                      Holiday Name
+                    <th className="px-2 py-3 text-left text-xs font-bold text-gray-700 uppercase tracking-wider border border-gray-300 bg-purple-200" style={{ width: '8%' }}>
+                      Holiday 1
                     </th>
-                    <th className="px-4 py-3 text-left text-xs font-bold text-gray-700 uppercase tracking-wider border border-gray-300 whitespace-nowrap" style={{ width: '10%' }}>
-                      Closed or Open
+                    <th className="px-2 py-3 text-left text-xs font-bold text-gray-700 uppercase tracking-wider border border-gray-300 bg-purple-200" style={{ width: '7%' }}>
+                      Specific Day 1
                     </th>
-                    <th className="px-4 py-3 text-left text-xs font-bold text-gray-700 uppercase tracking-wider border border-gray-300" style={{ width: '18%' }}>
+                    <th className="px-2 py-3 text-left text-xs font-bold text-gray-700 uppercase tracking-wider border border-gray-300 bg-green-200" style={{ width: '8%' }}>
+                      Holiday 2
+                    </th>
+                    <th className="px-2 py-3 text-left text-xs font-bold text-gray-700 uppercase tracking-wider border border-gray-300 bg-green-200" style={{ width: '7%' }}>
+                      Specific Day 2
+                    </th>
+                    <th className="px-2 py-3 text-left text-xs font-bold text-gray-700 uppercase tracking-wider border border-gray-300 bg-blue-200" style={{ width: '8%' }}>
+                      Holiday 3
+                    </th>
+                    <th className="px-2 py-3 text-left text-xs font-bold text-gray-700 uppercase tracking-wider border border-gray-300 bg-blue-200" style={{ width: '7%' }}>
+                      Specific Day 3
+                    </th>
+                    <th className="px-2 py-3 text-left text-xs font-bold text-gray-700 uppercase tracking-wider border border-gray-300 whitespace-nowrap" style={{ width: '6%' }}>
+                      Status
+                    </th>
+                    <th className="px-2 py-3 text-left text-xs font-bold text-gray-700 uppercase tracking-wider border border-gray-300" style={{ width: '10%' }}>
                       Closing Hours
                     </th>
-                    <th className="px-4 py-3 text-left text-xs font-bold text-gray-700 uppercase tracking-wider border border-gray-300" style={{ width: '24%' }}>
-                      Text Box
+                    <th className="px-2 py-3 text-left text-xs font-bold text-gray-700 uppercase tracking-wider border border-gray-300" style={{ width: '12%' }}>
+                      Notes
                     </th>
                   </tr>
                 </thead>
@@ -301,25 +331,70 @@ const CalendarComponent = () => {
                       key={origIndex}
                       className={displayIndex % 2 === 0 ? "bg-yellow-50" : "bg-yellow-100"}
                     >
-                      <td className="px-4 py-3 text-xl font-medium text-gray-900 border border-gray-300 whitespace-nowrap">
+                      <td className="px-3 py-3 text-xl font-medium text-gray-900 border border-gray-300 whitespace-nowrap">
                         week {day.weekNumber}
                       </td>
-                      <td className="px-4 py-3 text-xl text-gray-700 border border-gray-300 whitespace-nowrap">
+                      <td className="px-3 py-3 text-xl text-gray-700 border border-gray-300 whitespace-nowrap">
                         {day.date}
                       </td>
-                      <td className="px-4 py-3 text-xl text-gray-700 border border-gray-300 capitalize whitespace-nowrap">
+                      <td className="px-3 py-3 text-xl text-gray-700 border border-gray-300 capitalize whitespace-nowrap">
                         {day.weekDay}
                       </td>
-                      <td className="px-4 py-3 border border-gray-300">
+                      <td className="px-3 py-3 border border-gray-300 bg-purple-50">
                         <input
                           type="text"
-                          value={day.holiday}
-                          onChange={(e) => updateHoliday(origIndex, e.target.value)}
-                          placeholder="Enter holiday name"
-                          className="border border-blue-300 rounded px-3 py-2 text-2xl w-full focus:outline-none focus:ring-2 focus:ring-blue-400 bg-white"
+                          value={day.holidayName1 || ''}
+                          onChange={(e) => updateHolidayField(origIndex, 'holidayName1', e.target.value)}
+                          placeholder="Holiday 1"
+                          className="border border-blue-300 rounded px-3 py-2 text-xl w-full focus:outline-none focus:ring-2 focus:ring-blue-400 bg-white"
                         />
                       </td>
-                      <td className="px-4 py-3 border border-gray-300">
+                      <td className="px-3 py-3 border border-gray-300 bg-purple-50">
+                        <input
+                          type="text"
+                          value={day.specificDay1 || ''}
+                          onChange={(e) => updateHolidayField(origIndex, 'specificDay1', e.target.value)}
+                          placeholder="Specific Day 1"
+                          className="border border-blue-300 rounded px-3 py-2 text-xl w-full focus:outline-none focus:ring-2 focus:ring-blue-400 bg-white"
+                        />
+                      </td>
+                      <td className="px-3 py-3 border border-gray-300 bg-green-50">
+                        <input
+                          type="text"
+                          value={day.holidayName2 || ''}
+                          onChange={(e) => updateHolidayField(origIndex, 'holidayName2', e.target.value)}
+                          placeholder="Holiday 2"
+                          className="border border-blue-300 rounded px-3 py-2 text-xl w-full focus:outline-none focus:ring-2 focus:ring-blue-400 bg-white"
+                        />
+                      </td>
+                      <td className="px-3 py-3 border border-gray-300 bg-green-50">
+                        <input
+                          type="text"
+                          value={day.specificDay2 || ''}
+                          onChange={(e) => updateHolidayField(origIndex, 'specificDay2', e.target.value)}
+                          placeholder="Specific Day 2"
+                          className="border border-blue-300 rounded px-3 py-2 text-xl w-full focus:outline-none focus:ring-2 focus:ring-blue-400 bg-white"
+                        />
+                      </td>
+                      <td className="px-3 py-3 border border-gray-300 bg-blue-50">
+                        <input
+                          type="text"
+                          value={day.holidayName3 || ''}
+                          onChange={(e) => updateHolidayField(origIndex, 'holidayName3', e.target.value)}
+                          placeholder="Holiday 3"
+                          className="border border-blue-300 rounded px-3 py-2 text-xl w-full focus:outline-none focus:ring-2 focus:ring-blue-400 bg-white"
+                        />
+                      </td>
+                      <td className="px-3 py-3 border border-gray-300 bg-blue-50">
+                        <input
+                          type="text"
+                          value={day.specificDay3 || ''}
+                          onChange={(e) => updateHolidayField(origIndex, 'specificDay3', e.target.value)}
+                          placeholder="Specific Day 3"
+                          className="border border-blue-300 rounded px-3 py-2 text-xl w-full focus:outline-none focus:ring-2 focus:ring-blue-400 bg-white"
+                        />
+                      </td>
+                      <td className="px-3 py-3 border border-gray-300">
                         <button
                           onClick={() => toggleOpenStatus(origIndex)}
                           className="flex items-center justify-center w-full hover:bg-white hover:bg-opacity-50 rounded px-2 py-1 transition-colors"
@@ -334,7 +409,7 @@ const CalendarComponent = () => {
                           </span>
                         </button>
                       </td>
-                      <td className="px-4 py-3 border border-gray-300">
+                      <td className="px-3 py-3 border border-gray-300">
                         <div className="flex gap-2 items-center">
                           <div className="flex flex-col flex-1">
                             <label className="text-xl text-gray-600 mb-1">From</label>
@@ -346,7 +421,7 @@ const CalendarComponent = () => {
                             />
                           </div>
                           <div className="flex flex-col flex-1">
-                            <label className="text-sm text-gray-600 mb-1">To</label>
+                            <label className="text-xl text-gray-600 mb-1">To</label>
                             <input
                               type="time"
                               value={day.closingHoursTo || ""}
@@ -356,13 +431,13 @@ const CalendarComponent = () => {
                           </div>
                         </div>
                       </td>
-                      <td className="px-4 py-3 border border-gray-300">
+                      <td className="px-2 py-2 border border-gray-300">
                         <input
                           type="text"
-                          value={day.notes}
+                          value={day.notes || ''}
                           onChange={(e) => updateNotes(origIndex, e.target.value)}
-                          placeholder="Enter text here"
-                          className="border border-blue-300 rounded px-3 py-2 text-2xl w-full focus:outline-none focus:ring-2 focus:ring-blue-400 bg-white"
+                          placeholder="Notes"
+                          className="border border-blue-300 rounded px-3 py-2 text-xl w-full focus:outline-none focus:ring-2 focus:ring-blue-400 bg-white"
                         />
                       </td>
                     </tr>
