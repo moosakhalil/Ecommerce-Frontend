@@ -33,6 +33,9 @@ const AreaManagementB = () => {
   const [areaMode, setAreaMode] = useState("existing");
   
   const [loading, setLoading] = useState(false);
+  const [uploading, setUploading] = useState(false);
+  const [uploadResult, setUploadResult] = useState(null);
+  const fileInputRef = React.useRef(null);
 
   // Fetch initial data
   useEffect(() => {
@@ -115,6 +118,42 @@ const AreaManagementB = () => {
       setAllAreas(res.data);
     } catch (error) {
       console.error("Error fetching all areas:", error);
+    }
+  };
+
+  // Handle Excel upload
+  const handleExcelUpload = async (e) => {
+    const file = e.target.files[0];
+    if (!file) return;
+
+    const formData = new FormData();
+    formData.append("file", file);
+
+    try {
+      setUploading(true);
+      // Use full URL or axios instance if configured, here using axis directly
+      const response = await axios.post(`${API_BASE}/upload-excel`, formData, {
+        headers: {
+          'Content-Type': 'multipart/form-data'
+        }
+      });
+
+      if (response.data.success) {
+        setUploadResult(response.data);
+        fetchAllAreas(); // Refresh list
+        // Also refresh dropdowns if needed
+        fetchIslands();
+      } else {
+        alert(response.data.message || "Upload failed");
+      }
+    } catch (err) {
+      console.error("Error uploading Excel:", err);
+      alert("Error uploading file");
+    } finally {
+      setUploading(false);
+      if (fileInputRef.current) {
+        fileInputRef.current.value = "";
+      }
     }
   };
 
@@ -215,12 +254,52 @@ const AreaManagementB = () => {
       <div className="flex-1 p-6">
         <div className="max-w-7xl mx-auto">
           {/* Header */}
-          <div className="bg-green-700 text-white p-4 rounded-lg mb-6 shadow-md">
+          <div className="bg-green-700 text-white p-4 rounded-lg mb-6 shadow-md flex justify-between items-start">
             <div className="flex items-center gap-3">
               <MapPin size={28} />
               <h1 className="text-2xl font-bold">113. Area Management B</h1>
             </div>
+            <div>
+              <input
+                type="file"
+                ref={fileInputRef}
+                accept=".xlsx,.xls"
+                className="hidden"
+                onChange={handleExcelUpload}
+              />
+              <button
+                className={`bg-white text-green-700 font-semibold py-2 px-4 rounded-lg hover:bg-gray-100 transition-colors disabled:opacity-75 ${uploading ? 'cursor-not-allowed' : ''}`}
+                onClick={() => fileInputRef.current?.click()}
+                disabled={uploading}
+              >
+                {uploading ? "⏳ Uploading..." : "📤 Upload Excel"}
+              </button>
+            </div>
           </div>
+
+          {/* Upload Result Modal */}
+          {uploadResult && (
+            <div className="bg-green-100 border border-green-200 text-green-800 rounded-lg p-4 mb-6">
+              <div className="flex justify-between items-center mb-2">
+                <strong className="text-green-900">✅ {uploadResult.message}</strong>
+                <button
+                  className="text-green-900 hover:text-green-700 text-xl font-bold"
+                  onClick={() => setUploadResult(null)}
+                >
+                  ×
+                </button>
+              </div>
+              <div className="text-sm">
+                <strong>Import Summary:</strong>
+                <div className="grid grid-cols-2 md:grid-cols-4 gap-4 mt-2">
+                  <div>🏝️ Islands: {uploadResult.stats.islands.created} new</div>
+                  <div>📍 States: {uploadResult.stats.states.created} new</div>
+                  <div>🏘️ Regencies: {uploadResult.stats.regencies.created} new</div>
+                  <div>📌 Areas: {uploadResult.stats.areas.created} created, {uploadResult.stats.areas.updated} updated</div>
+                </div>
+              </div>
+            </div>
+          )}
 
           {/* Form Section */}
           <div className="bg-white rounded-lg shadow-lg p-6 mb-6">

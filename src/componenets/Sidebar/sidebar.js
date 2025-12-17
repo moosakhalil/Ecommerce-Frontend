@@ -28,6 +28,7 @@ const ChevronDown = () => <span>⌄</span>;
 const ChevronUp = () => <span>⌃</span>;
 const Edit = () => <span>✏️</span>;
 const Plus = () => <span>➕</span>;
+const DollarSign = () => <span>💰</span>;
 const MapPin = () => <span>📍</span>;
 
 const Sidebar = ({ onSectionClick }) => {
@@ -366,6 +367,15 @@ const Sidebar = ({ onSectionClick }) => {
           name: "Lost Stock Management",
           access: "",
           path: "/lost-stock",
+        },
+        {
+          id: 38,
+          componentId: "38",
+          number: "38.",
+          icon: <Package />,
+          name: "Supply/Stock Arrival from supplier",
+          access: "",
+          path: "/supply-stock-arrival",
         },
       ],
     },
@@ -720,6 +730,15 @@ const Sidebar = ({ onSectionClick }) => {
           name: "Area Management B",
           access: "",
           path: "/area-management-b",
+        },
+        {
+          id: 114,
+          componentId: "delivery-fees",
+          number: "114.",
+          icon: <DollarSign />,
+          name: "Delivery Fees",
+          access: "",
+          path: "/delivery-fees",
         },
       ],
     },

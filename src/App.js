@@ -96,7 +96,9 @@ import ViewVehicle from "./componenets/Vehicles/ViewVehicle";
 import Competitors from "./componenets/Finance/Competitors";
 import ProductSalesInfo from "./componenets/Finance/ProductSalesInfo";
 import AreaManagementB from "./componenets/Settings/AreaManagementB";
-
+import SupplierOrderList from "./componenets/SupplyStockArrival/SupplierOrderList";
+import OrderDetailsPage from "./componenets/SupplyStockArrival/OrderDetailsPage";
+import DeliveryFees from "./componenets/DeliveryFees/DeliveryFees";
 
 function App() {
   return (
@@ -707,6 +709,30 @@ function App() {
           element={
             <>
               <AreaManagementB />
+            </>
+          }
+        />
+        <Route
+          path="/supply-stock-arrival"
+          element={
+            <>
+              <SupplierOrderList />
+            </>
+          }
+        />
+        <Route
+          path="/supply-stock-arrival/:orderId"
+          element={
+            <>
+              <OrderDetailsPage />
+            </>
+          }
+        />
+        <Route
+          path="/delivery-fees"
+          element={
+            <>
+              <DeliveryFees />
             </>
           }
         />
