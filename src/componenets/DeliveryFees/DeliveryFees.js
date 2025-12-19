@@ -468,8 +468,14 @@ const DeliveryFees = () => {
                 </tr>
               </thead>
               <tbody>
-                {regencyGroups.map((group) => (
+                {regencyGroups.map((group, groupIdx) => (
                   <React.Fragment key={group.regencyId}>
+                    {/* Add spacing before each regency group (except the first one) */}
+                    {groupIdx > 0 && (
+                      <tr>
+                        <td colSpan="6" style={{ height: "20px", backgroundColor: "#ffe5cc", borderBottom: "2px solid #dee2e6" }}></td>
+                      </tr>
+                    )}
                     {group.areas.map((area, idx) => {
                       const isEditing = editingId === area._id;
                       const isFirstInGroup = idx === 0;

@@ -86,6 +86,7 @@ import AssignPreOrderVendorAreas from "./componenets/VendorPreorder/assignpreord
 import AllpreOrdersComponent from "./componenets/VendorPreorder/allpreorder";
 import VideoManagementSystem from "./componenets/VideosManagement/videomanagement";
 import ProductManagement from "./componenets/Products/productmanagement";
+import ProductListReadOnly from "./componenets/Products/ProductListReadOnly";
 import AddVehicle from "./componenets/Vehicles/AddVehicle";
 import AddVehicleStep1 from "./componenets/Vehicles/AddVehicleStep1";
 import AddVehicleStep2 from "./componenets/Vehicles/AddVehicleStep2";
@@ -677,6 +678,14 @@ function App() {
           element={
             <>
               <ViewProducts />
+            </>
+          }
+        />
+        <Route
+          path="/admin/Products/view"
+          element={
+            <>
+              <ProductListReadOnly />
             </>
           }
         />

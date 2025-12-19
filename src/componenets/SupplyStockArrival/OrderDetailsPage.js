@@ -612,7 +612,9 @@ const OrderDetailsPage = () => {
                 </div>
                 <div style={styles.productInfo}>
                   <div style={{ display: "flex", alignItems: "center", gap: "12px" }}>
-                    <strong style={{ fontSize: "16px" }}>{product.productName}</strong>
+                    <strong style={{ fontSize: "16px" }}>
+                      {product.productItemNumber || (index + 1)}. {product.productName}
+                    </strong>
                     <span
                       style={{
                         ...styles.badge,
@@ -624,7 +626,7 @@ const OrderDetailsPage = () => {
                     </span>
                   </div>
                   <div style={{ color: "#6c757d", fontSize: "13px" }}>
-                    ID: {product.productId}
+                    Item: {order.orderNumber}/{product.productItemNumber || (index + 1)} • ID: {product.productId}
                   </div>
                   <div style={{ fontSize: "14px" }}>
                     Quantity: <strong>{product.receivedQuantity || 0}</strong> / {product.orderedQuantity}

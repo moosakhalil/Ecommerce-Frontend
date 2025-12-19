@@ -268,7 +268,7 @@ const SupplierOrderList = () => {
             <table style={styles.table}>
               <thead>
                 <tr>
-                  <th style={styles.th}>Order #</th>
+                  <th style={styles.th}>Order # (Items)</th>
                   <th style={styles.th}>Supplier Name</th>
                   <th style={styles.th}>Order Date</th>
                   <th style={styles.th}>Est. Arrival</th>
@@ -292,6 +292,11 @@ const SupplierOrderList = () => {
                     >
                       <td style={{ ...styles.td, fontWeight: "600" }}>
                         {order.orderNumber}
+                        {order.products && order.products.length > 0 && (
+                          <span style={{ color: "#6c757d", fontWeight: "400", marginLeft: "4px" }}>
+                            /({order.products.map((p, i) => p.productItemNumber || (i + 1)).join(",")})
+                          </span>
+                        )}
                       </td>
                       <td style={styles.td}>{order.supplierName}</td>
                       <td style={styles.td}>{formatDate(order.orderDate)}</td>

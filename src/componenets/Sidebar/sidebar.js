@@ -206,8 +206,8 @@ const Sidebar = ({ onSectionClick }) => {
     } else if (text === "Product list everyone ( View can only check )") {
       return (
         <>
-          <span className="block">Product list everyone</span>
-          <span className="block">( View can only check )</span>
+          <span className="block">Product List Management</span>
+          <span className="block">( Product Control Management)</span>
         </>
       );
     }
@@ -333,6 +333,15 @@ const Sidebar = ({ onSectionClick }) => {
           name: "Product list everyone ( View can only check )",
           access: "",
           path: "/admin/Products",
+        },
+        {
+          id: 32,
+          componentId: "32",
+          number: "32.",
+          icon: <Archive />,
+          name: "Product List everyone (only view)",
+          access: "",
+          path: "/admin/Products/view",
         },
         {
           id: 33,
