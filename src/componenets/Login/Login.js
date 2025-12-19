@@ -10,6 +10,7 @@ import {
   CheckCircle,
 } from "lucide-react";
 import { useNavigate } from "react-router-dom";
+import { API_BASE_URL } from "../../utils/config";
 
 const LoginComponent = ({ onLogin }) => {
   const [formData, setFormData] = useState({
@@ -24,8 +25,7 @@ const LoginComponent = ({ onLogin }) => {
   const [error, setError] = useState("");
   const [success, setSuccess] = useState("");
 
-  // API base URL - Fixed to match your backend port
-  const API_BASE_URL = "http://localhost:5000";
+
 
   // API call wrapper
   const apiCall = useCallback(

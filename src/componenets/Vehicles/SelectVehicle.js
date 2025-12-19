@@ -3,6 +3,7 @@ import axios from 'axios';
 import { useNavigate } from 'react-router-dom';
 import { Truck, Package, ArrowLeft, ArrowRight, Check } from 'lucide-react';
 import Sidebar from '../Sidebar/sidebar';
+import { API_BASE_URL } from '../../utils/config';
 
 const SelectVehicle = () => {
   const navigate = useNavigate();
@@ -18,7 +19,7 @@ const SelectVehicle = () => {
   const fetchTemplates = async () => {
     try {
       setLoading(true);
-      const response = await axios.get('http://localhost:5000/api/vehicle-templates');
+      const response = await axios.get(`${API_BASE_URL}/api/vehicle-templates`);
       if (response.data.success) {
         setTemplates(response.data.data);
       }
@@ -29,6 +30,7 @@ const SelectVehicle = () => {
       setLoading(false);
     }
   };
+
 
   const handleSelectTemplate = (templateId) => {
     setSelectedTemplateId(templateId);

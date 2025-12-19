@@ -15,6 +15,7 @@ import {
   UserX,
 } from "lucide-react";
 import Sidebar from "../Sidebar/sidebar";
+import { API_BASE_URL } from "../../utils/config";
 
 const CUSTOMER_TYPES = [
   {
@@ -157,7 +158,7 @@ export default function ReferralData() {
     try {
       setLoading(true);
       const response = await fetch(
-        `http://localhost:5000/api/referral-data?customerType=${selectedCustomerType}&period=${selectedPeriod}&filter=${selectedFilter}`
+        `${API_BASE_URL}/api/referral-data?customerType=${selectedCustomerType}&period=${selectedPeriod}&filter=${selectedFilter}`
       );
       const data = await response.json();
 

@@ -1,6 +1,7 @@
 import React, { useState, useEffect } from "react";
 import { toast } from "react-toastify";
 import Sidebar from "../Sidebar/sidebar";
+import { API_BASE_URL } from "../../utils/config";
 
 const SupplierViewOnly = () => {
   const [suppliers, setSuppliers] = useState([]);
@@ -23,7 +24,7 @@ const SupplierViewOnly = () => {
     setLoading(true);
     try {
       const response = await fetch(
-        "http://localhost:5000/api/suppliers"
+        `${API_BASE_URL}/api/suppliers`
       );
       const data = await response.json();
 
@@ -180,7 +181,7 @@ const SupplierViewOnly = () => {
                             {supplier.profilePicture ? (
                               <img
                                 className="h-10 w-10 rounded-full object-cover"
-                                src={`http://localhost:5000${supplier.profilePicture}`}
+                                src={`${API_BASE_URL}${supplier.profilePicture}`}
                                 alt={supplier.name}
                               />
                             ) : (
@@ -438,7 +439,7 @@ const SupplierViewOnly = () => {
               <div className="flex items-center space-x-4">
                 {selectedSupplier.profilePicture ? (
                   <img
-                    src={`http://localhost:5000${selectedSupplier.profilePicture}`}
+                    src={`${API_BASE_URL}${selectedSupplier.profilePicture}`}
                     alt={selectedSupplier.name}
                     className="h-24 w-24 rounded-full object-cover"
                   />
@@ -507,7 +508,7 @@ const SupplierViewOnly = () => {
                       ID Card Front
                     </label>
                     <img
-                      src={`http://localhost:5000${selectedSupplier.idCardFront}`}
+                      src={`${API_BASE_URL}${selectedSupplier.idCardFront}`}
                       alt="ID Front"
                       className="w-full h-32 object-cover rounded border"
                     />
@@ -519,7 +520,7 @@ const SupplierViewOnly = () => {
                       ID Card Back
                     </label>
                     <img
-                      src={`http://localhost:5000${selectedSupplier.idCardBack}`}
+                      src={`${API_BASE_URL}${selectedSupplier.idCardBack}`}
                       alt="ID Back"
                       className="w-full h-32 object-cover rounded border"
                     />
@@ -531,7 +532,7 @@ const SupplierViewOnly = () => {
                       Passport Front
                     </label>
                     <img
-                      src={`http://localhost:5000${selectedSupplier.passportFront}`}
+                      src={`${API_BASE_URL}${selectedSupplier.passportFront}`}
                       alt="Passport Front"
                       className="w-full h-32 object-cover rounded border"
                     />
@@ -543,7 +544,7 @@ const SupplierViewOnly = () => {
                       Passport Back
                     </label>
                     <img
-                      src={`http://localhost:5000${selectedSupplier.passportBack}`}
+                      src={`${API_BASE_URL}${selectedSupplier.passportBack}`}
                       alt="Passport Back"
                       className="w-full h-32 object-cover rounded border"
                     />
@@ -566,7 +567,7 @@ const SupplierViewOnly = () => {
                       </label>
                       {doc.endsWith('.pdf') ? (
                         <a
-                          href={`http://localhost:5000${doc}`}
+                          href={`${API_BASE_URL}${doc}`}
                           target="_blank"
                           rel="noopener noreferrer"
                           className="w-full h-32 flex flex-col items-center justify-center bg-gray-100 rounded border hover:bg-gray-200"
@@ -586,7 +587,7 @@ const SupplierViewOnly = () => {
                         </a>
                       ) : (
                         <img
-                          src={`http://localhost:5000${doc}`}
+                          src={`${API_BASE_URL}${doc}`}
                           alt={`Doc ${index + 1}`}
                           className="w-full h-32 object-cover rounded border"
                         />
@@ -635,7 +636,7 @@ const SupplierViewOnly = () => {
                         </label>
                         {person.profilePicture ? (
                           <img
-                            src={`http://localhost:5000${person.profilePicture}`}
+                            src={`${API_BASE_URL}${person.profilePicture}`}
                             alt={person.name}
                             className="w-full h-40 object-cover rounded border"
                           />

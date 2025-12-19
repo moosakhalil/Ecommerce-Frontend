@@ -28,9 +28,8 @@ import {
 
 // Import the separate ManageUsers component
 import ManageUsers from "../Home/userManagement";
+import { API_BASE_URL } from "../../utils/config";
 
-// API Configuration
-const API_BASE_URL = "http://localhost:5000";
 
 // Role definitions - keep for backward compatibility but not used for access control
 const ROLES = {

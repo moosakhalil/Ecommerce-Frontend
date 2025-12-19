@@ -17,6 +17,7 @@ import {
   Clock,
 } from "lucide-react";
 import axios from "axios";
+import { API_BASE_URL } from "../../utils/config";
 
 export default function OrderManagementPickup() {
   const [isSidebarOpen, setIsSidebarOpen] = useState(true);
@@ -57,7 +58,7 @@ export default function OrderManagementPickup() {
 
       // 1. Get the raw orders from all relevant statuses
       const { data } = await axios.get(
-        "http://localhost:5000/api/orders",
+        `${API_BASE_URL}/api/orders`,
         {
           params: {
             status: statuses,
@@ -75,7 +76,7 @@ export default function OrderManagementPickup() {
 
           try {
             const res = await axios.get(
-              `http://localhost:5000/api/orders/${order.orderId}/phone`
+              `${API_BASE_URL}/api/orders/${order.orderId}/phone`
             );
             phoneNumber = res.data.phoneNumber;
             name = res.data.name;
@@ -129,7 +130,7 @@ export default function OrderManagementPickup() {
   const fetchDrivers = async () => {
     try {
       const { data } = await axios.get(
-        "http://localhost:5000/api/employees",
+        `${API_BASE_URL}/api/employees`,
         {
           params: { employeeCategory: "Driver" },
         }
@@ -147,7 +148,7 @@ export default function OrderManagementPickup() {
 
       // Mark order as allocated for pickup
       await axios.put(
-        `http://localhost:5000/api/orders/${orderId}/status`,
+        `${API_BASE_URL}/api/orders/${orderId}/status`,
         {
           status: "order-confirmed",
           pickupAllocated: true,
@@ -186,7 +187,7 @@ export default function OrderManagementPickup() {
   const handlePickupStatus = async (orderId, statusKey) => {
     try {
       await axios.put(
-        `http://localhost:5000/api/orders/${orderId}/pickup-status`,
+        `${API_BASE_URL}/api/orders/${orderId}/pickup-status`,
         { pickupStatus: statusKey } // This will now send the actual database status value
       );
 
@@ -218,7 +219,7 @@ export default function OrderManagementPickup() {
     try {
       // 1) tell the backend it's ready
       await axios.put(
-        `http://localhost:5000/api/orders/${orderId}/status`,
+        `${API_BASE_URL}/api/orders/${orderId}/status`,
         {
           status: "ready to pickup",
         }

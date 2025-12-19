@@ -2,6 +2,7 @@ import React, { useState, useEffect } from "react";
 import { toast } from "react-toastify";
 import Sidebar from "../Sidebar/sidebar";
 import EditSupplierModal from "./EditSupplierModal";
+import { API_BASE_URL } from "../../utils/config";
 
 // Success Modal Component - Defined outside the main component
 const SuccessModal = ({ isOpen, onClose, message }) => {
@@ -77,9 +78,6 @@ const SuppliersList = () => {
     isOpen: false,
     message: "",
   });
-
-  // Base API URL - using the same as SupplierViewOnly
-  const API_BASE_URL = "http://localhost:5000";
 
   // Fetch suppliers on component mount
   useEffect(() => {

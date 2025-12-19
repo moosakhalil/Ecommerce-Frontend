@@ -13,8 +13,10 @@ import {
 
 import Sidebar from "../Sidebar/sidebar";
 import { toast } from "react-hot-toast";
+import { API_BASE_URL } from "../../utils/config";
 
-const API_URL = "http://localhost:5000";
+const API_URL = API_BASE_URL;
+
 
 const AddProduct = () => {
   // Product type state

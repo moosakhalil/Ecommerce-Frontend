@@ -4,6 +4,7 @@ import { useNavigate } from "react-router-dom";
 import { Home, MoreVertical } from "lucide-react";
 import Sidebar from "../Sidebar/sidebar";
 import axios from "axios";
+import { API_BASE_URL } from "../../utils/config";
 
 const RefundComplain = () => {
   const [isSidebarOpen, setIsSidebarOpen] = useState(true);
@@ -16,7 +17,7 @@ const RefundComplain = () => {
       try {
         // Dedicated refunds endpoint returns orders with status "refund"
         const res = await axios.get(
-          "http://localhost:5000/api/refunds"
+          `${API_BASE_URL}/api/refunds`
         );
         // API returns { refunds: [...] }
         const refundOrders = res.data.refunds || [];

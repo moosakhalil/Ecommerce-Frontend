@@ -15,6 +15,7 @@ import {
   Trash2,
   AlertCircle,
 } from "lucide-react";
+import { API_BASE_URL } from "../../utils/config";
 
 export default function AllDiscounts() {
   // State management
@@ -65,11 +66,8 @@ export default function AllDiscounts() {
         queryParams.append("discountType", typeFilter);
       }
 
-      // Use dynamic URL based on your network setup
-      const baseURL =
-        window.location.hostname === "localhost"
-          ? "http://localhost:5000"
-          : `http://${window.location.hostname}:5000`;
+      // Use centralized API_BASE_URL
+      const baseURL = API_BASE_URL;
 
       console.log(
         "🔍 Fetching discounts from:",
@@ -270,10 +268,7 @@ export default function AllDiscounts() {
   // Handle status update
   const handleStatusUpdate = async (productId, newStatus) => {
     try {
-      const baseURL =
-        window.location.hostname === "localhost"
-          ? "http://localhost:5000"
-          : `http://${window.location.hostname}:5000`;
+      const baseURL = API_BASE_URL;
 
       console.log(
         "🔄 Updating status for product:",
@@ -342,10 +337,7 @@ export default function AllDiscounts() {
     }
 
     try {
-      const baseURL =
-        window.location.hostname === "localhost"
-          ? "http://localhost:5000"
-          : `http://${window.location.hostname}:5000`;
+      const baseURL = API_BASE_URL;
 
       console.log("🗑️ Deleting discount for product:", productId);
 

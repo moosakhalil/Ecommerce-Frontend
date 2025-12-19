@@ -3,6 +3,7 @@ import { useNavigate } from 'react-router-dom';
 import axios from 'axios';
 import { Truck, Package, ArrowRight, ArrowLeft, Check } from 'lucide-react';
 import Sidebar from '../Sidebar/sidebar';
+import { API_BASE_URL } from '../../utils/config';
 
 const AddVehicleStep1 = () => {
   const navigate = useNavigate();
@@ -27,7 +28,7 @@ const AddVehicleStep1 = () => {
   React.useEffect(() => {
     const fetchTemplates = async () => {
       try {
-        const response = await axios.get('http://localhost:5000/api/vehicle-templates');
+        const response = await axios.get(`${API_BASE_URL}/api/vehicle-templates`);
         if (response.data.success && response.data.data.length > 0) {
           setSavedVehicles(response.data.data);
           setShowTable(true);
@@ -98,7 +99,7 @@ const AddVehicleStep1 = () => {
 
       console.log('Sending template data:', templateData);
 
-      const response = await axios.post('http://localhost:5000/api/vehicle-templates', templateData);
+      const response = await axios.post(`${API_BASE_URL}/api/vehicle-templates`, templateData);
 
       if (response.data.success) {
         const newTemplate = response.data.data;

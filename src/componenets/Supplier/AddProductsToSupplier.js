@@ -1,6 +1,7 @@
 import React, { useState, useEffect } from "react";
 import Sidebar from "../Sidebar/sidebar";
 import { toast } from "react-toastify";
+import { API_BASE_URL } from "../../utils/config";
 
 const AddProductsToSupplier = () => {
   const [activeTab, setActiveTab] = useState("productsToSupplier");
@@ -32,7 +33,7 @@ const AddProductsToSupplier = () => {
 
   const fetchSuppliers = async () => {
     try {
-      const response = await fetch("http://localhost:5000/api/suppliers");
+      const response = await fetch(`${API_BASE_URL}/api/suppliers`);
       const data = await response.json();
       if (data.success) {
         setSuppliers(data.data);
@@ -45,7 +46,7 @@ const AddProductsToSupplier = () => {
 
   const fetchProducts = async () => {
     try {
-      const response = await fetch("http://localhost:5000/api/products");
+      const response = await fetch(`${API_BASE_URL}/api/products`);
       const data = await response.json();
       if (data.success) {
         // Map the product data to ensure consistency
@@ -94,7 +95,7 @@ const AddProductsToSupplier = () => {
         });
 
         const supplierResponse = await fetch(
-          `http://localhost:5000/api/suppliers/${supplierId}`,
+          `${API_BASE_URL}/api/suppliers/${supplierId}`,
           {
             method: "PUT",
             body: formData,
@@ -110,7 +111,7 @@ const AddProductsToSupplier = () => {
       const product = products.find(p => p._id === productId);
       if (product && product.selectedSupplierId === supplierId) {
         const productResponse = await fetch(
-          `http://localhost:5000/api/products/${productId}/supplier`,
+          `${API_BASE_URL}/api/products/${productId}/supplier`,
           {
             method: "PUT",
             headers: {
@@ -285,7 +286,7 @@ const AddProductsToSupplier = () => {
       });
 
       const response = await fetch(
-        `http://localhost:5000/api/suppliers/${selectedSupplier}`,
+        `${API_BASE_URL}/api/suppliers/${selectedSupplier}`,
         {
           method: "PUT",
           body: formData,
@@ -352,7 +353,7 @@ const AddProductsToSupplier = () => {
       
       // Step 1: Update the product with supplier information
       const productResponse = await fetch(
-        `http://localhost:5000/api/products/${selectedProduct}/supplier`,
+        `${API_BASE_URL}/api/products/${selectedProduct}/supplier`,
         {
           method: "PUT",
           headers: {
@@ -394,7 +395,7 @@ const AddProductsToSupplier = () => {
         });
 
         const supplierResponse = await fetch(
-          `http://localhost:5000/api/suppliers/${primarySupplier._id}`,
+          `${API_BASE_URL}/api/suppliers/${primarySupplier._id}`,
           {
             method: "PUT",
             body: formData,

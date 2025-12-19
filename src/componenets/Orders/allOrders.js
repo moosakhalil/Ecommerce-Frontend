@@ -4,6 +4,7 @@ import { Home, Filter } from "lucide-react";
 import axios from "axios";
 
 import Sidebar from "../Sidebar/sidebar";
+import { API_BASE_URL } from "../../utils/config";
 
 // Extended statuses including new ones from schema
 const OrderStatusFilters = [
@@ -76,7 +77,7 @@ export default function AllOrders() {
       console.log("=== FRONTEND FETCHING ORDERS ===");
       console.log(
         "URL:",
-        `http://localhost:5000/api/orders?${params}`
+        `${API_BASE_URL}/api/orders?${params}`
       );
       console.log("Filters:", selectedFilters);
       console.log("Search:", searchQuery);
@@ -85,7 +86,7 @@ export default function AllOrders() {
       try {
         // Fetch list of orders from the orders router
         const response = await axios.get(
-          `http://localhost:5000/api/orders?${params}`
+          `${API_BASE_URL}/api/orders?${params}`
         );
 
         console.log("=== API RESPONSE ===");

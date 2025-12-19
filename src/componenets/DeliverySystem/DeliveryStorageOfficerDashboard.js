@@ -14,8 +14,7 @@ import {
   X,
   AlertTriangle,
 } from "lucide-react";
-
-const API_BASE_URL = "http://localhost:5000";
+import { API_BASE_URL } from '../../utils/config';
 
 // Separate Modal Component - prevents unnecessary re-renders
 const VerificationModalComponent = ({

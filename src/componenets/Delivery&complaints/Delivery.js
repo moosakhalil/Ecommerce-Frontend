@@ -29,6 +29,7 @@ import {
   Zap,
 } from "lucide-react";
 import axios from "axios";
+import { API_BASE_URL } from "../../utils/config";
 
 const DeliveryComponent = () => {
   const [showComplaintForm, setShowComplaintForm] = useState(false);
@@ -79,7 +80,7 @@ const DeliveryComponent = () => {
       if (selectedDriver2) params.driver2 = selectedDriver2;
 
       const { data } = await axios.get(
-        "http://localhost:5000/api/orders",
+        `${API_BASE_URL}/api/orders`,
         {
           params,
         }
@@ -98,7 +99,7 @@ const DeliveryComponent = () => {
   const fetchDrivers = async () => {
     try {
       const { data } = await axios.get(
-        "http://localhost:5000/api/employees",
+        `${API_BASE_URL}/api/employees`,
         {
           params: { employeeCategory: "Driver" },
         }
@@ -208,7 +209,7 @@ const DeliveryComponent = () => {
       };
 
       await axios.post(
-        `http://localhost:5000/api/orders/${selectedOrderId}/complaint`,
+        `${API_BASE_URL}/api/orders/${selectedOrderId}/complaint`,
         complaintData
       );
 

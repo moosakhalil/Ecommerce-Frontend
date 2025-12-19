@@ -18,8 +18,7 @@ import {
   AlertCircle,
   MessageSquare,
 } from "lucide-react";
-
-const API_BASE_URL = "http://localhost:5000";
+import { API_BASE_URL } from '../../utils/config';
 
 const DriverDashboard = ({ selectedRole, setSelectedRole }) => {
   const [vehicles, setVehicles] = useState([]);

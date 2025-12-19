@@ -6,6 +6,7 @@ import {
   MoreHorizontal,
 } from "lucide-react";
 import Sidebar from "../Sidebar/sidebar";
+import { API_BASE_URL } from "../../utils/config";
 
 export default function OrdersInCart() {
   const [searchQuery, setSearchQuery] = useState("");
@@ -28,7 +29,7 @@ export default function OrdersInCart() {
     if (startDate) params.set("startDate", startDate);
     if (endDate) params.set("endDate", endDate);
 
-    fetch(`http://localhost:5000/api/orders?${params}`)
+    fetch(`${API_BASE_URL}/api/orders?${params}`)
       .then((res) => res.json())
       .then(({ orders = [], total = 0 }) => {
         setOrders(orders);

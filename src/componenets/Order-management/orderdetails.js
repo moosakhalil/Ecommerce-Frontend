@@ -27,6 +27,7 @@ import {
   Download,
   Loader2,
 } from "lucide-react";
+import { API_BASE_URL } from "../../utils/config";
 
 export default function OrderDetails() {
   const [isSidebarOpen, setIsSidebarOpen] = useState(true);
@@ -78,7 +79,7 @@ export default function OrderDetails() {
     try {
       setLoading(true);
       const response = await axios.get(
-        `http://localhost:5000/api/orders/${orderId}`
+        `${API_BASE_URL}/api/orders/${orderId}`
       );
       setOrderData(response.data);
 
@@ -153,7 +154,7 @@ export default function OrderDetails() {
     try {
       setUpdatingStatus(true);
       await axios.put(
-        `http://localhost:5000/api/orders/${orderId}/status`,
+        `${API_BASE_URL}/api/orders/${orderId}/status`,
         {
           status: newStatus,
           reason: reason,

@@ -3,6 +3,7 @@ import axios from 'axios';
 import { useNavigate, useParams } from 'react-router-dom';
 import { Truck, Package, Upload, AlertCircle, Check, ArrowLeft } from 'lucide-react';
 import Sidebar from '../Sidebar/sidebar';
+import { API_BASE_URL } from '../../utils/config';
 
 const EditVehicle = () => {
   const navigate = useNavigate();
@@ -64,7 +65,7 @@ const EditVehicle = () => {
   const fetchVehicle = async () => {
     try {
       setLoading(true);
-      const response = await axios.get(`http://localhost:5000/api/vehicles/${id}`);
+      const response = await axios.get(`${API_BASE_URL}/api/vehicles/${id}`);
       if (response.data.success) {
         const vehicle = response.data.data;
         setFormData({
@@ -171,7 +172,7 @@ const EditVehicle = () => {
         }
       });
 
-      const response = await axios.put(`http://localhost:5000/api/vehicles/${id}`, submitData, {
+      const response = await axios.put(`${API_BASE_URL}/api/vehicles/${id}`, submitData, {
         headers: {
           'Content-Type': 'multipart/form-data',
         },

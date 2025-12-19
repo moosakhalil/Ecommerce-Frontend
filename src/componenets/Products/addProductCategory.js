@@ -8,8 +8,10 @@ import {
   Trash2 as TrashIcon,
   XCircle as XIcon,
 } from "lucide-react";
+import { API_BASE_URL } from "../../utils/config";
 
-const API_URL = "http://localhost:5000";
+const API_URL = API_BASE_URL;
+
 
 export default function AddCategory() {
   // --- State hooks ---

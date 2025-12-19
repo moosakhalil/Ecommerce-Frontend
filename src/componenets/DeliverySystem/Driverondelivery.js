@@ -15,8 +15,9 @@ import {
   Star,
   AlertCircle,
 } from "lucide-react";
+import Sidebar from '../Sidebar/sidebar';
+import { API_BASE_URL } from '../../utils/config';
 
-const API_BASE_URL = "http://localhost:5000";
 
 const DriverOnDeliveryDashboard = ({ selectedRole, setSelectedRole }) => {
   const [activeDeliveries, setActiveDeliveries] = useState([]);

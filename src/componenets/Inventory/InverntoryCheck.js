@@ -15,6 +15,7 @@ import {
   Settings,
 } from "lucide-react";
 import Sidebar from "../Sidebar/sidebar";
+import { API_BASE_URL } from "../../utils/config";
 
 export default function InventoryCheck() {
   const [isSidebarOpen, setIsSidebarOpen] = useState(true);
@@ -36,9 +37,7 @@ export default function InventoryCheck() {
       const possibleEndpoints = [
         "/api/products",
         "/api/product",
-        "http://localhost:5000/api/products",
-        "http://localhost:3001/api/products",
-        "http://localhost:8000/api/products",
+        `${API_BASE_URL}/api/products`,
       ];
 
       let response;

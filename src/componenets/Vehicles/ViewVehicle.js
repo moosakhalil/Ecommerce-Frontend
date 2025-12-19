@@ -3,6 +3,7 @@ import axios from 'axios';
 import { useNavigate, useParams } from 'react-router-dom';
 import { ArrowLeft, Truck, Package, Calendar, Fuel, Settings, FileText, AlertCircle, Edit } from 'lucide-react';
 import Sidebar from '../Sidebar/sidebar';
+import { API_BASE_URL } from '../../utils/config';
 
 const ViewVehicle = () => {
   const navigate = useNavigate();
@@ -18,7 +19,7 @@ const ViewVehicle = () => {
   const fetchVehicle = async () => {
     try {
       setLoading(true);
-      const response = await axios.get(`http://localhost:5000/api/vehicles/${id}`);
+      const response = await axios.get(`${API_BASE_URL}/api/vehicles/${id}`);
       if (response.data.success) {
         setVehicle(response.data.data);
       }
@@ -359,7 +360,7 @@ const ViewVehicle = () => {
                       {key.replace(/([A-Z])/g, ' $1').trim()}
                     </p>
                     <img
-                      src={`http://localhost:5000${value}`}
+                      src={`${API_BASE_URL}${value}`}
                       alt={key}
                       className="w-full h-32 object-cover rounded"
                     />

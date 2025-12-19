@@ -2,6 +2,7 @@ import React, { useState, useEffect } from "react";
 import { Calendar, CheckSquare, X, Save, Printer, Download } from "lucide-react";
 import axios from "axios";
 import Sidebar from "../Sidebar/sidebar";
+import { API_BASE_URL } from "../../utils/config";
 
 const CalendarComponent = () => {
   const [selectedYear, setSelectedYear] = useState(2025);
@@ -57,7 +58,7 @@ const CalendarComponent = () => {
   const loadCalendarData = async (year) => {
     setLoading(true);
     try {
-      const response = await axios.get(`http://localhost:5000/api/calendar/${year}`);
+      const response = await axios.get(`${API_BASE_URL}/api/calendar/${year}`);
       if (response.data && response.data.length > 0) {
         setYearData(response.data);
       } else {
@@ -112,7 +113,7 @@ const CalendarComponent = () => {
   const handleSaveChanges = async () => {
     setLoading(true);
     try {
-      await axios.post('http://localhost:5000/api/calendar/save', {
+      await axios.post(`${API_BASE_URL}/api/calendar/save`, {
         year: selectedYear,
         data: yearData
       });

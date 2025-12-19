@@ -19,6 +19,7 @@ import {
   ShieldCheck,
 } from "lucide-react";
 import Sidebar from "../Sidebar/sidebar";
+import { API_BASE_URL } from "../../utils/config";
 
 const TABS = [
   { key: "customers", label: "Regular Customers", icon: User },
@@ -50,7 +51,7 @@ export default function EnhancedForemanReferrals() {
     try {
       setLoading(true);
       const response = await fetch(
-        `http://localhost:5000/api/foreman-customers?status=${activeTab}`
+        `${API_BASE_URL}/api/foreman-customers?status=${activeTab}`
       );
       const data = await response.json();
 
@@ -69,7 +70,7 @@ export default function EnhancedForemanReferrals() {
   const fetchStats = async () => {
     try {
       const response = await fetch(
-        "http://localhost:5000/api/foreman-customers/stats/overview"
+        `${API_BASE_URL}/api/foreman-customers/stats/overview`
       );
       const data = await response.json();
       if (data.success) {
@@ -84,7 +85,7 @@ export default function EnhancedForemanReferrals() {
     try {
       setUpdating(true);
       const response = await fetch(
-        "http://localhost:5000/api/foreman-customers/update-foreman-status",
+        `${API_BASE_URL}/api/foreman-customers/update-foreman-status`,
         {
           method: "POST",
           headers: { "Content-Type": "application/json" },
@@ -125,7 +126,7 @@ export default function EnhancedForemanReferrals() {
     try {
       setUpdating(true);
       const response = await fetch(
-        "http://localhost:5000/api/foreman-customers/update-commission-eligibility",
+        `${API_BASE_URL}/api/foreman-customers/update-commission-eligibility`,
         {
           method: "POST",
           headers: { "Content-Type": "application/json" },
@@ -165,7 +166,7 @@ export default function EnhancedForemanReferrals() {
     try {
       setUpdating(true);
       const response = await fetch(
-        "http://localhost:5000/api/foreman-customers/pay-commission",
+        `${API_BASE_URL}/api/foreman-customers/pay-commission`,
         {
           method: "POST",
           headers: { "Content-Type": "application/json" },
@@ -634,7 +635,7 @@ function CustomerDetailView({
   const fetchReferralDetails = async () => {
     try {
       const response = await fetch(
-        `http://localhost:5000/api/foreman-customers/${customer._id}/referral-details`
+        `${API_BASE_URL}/api/foreman-customers/${customer._id}/referral-details`
       );
       const data = await response.json();
 

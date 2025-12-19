@@ -8,8 +8,7 @@ import {
   Package,
   Users,
 } from "lucide-react";
-
-const API_BASE_URL = "http://localhost:5000";
+import { API_BASE_URL } from '../../utils/config';
 
 const PackingStaffDashboard = () => {
   const [packingQueue, setPackingQueue] = useState([]);

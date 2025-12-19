@@ -2,8 +2,9 @@ import React, { useState, useEffect } from "react";
 import axios from "axios";
 import Sidebar from "../Sidebar/sidebar";
 import { Search, Plus, Trash2, Building2, MapPin, Phone, Image } from "lucide-react";
+import { API_BASE_URL } from "../../utils/config";
 
-const API_BASE = "http://localhost:5000/api";
+const API_BASE = `${API_BASE_URL}/api`;
 
 const Competitors = () => {
   const [activeTab, setActiveTab] = useState("create");
@@ -727,31 +728,31 @@ const Competitors = () => {
                       <div className="flex flex-wrap gap-4">
                         {selectedCompetitor.photoLocation && (
                           <div className="text-center">
-                            <img src={`http://localhost:5000${selectedCompetitor.photoLocation}`} alt="Location" className="w-24 h-24 object-cover rounded-lg border" />
+                            <img src={`${API_BASE_URL}${selectedCompetitor.photoLocation}`} alt="Location" className="w-24 h-24 object-cover rounded-lg border" />
                             <p className="text-xs text-gray-500 mt-1">Location</p>
                           </div>
                         )}
                         {selectedCompetitor.photoShopFar && (
                           <div className="text-center">
-                            <img src={`http://localhost:5000${selectedCompetitor.photoShopFar}`} alt="Shop Far" className="w-24 h-24 object-cover rounded-lg border" />
+                            <img src={`${API_BASE_URL}${selectedCompetitor.photoShopFar}`} alt="Shop Far" className="w-24 h-24 object-cover rounded-lg border" />
                             <p className="text-xs text-gray-500 mt-1">Shop Far</p>
                           </div>
                         )}
                         {selectedCompetitor.photoShopClose && (
                           <div className="text-center">
-                            <img src={`http://localhost:5000${selectedCompetitor.photoShopClose}`} alt="Shop Close" className="w-24 h-24 object-cover rounded-lg border" />
+                            <img src={`${API_BASE_URL}${selectedCompetitor.photoShopClose}`} alt="Shop Close" className="w-24 h-24 object-cover rounded-lg border" />
                             <p className="text-xs text-gray-500 mt-1">Shop Close</p>
                           </div>
                         )}
                         {selectedCompetitor.photoStreetLeft && (
                           <div className="text-center">
-                            <img src={`http://localhost:5000${selectedCompetitor.photoStreetLeft}`} alt="Street Left" className="w-24 h-24 object-cover rounded-lg border" />
+                            <img src={`${API_BASE_URL}${selectedCompetitor.photoStreetLeft}`} alt="Street Left" className="w-24 h-24 object-cover rounded-lg border" />
                             <p className="text-xs text-gray-500 mt-1">Street Left</p>
                           </div>
                         )}
                         {selectedCompetitor.photoStreetRight && (
                           <div className="text-center">
-                            <img src={`http://localhost:5000${selectedCompetitor.photoStreetRight}`} alt="Street Right" className="w-24 h-24 object-cover rounded-lg border" />
+                            <img src={`${API_BASE_URL}${selectedCompetitor.photoStreetRight}`} alt="Street Right" className="w-24 h-24 object-cover rounded-lg border" />
                             <p className="text-xs text-gray-500 mt-1">Street Right</p>
                           </div>
                         )}

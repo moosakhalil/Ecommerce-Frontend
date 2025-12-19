@@ -18,6 +18,7 @@ import {
   Menu,
   X,
 } from "lucide-react";
+import { API_BASE_URL } from "../../utils/config";
 
 // Role definitions (should match your admin dashboard)
 const ROLES = {
@@ -104,9 +105,7 @@ export default function FillingInventory() {
       const possibleEndpoints = [
         "/api/products",
         "/api/product",
-        "http://localhost:5000/api/products",
-        "http://localhost:3001/api/products",
-        "http://localhost:8000/api/products",
+        `${API_BASE_URL}/api/products`,
       ];
 
       let response;
@@ -253,9 +252,7 @@ export default function FillingInventory() {
       const possibleEndpoints = [
         `/api/products/fill-inventory/${productId}`,
         `/api/product/fill-inventory/${productId}`,
-        `http://localhost:5000/api/products/fill-inventory/${productId}`,
-        `http://localhost:3001/api/products/fill-inventory/${productId}`,
-        `http://localhost:8000/api/products/fill-inventory/${productId}`,
+        `${API_BASE_URL}/api/products/fill-inventory/${productId}`,
       ];
 
       let response;

@@ -12,6 +12,7 @@ import {
 } from "lucide-react";
 import { useNavigate } from "react-router-dom";
 import Sidebar from "../Sidebar/sidebar";
+import { API_BASE_URL } from "../../utils/config";
 
 const CustomerPage = () => {
   const [isSidebarOpen, setIsSidebarOpen] = useState(true);
@@ -43,7 +44,7 @@ const CustomerPage = () => {
       if (dateFilter.endDate) params.append("endDate", dateFilter.endDate);
 
       const response = await fetch(
-        `http://localhost:5000/api/customers?${params}`
+        `${API_BASE_URL}/api/customers?${params}`
       );
       if (!response.ok) throw new Error("Failed to fetch customers");
 
@@ -104,7 +105,7 @@ const CustomerPage = () => {
 
     try {
       const response = await fetch(
-        `http://localhost:5000/api/customers/${customerId}`,
+        `${API_BASE_URL}/api/customers/${customerId}`,
         {
           method: "DELETE",
         }
@@ -121,7 +122,7 @@ const CustomerPage = () => {
     e.stopPropagation();
     try {
       const response = await fetch(
-        `http://localhost:5000/api/customers/${customerId}/unblock`,
+        `${API_BASE_URL}/api/customers/${customerId}/unblock`,
         {
           method: "PUT",
         }

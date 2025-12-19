@@ -15,6 +15,7 @@ import {
   CreditCard,
   Building,
 } from "lucide-react";
+import { API_BASE_URL } from "../../utils/config";
 
 export default function TransactionControlView() {
   const navigate = useNavigate();
@@ -64,8 +65,9 @@ export default function TransactionControlView() {
 
       try {
         const listRes = await fetch(
-          `http://localhost:5000/api/orders?${params}`
+          `${API_BASE_URL}/api/orders?${params}`
         );
+
 
         console.log("Response status:", listRes.status);
 

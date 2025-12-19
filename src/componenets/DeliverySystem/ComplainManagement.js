@@ -1,4 +1,6 @@
 import React, { useState, useEffect } from "react";
+import Sidebar from '../Sidebar/sidebar';
+import { API_BASE_URL } from '../../utils/config';
 import {
   Phone,
   MessageSquare,
@@ -20,8 +22,6 @@ import {
   Play,
   ExternalLink,
 } from "lucide-react";
-
-const API_BASE_URL = "http://localhost:5000";
 
 const ComplaintManagement = () => {
   const [view, setView] = useState("list"); // 'list' or 'detail'

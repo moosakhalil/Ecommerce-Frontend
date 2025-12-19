@@ -4,6 +4,7 @@ import { useNavigate, useParams } from "react-router-dom";
 import Sidebar from "../Sidebar/sidebar";
 import { FiMoreVertical } from "react-icons/fi";
 import { FaRegFileImage } from "react-icons/fa";
+import { API_BASE_URL } from "../../utils/config";
 
 export default function BankAccountView() {
   const { orderId } = useParams();
@@ -23,8 +24,9 @@ export default function BankAccountView() {
       try {
         setLoading(true);
         const response = await fetch(
-          `http://localhost:5000/api/orders/${orderId}`
+          `${API_BASE_URL}/api/orders/${orderId}`
         );
+
 
         if (!response.ok) {
           throw new Error(`HTTP Error: ${response.status}`);

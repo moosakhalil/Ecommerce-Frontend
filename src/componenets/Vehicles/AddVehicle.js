@@ -2,6 +2,7 @@ import React, { useState } from 'react';
 import axios from 'axios';
 import { useNavigate } from 'react-router-dom';
 import { Truck, Package, Upload, AlertCircle, Check } from 'lucide-react';
+import { API_BASE_URL } from '../../utils/config';
 
 const AddVehicle = () => {
   const navigate = useNavigate();
@@ -104,7 +105,7 @@ const AddVehicle = () => {
         }
       });
 
-      const response = await axios.post('http://localhost:5000/api/vehicles', formDataToSend, {
+      const response = await axios.post(`${API_BASE_URL}/api/vehicles`, formDataToSend, {
         headers: {
           'Content-Type': 'multipart/form-data',
         },
@@ -122,6 +123,7 @@ const AddVehicle = () => {
       setLoading(false);
     }
   };
+
 
   return (
     <div className="min-h-screen bg-gray-50 p-6">

@@ -23,8 +23,8 @@ import {
   User,
   Filter,
 } from "lucide-react";
+import { API_BASE_URL } from "../../utils/config";
 
-const API_BASE_URL = "http://localhost:5000";
 
 const VendorPreOrderDashboard = () => {
   // Update API endpoints to use the new route

@@ -2,6 +2,7 @@ import React, { useState, useEffect } from "react";
 import axios from "axios";
 import Sidebar from "../Sidebar/sidebar";
 import { Bell, ChevronDown, Search } from "lucide-react";
+import { API_BASE_URL } from "../../utils/config";
 
 const EmployeePermission = () => {
   const [isSidebarOpen, setIsSidebarOpen] = useState(true);
@@ -16,7 +17,6 @@ const EmployeePermission = () => {
   const [showImageModal, setShowImageModal] = useState(false);
   const [modalImageUrl, setModalImageUrl] = useState("");
 
-  const API_BASE_URL = "http://localhost:5000";
 
   // All sidebar components organized by sections
   const allComponents = [

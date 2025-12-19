@@ -12,6 +12,7 @@ import {
   PlusCircle,
 } from "lucide-react";
 import Sidebar from "../Sidebar/sidebar";
+import { API_BASE_URL } from "../../utils/config";
 
 const EditEmployees = () => {
   const [employees, setEmployees] = useState([]);
@@ -94,8 +95,6 @@ const EditEmployees = () => {
     "Other",
   ];
 
-  // Base API URL for the local server
-  const API_BASE_URL = "http://localhost:5000";
 
   // Component mapping for permissions - matching sidebar names
   const allComponents = [

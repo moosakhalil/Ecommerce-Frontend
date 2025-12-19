@@ -24,6 +24,7 @@ import {
   BarChart3,
 } from "lucide-react";
 import Sidebar from "../Sidebar/sidebar";
+import { API_BASE_URL } from "../../utils/config";
 
 export default function LostStockManagement() {
   const [isSidebarOpen, setIsSidebarOpen] = useState(true);
@@ -71,9 +72,9 @@ export default function LostStockManagement() {
       setLoading(true);
 
       const possibleEndpoints = [
-        "http://localhost:5000/api/products", // Try regular products endpoint first - should definitely have AmountStockmintoReorder
-        "http://localhost:5000/api/products/lost-stock/summary", // Then try lost-stock summary
-        "/api/products", // Relative path backups
+        `${API_BASE_URL}/api/products`,
+        `${API_BASE_URL}/api/products/lost-stock/summary`,
+        "/api/products",
         "/api/products/lost-stock/summary",
         "/api/product/lost-stock/summary",
         "/api/product",
@@ -262,8 +263,8 @@ export default function LostStockManagement() {
 
     try {
       const possibleEndpoints = [
-        `http://localhost:5000/api/products/update-lost-stock/${productId}`, // Primary port 5000
-        `/api/products/update-lost-stock/${productId}`, // Relative path backup
+        `${API_BASE_URL}/api/products/update-lost-stock/${productId}`,
+        `/api/products/update-lost-stock/${productId}`,
         `/api/product/update-lost-stock/${productId}`,
       ];
 

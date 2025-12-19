@@ -1,5 +1,6 @@
 import React, { useState, useEffect } from "react";
 import { toast } from "react-toastify";
+import { API_BASE_URL } from "../../utils/config";
 
 // Indonesian flag SVG component
 const IndonesianFlag = () => (
@@ -94,23 +95,23 @@ const EditSupplierModal = ({ supplier, onClose }) => {
 
   const [previewUrls, setPreviewUrls] = useState({
     profilePicture: supplier.profilePicture
-      ? `http://localhost:5000${supplier.profilePicture}`
+      ? `${API_BASE_URL}${supplier.profilePicture}`
       : null,
     idCardFront: supplier.idCardFront
-      ? `http://localhost:5000${supplier.idCardFront}`
+      ? `${API_BASE_URL}${supplier.idCardFront}`
       : null,
     idCardBack: supplier.idCardBack
-      ? `http://localhost:5000${supplier.idCardBack}`
+      ? `${API_BASE_URL}${supplier.idCardBack}`
       : null,
     passportFront: supplier.passportFront
-      ? `http://localhost:5000${supplier.passportFront}`
+      ? `${API_BASE_URL}${supplier.passportFront}`
       : null,
     passportBack: supplier.passportBack
-      ? `http://localhost:5000${supplier.passportBack}`
+      ? `${API_BASE_URL}${supplier.passportBack}`
       : null,
     otherDocs: [],
     existingOtherDocs: supplier.otherDocs
-      ? supplier.otherDocs.map((doc) => `http://localhost:5000${doc}`)
+      ? supplier.otherDocs.map((doc) => `${API_BASE_URL}${doc}`)
       : [],
   });
 
@@ -150,7 +151,7 @@ const EditSupplierModal = ({ supplier, onClose }) => {
     if (supplier.relatedPeople && supplier.relatedPeople.length > 0) {
       const previews = supplier.relatedPeople.map((person) =>
         person.profilePicture
-          ? `http://localhost:5000${person.profilePicture}`
+          ? `${API_BASE_URL}${person.profilePicture}`
           : null
       );
       setRelatedPeoplePreviews(previews);
@@ -319,7 +320,7 @@ const EditSupplierModal = ({ supplier, onClose }) => {
     if (
       previewUrls[name] &&
       !previewUrls[name].includes(
-        "http://localhost:5000"
+        API_BASE_URL
       )
     ) {
       URL.revokeObjectURL(previewUrls[name]);
@@ -330,8 +331,7 @@ const EditSupplierModal = ({ supplier, onClose }) => {
 
     // For existing server images, we need to track that we want to remove them
     if (
-      previewUrls[name] &&
-      previewUrls[name].includes("http://localhost:5000")
+      previewUrls[name].includes(API_BASE_URL)
     ) {
       setFormData((prev) => ({
         ...prev,
@@ -398,7 +398,7 @@ const EditSupplierModal = ({ supplier, onClose }) => {
 
     try {
       const response = await fetch(
-        `http://localhost:5000/api/suppliers/${supplier._id}/otherDoc`,
+        `${API_BASE_URL}/api/suppliers/${supplier._id}/otherDoc`,
         {
           method: "DELETE",
           headers: {
@@ -516,7 +516,7 @@ const EditSupplierModal = ({ supplier, onClose }) => {
   // Remove related person from list
   const handleRemovePerson = (index) => {
     const preview = relatedPeoplePreviews[index];
-    if (preview && !preview.startsWith('http://localhost:5000')) {
+    if (preview && !preview.startsWith(API_BASE_URL)) {
       URL.revokeObjectURL(preview);
     }
 
@@ -673,7 +673,7 @@ const EditSupplierModal = ({ supplier, onClose }) => {
       }
 
       const response = await fetch(
-        `http://localhost:5000/api/suppliers/${supplier._id}`,
+        `${API_BASE_URL}/api/suppliers/${supplier._id}`,
         {
           method: "PUT",
           body: submitData,

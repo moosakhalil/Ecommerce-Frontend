@@ -26,6 +26,7 @@ import {
   Handshake,
 } from "lucide-react";
 import Sidebar from "../Sidebar/sidebar";
+import { API_BASE_URL } from "../../utils/config";
 
 const IntroductionVideoManagement159B = () => {
   const [videos, setVideos] = useState([]);
@@ -56,7 +57,8 @@ const IntroductionVideoManagement159B = () => {
   });
 
   const API_BASE =
-    "http://localhost:5000/api/videos/introduction";
+    `${API_BASE_URL}/api/videos/introduction`;
+
 
   // Fetch videos
   useEffect(() => {

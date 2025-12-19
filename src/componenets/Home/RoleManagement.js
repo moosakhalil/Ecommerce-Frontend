@@ -1,4 +1,5 @@
 import React, { useState, useEffect, useCallback, useMemo } from "react";
+import { API_BASE_URL } from "../../utils/config";
 
 // Simple icon replacements for lucide-react
 const Shield = () => <span>🛡️</span>;
@@ -17,6 +18,7 @@ const Loader = () => <span>⏳</span>;
 const Search = () => <span>🔍</span>;
 const Eye = () => <span>👁️</span>;
 const ArrowLeft = () => <span>←</span>;
+
 
 const PermissionsManager = ({ onNavigateBack, currentUser }) => {
   // State management
@@ -68,7 +70,7 @@ const PermissionsManager = ({ onNavigateBack, currentUser }) => {
     priority: 0,
   });
 
-  const API_BASE_URL = "http://localhost:5000";
+
 
   // API helper function - matching login component structure
   const apiCall = useCallback(async (endpoint, options = {}) => {

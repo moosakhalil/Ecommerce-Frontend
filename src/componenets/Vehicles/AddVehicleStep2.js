@@ -3,6 +3,7 @@ import axios from 'axios';
 import { useNavigate, useParams } from 'react-router-dom';
 import { Truck, Package, Upload, AlertCircle, Check, ArrowLeft, Lock } from 'lucide-react';
 import Sidebar from '../Sidebar/sidebar';
+import { API_BASE_URL } from '../../utils/config';
 
 const AddVehicleStep2 = () => {
   const navigate = useNavigate();
@@ -56,7 +57,7 @@ const AddVehicleStep2 = () => {
   const fetchTemplate = async () => {
     try {
       setLoading(true);
-      const response = await axios.get(`http://localhost:5000/api/vehicle-templates/${id}`);
+      const response = await axios.get(`${API_BASE_URL}/api/vehicle-templates/${id}`);
       if (response.data.success) {
         setTemplate(response.data.data);
       }
@@ -135,7 +136,7 @@ const AddVehicleStep2 = () => {
         }
       });
 
-      const response = await axios.post('http://localhost:5000/api/vehicles', formDataToSend, {
+      const response = await axios.post(`${API_BASE_URL}/api/vehicles`, formDataToSend, {
         headers: {
           'Content-Type': 'multipart/form-data',
         },

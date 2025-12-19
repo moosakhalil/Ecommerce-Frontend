@@ -18,8 +18,7 @@ import {
   Zap,
   TrendingUp,
 } from "lucide-react";
-
-const API_BASE_URL = "http://localhost:5000";
+import { API_BASE_URL } from '../../utils/config';
 
 const DispatchOfficer2Dashboard = ({ selectedRole, setSelectedRole }) => {
   const [verificationQueue, setVerificationQueue] = useState([]);

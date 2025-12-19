@@ -16,6 +16,7 @@ import {
   DollarSign,
 } from "lucide-react";
 import axios from "axios";
+import { API_BASE_URL } from "../../utils/config";
 
 export default function OrderManagementDelivery() {
   const [isSidebarOpen, setIsSidebarOpen] = useState(true);
@@ -53,7 +54,7 @@ export default function OrderManagementDelivery() {
     try {
       setLoading(true);
       const { data } = await axios.get(
-        "http://localhost:5000/api/orders",
+        `${API_BASE_URL}/api/orders`,
         {
           params: {
             status: "order-confirmed",
@@ -94,7 +95,7 @@ export default function OrderManagementDelivery() {
   const fetchDrivers = async () => {
     try {
       const { data } = await axios.get(
-        "http://localhost:5000/api/employees",
+        `${API_BASE_URL}/api/employees`,
         {
           params: { category: "Driver" },
         }
@@ -113,7 +114,7 @@ export default function OrderManagementDelivery() {
 
   const fetchAreas = async () => {
     try {
-      const { data } = await axios.get("http://localhost:5000/api/areas");
+      const { data } = await axios.get(`${API_BASE_URL}/api/areas`);
       console.log("Areas API Response:", data);
       
       // Filter only active areas and sort by state and area
@@ -176,7 +177,7 @@ export default function OrderManagementDelivery() {
 
       // Allocate the order with time slot and driver
       await axios.put(
-        `http://localhost:5000/api/orders/${activeTimeSlotOrder}/allocate`,
+        `${API_BASE_URL}/api/orders/${activeTimeSlotOrder}/allocate`,
         {
           timeSlot: selectedTimeSlot,
           driver: selectedDriver,
@@ -217,7 +218,7 @@ export default function OrderManagementDelivery() {
   const handleItemCheckboxChange = async (orderId, itemIndex, checked) => {
     try {
       const response = await axios.put(
-        `http://localhost:5000/api/orders/${orderId}/item-status`,
+        `${API_BASE_URL}/api/orders/${orderId}/item-status`,
         {
           itemIndex: itemIndex,
           onTruck: checked,

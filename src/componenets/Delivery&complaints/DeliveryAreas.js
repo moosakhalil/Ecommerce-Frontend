@@ -1,6 +1,7 @@
 import React, { useState, useEffect } from "react";
 import { Plus, Edit, Trash2, Save, X, Home } from "lucide-react";
 import Sidebar from "../Sidebar/sidebar";
+import { API_BASE_URL } from "../../utils/config";
 
 const BALI_STATES = [
   "BULELENG",
@@ -33,7 +34,7 @@ const AreasManagement = () => {
     try {
       setLoading(true);
       const response = await fetch(
-        "http://localhost:5000/api/areas"
+        `${API_BASE_URL}/api/areas`
       );
 
       if (response.ok) {
@@ -67,7 +68,7 @@ const AreasManagement = () => {
 
     try {
       const response = await fetch(
-        "http://localhost:5000/api/areas",
+        `${API_BASE_URL}/api/areas`,
         {
           method: "POST",
           headers: { "Content-Type": "application/json" },
@@ -103,7 +104,7 @@ const AreasManagement = () => {
   const handleUpdateArea = async (id, updatedData) => {
     try {
       const response = await fetch(
-        `http://localhost:5000/api/areas/${id}`,
+        `${API_BASE_URL}/api/areas/${id}`,
         {
           method: "PUT",
           headers: { "Content-Type": "application/json" },
@@ -130,7 +131,7 @@ const AreasManagement = () => {
 
     try {
       const response = await fetch(
-        `http://localhost:5000/api/areas/${id}`,
+        `${API_BASE_URL}/api/areas/${id}`,
         {
           method: "DELETE",
         }

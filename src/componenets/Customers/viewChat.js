@@ -8,6 +8,7 @@ import {
   Search,
   Calendar,
 } from "lucide-react";
+import { API_BASE_URL } from "../../utils/config";
 
 const CustomerChatView = () => {
   const [customer, setCustomer] = useState(null);
@@ -25,18 +26,16 @@ const CustomerChatView = () => {
     try {
       setLoading(true);
 
-      // Fetch customer basic info
       const customerResponse = await fetch(
-        `http://localhost:5000/api/customers/${id}`
+        `${API_BASE_URL}/api/customers/${id}`
       );
       if (!customerResponse.ok)
         throw new Error("Failed to fetch customer details");
       const customerData = await customerResponse.json();
       setCustomer(customerData);
 
-      // Fetch chat history
       const chatResponse = await fetch(
-        `http://localhost:5000/api/customers/${id}/chat`
+        `${API_BASE_URL}/api/customers/${id}/chat`
       );
       if (!chatResponse.ok) throw new Error("Failed to fetch chat history");
       const chatData = await chatResponse.json();

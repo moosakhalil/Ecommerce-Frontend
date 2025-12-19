@@ -21,6 +21,7 @@ import {
   Check,
   MoreVertical,
 } from "lucide-react";
+import { API_BASE_URL } from "../../utils/config";
 
 // Role definitions (should match your admin dashboard)
 const ROLES = {
@@ -102,9 +103,7 @@ export default function AllDeliveryComplaints() {
       const possibleEndpoints = [
         "/api/complaints",
         "/api/complaint",
-        "http://localhost:5000/api/complaints",
-        "http://localhost:3001/api/complaints",
-        "http://localhost:8000/api/complaints",
+        `${API_BASE_URL}/api/complaints`,
       ];
 
       let response;
@@ -204,9 +203,7 @@ export default function AllDeliveryComplaints() {
       const possibleEndpoints = [
         "/api/employees?employeeCategory=Driver",
         "/api/employee?category=Driver",
-        "http://localhost:5000/api/employees?employeeCategory=Driver",
-        "http://localhost:3001/api/employees?employeeCategory=Driver",
-        "http://localhost:8000/api/employees?employeeCategory=Driver",
+        `${API_BASE_URL}/api/employees?employeeCategory=Driver`,
       ];
 
       let response;
@@ -288,9 +285,7 @@ export default function AllDeliveryComplaints() {
       const possibleEndpoints = [
         `/api/complaints/${orderId}/resolve`,
         `/api/complaint/${orderId}/resolve`,
-        `http://localhost:5000/api/complaints/${orderId}/resolve`,
-        `http://localhost:3001/api/complaints/${orderId}/resolve`,
-        `http://localhost:8000/api/complaints/${orderId}/resolve`,
+        `${API_BASE_URL}/api/complaints/${orderId}/resolve`,
       ];
 
       let response;

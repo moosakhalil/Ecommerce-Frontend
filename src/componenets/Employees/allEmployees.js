@@ -2,6 +2,7 @@ import React, { useState, useEffect } from "react";
 import axios from "axios";
 import { Search, ChevronDown, Bell } from "lucide-react";
 import Sidebar from "../Sidebar/sidebar";
+import { API_BASE_URL } from "../../utils/config";
 
 const AllEmployees = () => {
   const [employees, setEmployees] = useState([]);
@@ -22,7 +23,7 @@ const AllEmployees = () => {
   useEffect(() => {
     const fetchRoles = async () => {
       try {
-        const response = await axios.get("http://localhost:5000/api/employee-roles");
+        const response = await axios.get(`${API_BASE_URL}/api/employee-roles`);
         setRoles(response.data.roles || []);
       } catch (error) {
         console.error("Error fetching roles:", error);
@@ -37,7 +38,7 @@ const AllEmployees = () => {
       try {
         setLoading(true);
         const response = await axios.get(
-          "http://localhost:5000/api/employees"
+          `${API_BASE_URL}/api/employees`
         );
         setEmployees(response.data.employees);
         setTotalItems(response.data.total);

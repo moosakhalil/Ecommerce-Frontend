@@ -2,9 +2,8 @@ import React, { useState, useRef, useEffect } from "react";
 import axios from "axios";
 import { ChevronDown, Upload, PlusCircle, X, AlertCircle } from "lucide-react";
 import Sidebar from "../Sidebar/sidebar";
+import { API_BASE_URL } from "../../utils/config";
 
-// Base URL for API requests
-const API_BASE_URL = "http://localhost:5000/api";
 
 const AddEmployee = ({ employeeId }) => {
   const [formData, setFormData] = useState({

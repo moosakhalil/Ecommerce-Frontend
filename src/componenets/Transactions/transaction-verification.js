@@ -12,6 +12,7 @@ import {
   Truck,
   Clock,
 } from "lucide-react";
+import { API_BASE_URL } from "../../utils/config";
 
 export default function VerificationView() {
   const navigate = useNavigate();
@@ -36,7 +37,7 @@ export default function VerificationView() {
 
   useEffect(() => {
     setLoading(true);
-    fetch(`http://localhost:5000/api/orders/${orderId}`)
+    fetch(`${API_BASE_URL}/api/orders/${orderId}`)
       .then((res) => {
         if (!res.ok) {
           throw new Error(`Error ${res.status}: ${res.statusText}`);
@@ -69,7 +70,7 @@ export default function VerificationView() {
     setUpdating(true);
     try {
       const response = await fetch(
-        `http://localhost:5000/api/orders/${orderId}/status`,
+        `${API_BASE_URL}/api/orders/${orderId}/status`,
         {
           method: "PUT",
           headers: { "Content-Type": "application/json" },
@@ -114,7 +115,7 @@ export default function VerificationView() {
     setUpdating(true);
     try {
       const response = await fetch(
-        `http://localhost:5000/api/orders/${orderId}/status`,
+        `${API_BASE_URL}/api/orders/${orderId}/status`,
         {
           method: "PUT",
           headers: { "Content-Type": "application/json" },

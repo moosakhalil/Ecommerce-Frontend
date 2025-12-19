@@ -41,6 +41,7 @@ import {
 } from "lucide-react";
 import Sidebar from "../Sidebar/sidebar";
 import axios from "axios";
+import { API_BASE_URL } from "../../utils/config";
 
 const SupportManagement = () => {
   const [isSidebarOpen, setIsSidebarOpen] = useState(true);
@@ -81,7 +82,7 @@ const SupportManagement = () => {
     setLoading(true);
     try {
       const response = await axios.get(
-        "http://localhost:5000/api/support/dashboard"
+        `${API_BASE_URL}/api/support/dashboard`
       );
       setSupportData(response.data);
     } catch (error) {
@@ -94,7 +95,7 @@ const SupportManagement = () => {
   const handleStatusUpdate = async (ticketId, newStatus) => {
     try {
       await axios.put(
-        `http://localhost:5000/api/support/tickets/${ticketId}/status`,
+        `${API_BASE_URL}/api/support/tickets/${ticketId}/status`,
         {
           status: newStatus,
         }
@@ -108,7 +109,7 @@ const SupportManagement = () => {
   const handlePriorityUpdate = async (ticketId, newPriority) => {
     try {
       await axios.put(
-        `http://localhost:5000/api/support/tickets/${ticketId}/priority`,
+        `${API_BASE_URL}/api/support/tickets/${ticketId}/priority`,
         {
           priority: newPriority,
         }
@@ -128,7 +129,7 @@ const SupportManagement = () => {
   const handleDownloadMedia = async (mediaId, filename) => {
     try {
       const response = await axios.get(
-        `http://localhost:5000/api/support/media/${mediaId}/download`,
+        `${API_BASE_URL}/api/support/media/${mediaId}/download`,
         {
           responseType: "blob",
         }
@@ -154,7 +155,7 @@ const SupportManagement = () => {
   ) => {
     try {
       await axios.put(
-        `http://localhost:5000/api/support/address-changes/${orderId}/update`,
+        `${API_BASE_URL}/api/support/address-changes/${orderId}/update`,
         {
           customerId: customerId,
           newAddress: newAddress,

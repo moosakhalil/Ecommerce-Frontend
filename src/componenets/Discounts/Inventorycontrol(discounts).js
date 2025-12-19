@@ -14,6 +14,7 @@ import {
   Percent,
 } from "lucide-react";
 import Sidebar from "../Sidebar/sidebar";
+import { API_BASE_URL } from "../../utils/config";
 
 export default function InventoryControlCheckDiscount() {
   const [isSidebarOpen, setIsSidebarOpen] = useState(true);
@@ -61,11 +62,8 @@ export default function InventoryControlCheckDiscount() {
         );
       }
 
-      // Use dynamic URL based on network setup
-      const baseURL =
-        window.location.hostname === "localhost"
-          ? "http://localhost:5000"
-          : `http://${window.location.hostname}:5000`;
+      // Use centralized API_BASE_URL
+      const baseURL = API_BASE_URL;
 
       console.log(
         "🔍 Fetching discounted products from:",
@@ -225,10 +223,7 @@ export default function InventoryControlCheckDiscount() {
     const { productId, quantity } = confirmationDialog;
 
     try {
-      const baseURL =
-        window.location.hostname === "localhost"
-          ? "http://localhost:5000"
-          : `http://${window.location.hostname}:5000`;
+      const baseURL = API_BASE_URL;
 
       console.log(
         "🔄 Filling inventory for product:",

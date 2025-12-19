@@ -23,8 +23,8 @@ import {
   Mail,
   CreditCard,
 } from "lucide-react";
-
-const API_BASE_URL = "http://localhost:5000";
+import Sidebar from '../Sidebar/sidebar';
+import { API_BASE_URL } from '../../utils/config';
 
 const OrderOverviewDashboard = ({ selectedRole, setSelectedRole }) => {
   const [orders, setOrders] = useState([]);

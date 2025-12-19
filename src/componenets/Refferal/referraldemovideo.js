@@ -24,6 +24,7 @@ import {
   CheckCircle,
 } from "lucide-react";
 import Sidebar from "../Sidebar/sidebar";
+import { API_BASE_URL } from "../../utils/config";
 
 const ReferralVideoManagement159A = () => {
   const [videos, setVideos] = useState([]);
@@ -54,7 +55,8 @@ const ReferralVideoManagement159A = () => {
   });
 
   const API_BASE =
-    "http://localhost:5000/api/videos/referral";
+    `${API_BASE_URL}/api/videos/referral`;
+
 
   // Fetch videos
   useEffect(() => {

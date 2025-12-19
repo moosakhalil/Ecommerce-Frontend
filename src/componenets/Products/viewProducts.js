@@ -10,9 +10,11 @@ import {
 } from "lucide-react";
 import Sidebar from "../Sidebar/sidebar";
 import { toast } from "react-hot-toast";
+import { API_BASE_URL } from "../../utils/config";
 
 // Updated API URL to connect to your backend server
-const API_URL = "http://localhost:5000";
+const API_URL = API_BASE_URL;
+
 
 const ViewProducts = () => {
   const [isSidebarOpen, setIsSidebarOpen] = useState(true);

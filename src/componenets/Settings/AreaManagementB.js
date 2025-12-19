@@ -2,8 +2,9 @@ import React, { useState, useEffect } from "react";
 import axios from "axios";
 import Sidebar from "../Sidebar/sidebar";
 import { MapPin, Plus, Trash2, ChevronRight } from "lucide-react";
+import { API_BASE_URL } from "../../utils/config";
 
-const API_BASE = "http://localhost:5000/api/area-management";
+const API_BASE = `${API_BASE_URL}/api/area-management`;
 
 const AreaManagementB = () => {
   // Data states

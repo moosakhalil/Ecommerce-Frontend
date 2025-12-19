@@ -1,6 +1,7 @@
 import React, { useState, useEffect } from "react";
 import Sidebar from "../Sidebar/sidebar";
 import { toast } from "react-toastify";
+import { API_BASE_URL } from "../../utils/config";
 
 // Indonesian flag SVG component
 const IndonesianFlag = () => (
@@ -610,7 +611,7 @@ const SupplierProfile = () => {
 
       // Add content type header for multipart/form-data
       const response = await fetch(
-        "http://localhost:5000/api/suppliers",
+        `${API_BASE_URL}/api/suppliers`,
         {
           method: "POST",
           body: submitData,
@@ -682,7 +683,7 @@ const SupplierProfile = () => {
       if (formData.supplierId) {
         try {
           const response = await fetch(
-            `http://localhost:5000/api/suppliers/${formData.supplierId}`
+            `${API_BASE_URL}/api/suppliers/${formData.supplierId}`
           );
 
           if (response.ok) {

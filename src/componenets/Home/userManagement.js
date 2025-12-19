@@ -16,9 +16,8 @@ import {
   Save,
   ArrowLeft,
 } from "lucide-react";
+import { API_BASE_URL } from "../../utils/config";
 
-// API Configuration
-const API_BASE_URL = "http://localhost:5000";
 
 // Helper function to safely get display name
 const getDisplayName = (nameField) => {

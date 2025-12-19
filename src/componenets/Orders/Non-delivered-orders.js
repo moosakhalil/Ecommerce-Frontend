@@ -4,6 +4,7 @@ import { useNavigate } from "react-router-dom";
 import { Home, Search } from "lucide-react";
 import Sidebar from "../Sidebar/sidebar";
 import axios from "axios";
+import { API_BASE_URL } from "../../utils/config";
 
 const NonDeliveredOrders = () => {
   const [isSidebarOpen, setIsSidebarOpen] = useState(true);
@@ -15,7 +16,7 @@ const NonDeliveredOrders = () => {
     const fetchOrders = async () => {
       try {
         const res = await axios.get(
-          "http://localhost:5000/api/complaints"
+          `${API_BASE_URL}/api/complaints`
         );
         const complaintsData = res.data.complaints || [];
 
@@ -49,7 +50,7 @@ const NonDeliveredOrders = () => {
   const handleRefund = async (orderId) => {
     try {
       await axios.put(
-        `http://localhost:5000/api/orders/${orderId}/status`,
+        `${API_BASE_URL}/api/orders/${orderId}/status`,
         {
           status: "refund",
         }

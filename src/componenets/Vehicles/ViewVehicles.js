@@ -3,6 +3,7 @@ import axios from 'axios';
 import { useNavigate } from 'react-router-dom';
 import { Truck, Package, Edit, Trash2, Search, Filter, Plus, Eye, AlertCircle } from 'lucide-react';
 import Sidebar from '../Sidebar/sidebar';
+import { API_BASE_URL } from '../../utils/config';
 
 const ViewVehicles = () => {
   const navigate = useNavigate();
@@ -27,7 +28,7 @@ const ViewVehicles = () => {
   const fetchVehicles = async () => {
     try {
       setLoading(true);
-      const response = await axios.get('http://localhost:5000/api/vehicles');
+      const response = await axios.get(`${API_BASE_URL}/api/vehicles`);
       if (response.data.success) {
         setVehicles(response.data.data);
       }
@@ -65,7 +66,7 @@ const ViewVehicles = () => {
 
   const handleDelete = async () => {
     try {
-      const response = await axios.delete(`http://localhost:5000/api/vehicles/${vehicleToDelete._id}`);
+      const response = await axios.delete(`${API_BASE_URL}/api/vehicles/${vehicleToDelete._id}`);
       if (response.data.success) {
         fetchVehicles();
         setShowDeleteModal(false);

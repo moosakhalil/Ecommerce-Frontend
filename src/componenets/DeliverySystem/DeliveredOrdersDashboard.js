@@ -23,8 +23,7 @@ import {
   Award,
   TrendingUp,
 } from "lucide-react";
-
-const API_BASE_URL = "http://localhost:5000";
+import { API_BASE_URL } from '../../utils/config';
 
 // Order Details Modal Component
 const OrderDetailsModal = ({ order, onClose }) => {

@@ -12,6 +12,7 @@ import {
   Tag,
 } from "lucide-react";
 import Sidebar from "../Sidebar/sidebar";
+import { API_BASE_URL } from "../../utils/config";
 
 const statusStyles = {
   Expired: "bg-red-100 text-red-800 border-red-200",
@@ -65,11 +66,8 @@ export default function DiscountedProductsInvA() {
         );
       }
 
-      // Use dynamic URL based on network setup
-      const baseURL =
-        window.location.hostname === "localhost"
-          ? "http://localhost:5000"
-          : `http://${window.location.hostname}:5000`;
+      // Use centralized API_BASE_URL
+      const baseURL = API_BASE_URL;
 
       console.log(
         "🔍 Fetching discounted products from:",

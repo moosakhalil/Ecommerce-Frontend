@@ -25,8 +25,7 @@ import {
   TrendingUp,
   RefreshCw,
 } from "lucide-react";
-
-const API_BASE_URL = "http://localhost:5000";
+import { API_BASE_URL } from '../../utils/config';
 
 const DispatchOfficer1Dashboard = ({ selectedRole, setSelectedRole }) => {
   const [assignmentQueue, setAssignmentQueue] = useState([]);

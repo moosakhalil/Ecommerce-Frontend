@@ -14,6 +14,7 @@ import {
   Moon,
 } from "lucide-react";
 import Sidebar from "../Sidebar/sidebar";
+import { API_BASE_URL } from "../../utils/config";
 
 const DeliveryManagementDashboard = () => {
   const [activeTab, setActiveTab] = useState("vehicles");
@@ -30,7 +31,7 @@ const DeliveryManagementDashboard = () => {
     setLoading(true);
     try {
       const response = await fetch(
-        `http://localhost:5000/api/${endpoint}`
+        `${API_BASE_URL}/api/${endpoint}`
       );
       const data = await response.json();
       return data;
@@ -49,8 +50,8 @@ const DeliveryManagementDashboard = () => {
       const method = item._id && item._id !== "new" ? "PUT" : "POST";
       const url =
         item._id && item._id !== "new"
-          ? `http://localhost:5000/api/${endpoint}/${item._id}`
-          : `http://localhost:5000/api/${endpoint}`;
+          ? `${API_BASE_URL}/api/${endpoint}/${item._id}`
+          : `${API_BASE_URL}/api/${endpoint}`;
 
       const response = await fetch(url, {
         method,
@@ -96,7 +97,7 @@ const DeliveryManagementDashboard = () => {
     setLoading(true);
     try {
       const response = await fetch(
-        `http://localhost:5000/api/${endpoint}/${id}`,
+        `${API_BASE_URL}/api/${endpoint}/${id}`,
         {
           method: "DELETE",
         }

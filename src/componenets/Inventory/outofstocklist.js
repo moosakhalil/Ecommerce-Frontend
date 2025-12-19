@@ -20,6 +20,7 @@ import {
   Trash2,
 } from "lucide-react";
 import Sidebar from "../Sidebar/sidebar";
+import { API_BASE_URL } from "../../utils/config";
 
 const OutOfStockList = () => {
   const [isSidebarOpen, setIsSidebarOpen] = useState(true);
@@ -170,7 +171,7 @@ const OutOfStockList = () => {
 
       // Fetch ALL products using the basic endpoint
       const response = await fetch(
-        "http://localhost:5000/api/products"
+        `${API_BASE_URL}/api/products`
       );
 
       if (!response.ok) {
@@ -241,7 +242,7 @@ const OutOfStockList = () => {
   const fetchSuppliers = async () => {
     try {
       const response = await fetch(
-        "http://localhost:5000/api/suppliers"
+        `${API_BASE_URL}/api/suppliers`
       );
 
       if (response.ok) {
@@ -267,7 +268,7 @@ const OutOfStockList = () => {
     try {
       console.log("🔄 Refreshing product data to get updated statuses...");
       const response = await fetch(
-        "http://localhost:5000/api/products"
+        `${API_BASE_URL}/api/products`
       );
 
       if (response.ok) {
@@ -373,7 +374,7 @@ const OutOfStockList = () => {
       console.log("📤 Sending order data:", orderData);
 
       const response = await fetch(
-        `http://localhost:5000/api/products/${product._id}/add-order`,
+        `${API_BASE_URL}/api/products/${product._id}/add-order`,
         {
           method: "POST",
           headers: {
@@ -438,7 +439,7 @@ const OutOfStockList = () => {
       console.log(`🗑️ Removing product ${product.productId} from order list`);
 
       const response = await fetch(
-        `http://localhost:5000/api/products/${product._id}/remove-from-order`,
+        `${API_BASE_URL}/api/products/${product._id}/remove-from-order`,
         {
           method: "PATCH",
           headers: {
@@ -541,7 +542,7 @@ const OutOfStockList = () => {
           };
 
           const response = await fetch(
-            `http://localhost:5000/api/products/${product._id}/add-order`,
+            `${API_BASE_URL}/api/products/${product._id}/add-order`,
             {
               method: "POST",
               headers: {
