@@ -517,6 +517,24 @@ const ProductListReadOnly = () => {
                       />
                     </div>
 
+                      {/* Additional Categories for Child Products */}
+                      {selectedProduct.productType === "Child" && selectedProduct.additionalCategories && selectedProduct.additionalCategories.length > 0 && (
+                        <div className="mt-4 p-3 bg-blue-50 border border-blue-200 rounded">
+                          <h4 className="text-sm font-medium text-blue-900 mb-2">
+                            Additional Categories
+                          </h4>
+                          <div className="space-y-2">
+                            {selectedProduct.additionalCategories.map((addCat, idx) => (
+                              <div key={idx} className="flex gap-2 text-sm">
+                                <span className="bg-white px-2 py-1 rounded border">{addCat.category}</span>
+                                <span className="text-gray-400">/</span>
+                                <span className="bg-white px-2 py-1 rounded border">{addCat.subcategory}</span>
+                              </div>
+                            ))}
+                          </div>
+                        </div>
+                      )}
+
                     <h3 className="text-lg font-medium my-4">Tags</h3>
                     <div className="space-y-2">
                       {selectedProduct.tags?.map((tag, index) => (
@@ -688,6 +706,9 @@ const ProductListReadOnly = () => {
                         Category
                       </th>
                       <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                        Additional Categories
+                      </th>
+                      <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
                         Price/Unit
                       </th>
                       <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
@@ -707,7 +728,7 @@ const ProductListReadOnly = () => {
                   <tbody className="bg-white divide-y divide-gray-200">
                     {loading ? (
                       <tr>
-                        <td colSpan="8" className="px-6 py-4 text-center">
+                        <td colSpan="9" className="px-6 py-4 text-center">
                           <div className="flex justify-center items-center space-x-2">
                             <div className="animate-spin rounded-full h-5 w-5 border-b-2 border-purple-700"></div>
                             <span>Loading...</span>
@@ -717,7 +738,7 @@ const ProductListReadOnly = () => {
                     ) : error ? (
                       <tr>
                         <td
-                          colSpan="8"
+                          colSpan="9"
                           className="px-6 py-4 text-center text-red-500"
                         >
                           {error}
@@ -725,7 +746,7 @@ const ProductListReadOnly = () => {
                       </tr>
                     ) : products.length === 0 ? (
                       <tr>
-                        <td colSpan="8" className="px-6 py-4 text-center">
+                        <td colSpan="9" className="px-6 py-4 text-center">
                           No products found
                         </td>
                       </tr>
@@ -740,6 +761,19 @@ const ProductListReadOnly = () => {
                           </td>
                           <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
                             {product.categories || "N/A"}
+                          </td>
+                          <td className="px-6 py-4 text-sm text-gray-500">
+                            {product.productType === "Child" && product.additionalCategories && product.additionalCategories.length > 0 ? (
+                              <div className="space-y-1">
+                                {product.additionalCategories.map((addCat, idx) => (
+                                  <div key={idx} className="text-xs bg-blue-50 px-2 py-1 rounded inline-block mr-1">
+                                    {addCat.category} / {addCat.subcategory}
+                                  </div>
+                                ))}
+                              </div>
+                            ) : (
+                              <span className="text-gray-400">-</span>
+                            )}
                           </td>
                           <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
                             ${product.NormalPrice || "0.00"}

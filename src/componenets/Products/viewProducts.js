@@ -248,6 +248,12 @@ const ViewProducts = () => {
                         scope="col"
                         className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider"
                       >
+                        Additional Categories
+                      </th>
+                      <th
+                        scope="col"
+                        className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider"
+                      >
                         Price/Unit
                       </th>
                       <th
@@ -279,7 +285,7 @@ const ViewProducts = () => {
                   <tbody className="bg-white divide-y divide-gray-200">
                     {loading ? (
                       <tr>
-                        <td colSpan="8" className="px-6 py-4 text-center">
+                        <td colSpan="9" className="px-6 py-4 text-center">
                           <div className="flex justify-center items-center space-x-2">
                             <div className="animate-spin rounded-full h-5 w-5 border-b-2 border-purple-700"></div>
                             <span>Loading...</span>
@@ -289,7 +295,7 @@ const ViewProducts = () => {
                     ) : error ? (
                       <tr>
                         <td
-                          colSpan="8"
+                          colSpan="9"
                           className="px-6 py-4 text-center text-red-500"
                         >
                           {error}
@@ -297,7 +303,7 @@ const ViewProducts = () => {
                       </tr>
                     ) : products.length === 0 ? (
                       <tr>
-                        <td colSpan="8" className="px-6 py-4 text-center">
+                        <td colSpan="9" className="px-6 py-4 text-center">
                           No products found
                         </td>
                       </tr>
@@ -313,11 +319,24 @@ const ViewProducts = () => {
                           <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
                             {product.categories || "N/A"}
                           </td>
-                          <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
-                            ${product.suggestedRetailPrice || "0.00"}
+                          <td className="px-6 py-4 text-sm text-gray-500">
+                            {product.productType === "Child" && product.additionalCategories && product.additionalCategories.length > 0 ? (
+                              <div className="space-y-1">
+                                {product.additionalCategories.map((addCat, idx) => (
+                                  <div key={idx} className="text-xs bg-blue-50 px-2 py-1 rounded">
+                                    {addCat.category} / {addCat.subcategory}
+                                  </div>
+                                ))}
+                              </div>
+                            ) : (
+                              <span className="text-gray-400">-</span>
+                            )}
                           </td>
                           <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
-                            {product.stock || "0"}{" "}
+                            ${product.NormalPrice || "0.00"}
+                          </td>
+                          <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
+                            {product.Stock || "0"}{" "}
                             {product.productType === "Parent" ? "" : "bags"}
                           </td>
                           <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
@@ -545,6 +564,83 @@ const ViewProducts = () => {
                       </div>
                     </div>
                   </div>
+
+                  {/* Additional Categories for Child Products */}
+                  {selectedProduct.productType === "Child" && (
+                    <div className="border border-gray-300 rounded-lg p-4">
+                      <h3 className="text-lg font-medium mb-4">
+                        Categories
+                      </h3>
+                      
+                      {/* Parent Categories */}
+                      <div className="mb-4 bg-blue-50 p-3 rounded">
+                        <h4 className="text-sm font-medium text-blue-900 mb-2">
+                          Inherited from Parent
+                        </h4>
+                        <div className="grid grid-cols-2 gap-4">
+                          <div>
+                            <label className="block text-xs font-medium text-gray-700 mb-1">
+                              Category
+                            </label>
+                            <input
+                              type="text"
+                              value={selectedProduct.categories || ""}
+                              readOnly
+                              className="w-full border border-gray-300 p-2 rounded bg-gray-100 text-sm"
+                            />
+                          </div>
+                          <div>
+                            <label className="block text-xs font-medium text-gray-700 mb-1">
+                              Subcategory
+                            </label>
+                            <input
+                              type="text"
+                              value={selectedProduct.subCategories || ""}
+                              readOnly
+                              className="w-full border border-gray-300 p-2 rounded bg-gray-100 text-sm"
+                            />
+                          </div>
+                        </div>
+                      </div>
+
+                      {/* Additional Categories */}
+                      {selectedProduct.additionalCategories && selectedProduct.additionalCategories.length > 0 && (
+                        <div>
+                          <h4 className="text-sm font-medium text-gray-700 mb-2">
+                            Additional Categories
+                          </h4>
+                          <div className="space-y-2">
+                            {selectedProduct.additionalCategories.map((addCat, idx) => (
+                              <div key={idx} className="grid grid-cols-2 gap-4 p-2 bg-gray-50 rounded">
+                                <div>
+                                  <label className="block text-xs font-medium text-gray-600 mb-1">
+                                    Category {idx + 1}
+                                  </label>
+                                  <input
+                                    type="text"
+                                    value={addCat.category || ""}
+                                    readOnly
+                                    className="w-full border border-gray-300 p-1 rounded bg-white text-sm"
+                                  />
+                                </div>
+                                <div>
+                                  <label className="block text-xs font-medium text-gray-600 mb-1">
+                                    Subcategory {idx + 1}
+                                  </label>
+                                  <input
+                                    type="text"
+                                    value={addCat.subcategory || ""}
+                                    readOnly
+                                    className="w-full border border-gray-300 p-1 rounded bg-white text-sm"
+                                  />
+                                </div>
+                              </div>
+                            ))}
+                          </div>
+                        </div>
+                      )}
+                    </div>
+                  )}
 
                   {/* Specifications */}
                   <div className="border border-gray-300 rounded-lg p-4">

@@ -858,6 +858,20 @@ const EditSupplierModal = ({ supplier, onClose }) => {
                   className="w-full p-2 border border-gray-300 rounded"
                 />
               </div>
+
+              <div className="bg-blue-50 p-4 rounded">
+                <label className="block text-sm text-gray-700 mb-1">
+                  Manual Edit Average Delivery Time
+                </label>
+                <input
+                  type="text"
+                  name="manualAverageDeliveryTime"
+                  value={formData.manualAverageDeliveryTime || ""}
+                  onChange={handleInputChange}
+                  className="w-full p-2 border border-gray-300 rounded"
+                  placeholder="e.g., 3-5 days, 1 week"
+                />
+              </div>
             </div>
 
             {/* Column 2 - Contact Information */}

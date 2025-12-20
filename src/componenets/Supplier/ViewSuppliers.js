@@ -494,6 +494,14 @@ const SupplierViewOnly = () => {
                 </label>
                 <p className="text-gray-900">{selectedSupplier.city || "N/A"}</p>
               </div>
+              {selectedSupplier.manualAverageDeliveryTime && (
+                <div className="bg-blue-50 p-3 rounded">
+                  <label className="block text-sm font-medium text-blue-700 mb-1">
+                    Manual Edit Average Delivery Time
+                  </label>
+                  <p className="text-blue-900 font-medium">{selectedSupplier.manualAverageDeliveryTime}</p>
+                </div>
+              )}
             </div>
 
             {/* Identification Documents */}

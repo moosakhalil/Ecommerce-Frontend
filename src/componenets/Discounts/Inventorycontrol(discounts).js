@@ -588,7 +588,7 @@ export default function InventoryControlCheckDiscount() {
                   {[
                     "Product Info",
                     "Discount Type",
-                    "Regular Price",
+                    "Original Price",
                     "Discounted Price",
                     "Current Stock",
                     "Filling Stock",

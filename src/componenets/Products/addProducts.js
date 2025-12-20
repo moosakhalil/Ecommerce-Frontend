@@ -30,6 +30,10 @@ const AddProduct = () => {
   const [searchResults, setSearchResults] = useState([]);
   const [isSearchingParents, setIsSearchingParents] = useState(false);
   
+  // Parent product details for child products
+  const [parentProductDetails, setParentProductDetails] = useState(null);
+  const [additionalCategories, setAdditionalCategories] = useState([]);
+  
   // Supplier selection (optional)
   const [suppliers, setSuppliers] = useState([]);
   const [selectedSupplier, setSelectedSupplier] = useState(null);
@@ -382,15 +386,54 @@ const AddProduct = () => {
     [parentProducts]
   );
 
-  // Select parent product
-  const selectParentProduct = (product) => {
+  // Select parent product and fetch its details
+  const selectParentProduct = async (product) => {
     setFormData((prev) => ({
       ...prev,
       parentProduct: product.productId,
     }));
     setSearchTerm("");
     setShowSearchResults(false);
+    
+    // Fetch full parent product details
+    await fetchParentProductDetails(product.productId);
   };
+
+  // Fetch parent product details including categories
+  const fetchParentProductDetails = async (productId) => {
+    try {
+      const response = await axios.get(`${API_URL}/api/products/by-product-id/${productId}`);
+      if (response.data && response.data.success) {
+        setParentProductDetails(response.data.data);
+      } else {
+        toast.error("Parent product details not found");
+      }
+    } catch (error) {
+      console.error("Error fetching parent product details:", error);
+      toast.error("Failed to load parent product details");
+    }
+  };
+
+  // Add additional category/subcategory pair
+  const addAdditionalCategory = () => {
+    setAdditionalCategories([...additionalCategories, {
+      category: '',
+      subcategory: ''
+    }]);
+  };
+
+  // Update additional category
+  const updateAdditionalCategory = (index, field, value) => {
+    const updated = [...additionalCategories];
+    updated[index][field] = value;
+    setAdditionalCategories(updated);
+  };
+
+  // Remove additional category
+  const removeAdditionalCategory = (index) => {
+    setAdditionalCategories(additionalCategories.filter((_, i) => i !== index));
+  };
+
 
   const validateForm = () => {
     const requiredFields = {
@@ -398,24 +441,24 @@ const AddProduct = () => {
         "productName",
         "brand",
         "description",
+        "categories", // Parent needs categories
       ],
       Child: [
         "parentProduct",
         "varianceName",
         "subtitleDescription",
+        // Categories NOT required - inherited from parent
       ],
       Normal: [
         "productName",
         "brand",
         "description",
+        "categories", // Normal needs categories
       ],
     };
 
-    const additionalRequiredFields = ["categories"];
-
-    if (productType !== "Parent") {
-      additionalRequiredFields.push("globalTradeItemNumber");
-    }
+    // GTIN is required for all product types
+    const additionalRequiredFields = ["globalTradeItemNumber"];
 
     const allRequiredFields = [
       ...requiredFields[productType],
@@ -466,10 +509,27 @@ const AddProduct = () => {
     try {
       // 1) Prepare payload object
       const payload = { ...formData, productType };
+      
+      // For child products, include parent's categories and any additional categories
+      if (productType === "Child" && parentProductDetails) {
+        // Set parent's category and subcategory as the main ones
+        payload.categories = parentProductDetails.categories;
+        payload.subCategories = parentProductDetails.subCategories;
+        
+        // Add additional categories if any were added
+        if (additionalCategories.length > 0) {
+          payload.additionalCategories = additionalCategories.filter(
+            cat => cat.category && cat.subcategory
+          );
+        }
+      }
+      
       console.log("📦 Preparing payload with formData:", {
         productType: payload.productType,
         productName: payload.productName,
         categories: payload.categories,
+        subCategories: payload.subCategories,
+        additionalCategories: payload.additionalCategories,
       });
 
       // 2) Convert masterImage File to Base64
@@ -720,19 +780,20 @@ const AddProduct = () => {
                   />
 
                   <div>
-                    <label className="block text-sm font-medium">Brand</label>
+                    <label className="block text-sm font-medium">Brand <span className="text-red-500">*</span></label>
                     <input
                       type="text"
                       name="brand"
                       value={formData.brand}
                       onChange={handleChange}
                       className="w-full border border-gray-300 p-2 rounded"
+                      required
                     />
                   </div>
 
                   <div>
                     <label className="block text-sm font-medium">
-                      Product Description
+                      Product Description <span className="text-red-500">*</span>
                     </label>
                     <textarea
                       name="description"
@@ -740,6 +801,7 @@ const AddProduct = () => {
                       onChange={handleChange}
                       className="w-full border border-gray-300 p-2 rounded"
                       rows="4"
+                      required
                     ></textarea>
                   </div>
                 </div>
@@ -748,29 +810,25 @@ const AddProduct = () => {
               {productType === "Child" && (
                 <div className="mt-4">
                   <div className="border-t border-gray-200 pt-4">
-                    <p className="text-sm font-medium">
-                      In case of child option, parent for this product
+                    <p className="text-sm font-medium mb-3">
+                      In case of child option, parent for this product <span className="text-red-500">*</span>
                     </p>
-                    <div className="flex items-center mt-2 space-x-2">
+                    <div className="w-full">
                       <input
                         type="text"
-                        placeholder="Search parent number or keywords"
+                        placeholder="Search parent number or keywords (start typing to search...)"
                         value={searchTerm}
-                        onChange={(e) => setSearchTerm(e.target.value)}
-                        className="border border-gray-300 p-1 text-sm flex-grow"
-                      />
-                      <button
-                        type="button"
-                        className="bg-purple-500 text-white px-2 py-1 text-sm"
-                        onClick={() => {
-                          if (searchTerm) {
-                            searchParentProducts(searchTerm);
+                        onChange={(e) => {
+                          setSearchTerm(e.target.value);
+                          // Auto-search as user types
+                          if (e.target.value.length >= 2) {
+                            searchParentProducts(e.target.value);
+                          } else {
+                            setShowSearchResults(false);
                           }
                         }}
-                      >
-                        <SearchIcon size={14} className="inline mr-1" />
-                        Search
-                      </button>
+                        className="w-full border border-gray-300 p-3 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-purple-500"
+                      />
                     </div>
 
                     {/* Search results */}
@@ -819,7 +877,7 @@ const AddProduct = () => {
                     <div className="mt-4 space-y-4">
                       <div>
                         <label className="block text-sm font-medium">
-                          Variance Name
+                          Variance Name <span className="text-red-500">*</span>
                         </label>
                         <input
                           type="text"
@@ -827,12 +885,13 @@ const AddProduct = () => {
                           value={formData.varianceName}
                           onChange={handleChange}
                           className="w-full border border-gray-300 p-2 rounded"
+                          required
                         />
                       </div>
 
                       <div>
                         <label className="block text-sm font-medium">
-                          Subtitle Description
+                          Subtitle Description <span className="text-red-500">*</span>
                         </label>
                         <textarea
                           name="subtitleDescription"
@@ -840,6 +899,7 @@ const AddProduct = () => {
                           onChange={handleChange}
                           className="w-full border border-gray-300 p-2 rounded bg-gray-50"
                           rows="6"
+                          required
                         ></textarea>
                       </div>
                     </div>
@@ -863,7 +923,7 @@ const AddProduct = () => {
                   <div className="grid grid-cols-2 gap-4">
                     <div>
                       <label className="block text-sm font-medium">
-                        Product Name/Title
+                        Product Name/Title <span className="text-red-500">*</span>
                       </label>
                       <input
                         type="text"
@@ -871,6 +931,7 @@ const AddProduct = () => {
                         value={formData.productName}
                         onChange={handleChange}
                         className="w-full border border-gray-300 p-2 rounded"
+                        required
                       />
                     </div>
 
@@ -889,19 +950,20 @@ const AddProduct = () => {
                   </div>
 
                   <div>
-                    <label className="block text-sm font-medium">Brand</label>
+                    <label className="block text-sm font-medium">Brand <span className="text-red-500">*</span></label>
                     <input
                       type="text"
                       name="brand"
                       value={formData.brand}
                       onChange={handleChange}
                       className="w-full border border-gray-300 p-2 rounded"
+                      required
                     />
                   </div>
 
                   <div>
                     <label className="block text-sm font-medium">
-                      Product Description
+                      Product Description <span className="text-red-500">*</span>
                     </label>
                     <textarea
                       name="description"
@@ -909,6 +971,7 @@ const AddProduct = () => {
                       onChange={handleChange}
                       className="w-full border border-gray-300 p-2 rounded"
                       rows="4"
+                      required
                     ></textarea>
                   </div>
                 </div>
@@ -929,7 +992,7 @@ const AddProduct = () => {
                         <div className="mb-4 grid grid-cols-3 gap-4">
                           <div>
                             <label className="block text-xs font-medium mb-1">
-                              Global Trade Item Number (GTIN)
+                              Global Trade Item Number (GTIN) <span className="text-red-500">*</span>
                             </label>
                             <input
                               type="text"
@@ -937,6 +1000,7 @@ const AddProduct = () => {
                               value={formData.globalTradeItemNumber}
                               onChange={handleChange}
                               className="w-full border border-gray-300 p-1 rounded text-sm"
+                              required
                             />
                           </div>
                           <div>
@@ -964,7 +1028,7 @@ const AddProduct = () => {
                             />
                           </div>
                         </div>
-                        {/* Specifications */}
+                        {/* Specifications - Single Row Only */}
                         <div className="mb-4">
                           <h3 className="text-sm font-medium mb-2">
                             Specifications
@@ -972,91 +1036,54 @@ const AddProduct = () => {
                           <div className="border border-gray-300 rounded-lg">
                             {/* Header row */}
                             <div className="grid grid-cols-5 gap-2 p-2 bg-gray-100 text-xs font-medium">
-                              <div>Height</div>
-                              <div>Length</div>
-                              <div>Width</div>
-                              <div>Weight (kg/unit)</div>
+                              <div>Height <span className="text-red-500">*</span></div>
+                              <div>Length <span className="text-red-500">*</span></div>
+                              <div>Width <span className="text-red-500">*</span></div>
+                              <div>Weight (kg/unit) <span className="text-red-500">*</span></div>
                               <div>Colour</div>
                             </div>
 
-                            {/* Data rows */}
-                            {formData.specifications.map((spec, i) => (
-                              <div
-                                key={spec.id}
-                                className="grid grid-cols-5 gap-2 p-2 border-t border-gray-300 text-xs"
-                              >
-                                <input
-                                  type="text"
-                                  placeholder="Height"
-                                  value={spec.height}
-                                  onChange={(e) =>
-                                    handleSpecChange(
-                                      i,
-                                      "height",
-                                      e.target.value
-                                    )
-                                  }
-                                  className="border border-gray-300 p-1 rounded"
-                                />
-                                <input
-                                  type="text"
-                                  placeholder="Length"
-                                  value={spec.length}
-                                  onChange={(e) =>
-                                    handleSpecChange(
-                                      i,
-                                      "length",
-                                      e.target.value
-                                    )
-                                  }
-                                  className="border border-gray-300 p-1 rounded"
-                                />
-                                <input
-                                  type="text"
-                                  placeholder="Width"
-                                  value={spec.width}
-                                  onChange={(e) =>
-                                    handleSpecChange(i, "width", e.target.value)
-                                  }
-                                  className="border border-gray-300 p-1 rounded"
-                                />
-                                <input
-                                  type="text"
-                                  placeholder="Weight"
-                                  value={spec.weight}
-                                  onChange={(e) =>
-                                    handleSpecChange(
-                                      i,
-                                      "weight",
-                                      e.target.value
-                                    )
-                                  }
-                                  className="border border-gray-300 p-1 rounded"
-                                />
-                                <input
-                                  type="text"
-                                  placeholder="Colour"
-                                  value={spec.colours}
-                                  onChange={(e) =>
-                                    handleSpecChange(
-                                      i,
-                                      "colours",
-                                      e.target.value
-                                    )
-                                  }
-                                  className="border border-gray-300 p-1 rounded"
-                                />
-                              </div>
-                            ))}
-
-                            <div className="p-2 border-t border-gray-300">
-                              <button
-                                type="button"
-                                onClick={addSpecification}
-                                className="bg-red-500 text-white px-4 py-1 text-xs rounded flex items-center"
-                              >
-                                Add Specification Row
-                              </button>
+                            {/* Single data row - only first specification */}
+                            <div className="grid grid-cols-5 gap-2 p-2 border-t border-gray-300 text-xs">
+                              <input
+                                type="text"
+                                placeholder="Height"
+                                value={formData.specifications[0]?.height || ''}
+                                onChange={(e) => handleSpecChange(0, "height", e.target.value)}
+                                className="border border-gray-300 p-1 rounded"
+                                required
+                              />
+                              <input
+                                type="text"
+                                placeholder="Length"
+                                value={formData.specifications[0]?.length || ''}
+                                onChange={(e) => handleSpecChange(0, "length", e.target.value)}
+                                className="border border-gray-300 p-1 rounded"
+                                required
+                              />
+                              <input
+                                type="text"
+                                placeholder="Width"
+                                value={formData.specifications[0]?.width || ''}
+                                onChange={(e) => handleSpecChange(0, "width", e.target.value)}
+                                className="border border-gray-300 p-1 rounded"
+                                required
+                              />
+                              <input
+                                type="text"
+                                placeholder="Weight"
+                                value={formData.specifications[0]?.weight || ''}
+                                onChange={(e) => handleSpecChange(0, "weight", e.target.value)}
+                                className="border border-gray-300 p-1 rounded"
+                                required
+                              />
+                              <input
+                                type="text"
+                                placeholder="Colour (Optional)"
+                                value={formData.specifications[0]?.colours || ''}
+                                onChange={(e) => handleSpecChange(0, "colours", e.target.value)}
+                                className="border border-gray-300 p-1 rounded"
+                              />
                             </div>
                           </div>
                         </div>
@@ -1259,14 +1286,17 @@ const AddProduct = () => {
                         {/* Price after discount */}
                         <div className="mb-4">
                           <h3 className="text-xs font-medium mb-1">
-                            Normal Price without any discounts
+                            Normal Price without any discounts <span className="text-red-500">*</span>
                           </h3>
                           <input
-                            type="text"
+                            type="number"
                             name="NormalPrice"
                             value={formData.NormalPrice}
                             onChange={handleChange}
                             className="w-full border border-gray-300 p-1 rounded text-sm"
+                            required
+                            min="0"
+                            step="0.01"
                           />
                         </div>
                         <div className="mb-4">
@@ -1274,14 +1304,16 @@ const AddProduct = () => {
                             Initial Inventory
                           </h3>
                           <h3 className="text-xs font-medium mb-1">
-                            Initial Stock
+                            Initial Stock <span className="text-red-500">*</span>
                           </h3>
                           <input
-                            type="text"
+                            type="number"
                             name="Stock"
                             value={formData.Stock}
                             onChange={handleChange}
                             className="w-full border border-gray-300 p-1 rounded text-sm"
+                            required
+                            min="0"
                           />
                         </div>
                       </>
@@ -1367,44 +1399,144 @@ const AddProduct = () => {
                     </div>
                   </div>
 
-                  {/* Categories */}
-                  <div className="mb-4">
-                    <h3 className="text-sm font-medium mb-2">Category</h3>
-                    <select
-                      name="categories"
-                      value={formData.categories}
-                      onChange={handleChange}
-                      className="w-full border p-2 rounded"
-                    >
-                      <option value="">-- Select category --</option>
-                      {categoriesList.map((cat) => (
-                        <option key={cat._id} value={cat.name}>
-                          {cat.name}
-                        </option>
-                      ))}
-                    </select>
-                  </div>
+                  {/* Parent Product Categories (Child Products Only) */}
+                  {productType === "Child" && parentProductDetails && (
+                    <div className="mb-6 p-4 bg-blue-50 border border-blue-200 rounded-lg">
+                      <h3 className="text-sm font-semibold mb-3 text-blue-900">
+                        Parent Product Categories
+                      </h3>
+                      
+                      {/* Parent Product Name */}
+                      <div className="mb-3 p-3 bg-white rounded border border-blue-100">
+                        <div className="text-xs text-gray-500 mb-1">Parent Product:</div>
+                        <div className="font-medium text-gray-800">{parentProductDetails.productName}</div>
+                      </div>
 
-                  {/* Subcategories */}
-                  <div className="mb-4">
-                    <h3 className="text-sm font-medium mb-2">Subcategory</h3>
-                    <select
-                      name="subCategories"
-                      value={formData.subCategories}
-                      onChange={handleChange}
-                      className="w-full border p-2 rounded"
-                      disabled={!formData.categories}
-                    >
-                      <option value="">-- Select subcategory --</option>
-                      {categoriesList
-                        .find((cat) => cat.name === formData.categories)
-                        ?.subcategories.map((sub) => (
-                          <option key={sub} value={sub}>
-                            {sub}
+                      {/* Parent Category & Subcategory */}
+                      <div className="mb-3 p-3 bg-white rounded border border-blue-100">
+                        <div className="grid grid-cols-2 gap-3">
+                          <div>
+                            <div className="text-xs text-gray-500 mb-1">Category:</div>
+                            <div className="font-medium text-gray-800">{parentProductDetails.categories || 'N/A'}</div>
+                          </div>
+                          <div>
+                            <div className="text-xs text-gray-500 mb-1">Subcategory:</div>
+                            <div className="font-medium text-gray-800">{parentProductDetails.subCategories || 'N/A'}</div>
+                          </div>
+                        </div>
+                      </div>
+
+                      {/* Additional Categories */}
+                      {additionalCategories.length > 0 && (
+                        <div className="mb-3">
+                          <div className="text-xs font-medium text-gray-700 mb-2">Additional Categories:</div>
+                          {additionalCategories.map((addCat, index) => (
+                            <div key={index} className="mb-2 p-3 bg-white rounded border border-gray-200">
+                              <div className="flex items-center justify-between mb-2">
+                                <span className="text-xs text-gray-500">Category #{index + 1}</span>
+                                <button
+                                  type="button"
+                                  onClick={() => removeAdditionalCategory(index)}
+                                  className="text-red-500 hover:text-red-700 text-xs"
+                                >
+                                  <XCircleIcon className="w-4 h-4" />
+                                </button>
+                              </div>
+                              <div className="grid grid-cols-2 gap-2">
+                                <select
+                                  value={addCat.category}
+                                  onChange={(e) => updateAdditionalCategory(index, 'category', e.target.value)}
+                                  className="w-full border p-2 rounded text-sm"
+                                >
+                                  <option value="">-- Select category --</option>
+                                  {categoriesList.map((cat) => (
+                                    <option key={cat._id} value={cat.name}>
+                                      {cat.name}
+                                    </option>
+                                  ))}
+                                </select>
+                                <select
+                                  value={addCat.subcategory}
+                                  onChange={(e) => updateAdditionalCategory(index, 'subcategory', e.target.value)}
+                                  className="w-full border p-2 rounded text-sm"
+                                  disabled={!addCat.category}
+                                >
+                                  <option value="">-- Select subcategory --</option>
+                                  {categoriesList
+                                    .find((cat) => cat.name === addCat.category)
+                                    ?.subcategories.map((sub) => (
+                                      <option key={sub} value={sub}>
+                                        {sub}
+                                      </option>
+                                    ))}
+                                </select>
+                              </div>
+                            </div>
+                          ))}
+                        </div>
+                      )}
+
+                      {/* Add Another Category Button */}
+                      <button
+                        type="button"
+                        onClick={addAdditionalCategory}
+                        className="w-full bg-blue-500 hover:bg-blue-600 text-white px-4 py-2 rounded text-sm flex items-center justify-center"
+                      >
+                        <PlusIcon className="w-4 h-4 mr-2" />
+                        Add Another Category/Subcategory
+                      </button>
+                      
+                      {/* Info Note */}
+                      <div className="mt-2 p-2 bg-blue-100 border border-blue-300 rounded text-xs text-blue-800">
+                        ℹ️ Additional categories will be saved automatically when you submit the form
+                      </div>
+                    </div>
+                  )}
+
+                  {/* Categories - Hidden for Child products, shown for Normal/Parent */}
+                  {productType !== "Child" && (
+                    <div className="mb-4">
+                      <h3 className="text-sm font-medium mb-2">Category <span className="text-red-500">*</span></h3>
+                      <select
+                        name="categories"
+                        value={formData.categories}
+                        onChange={handleChange}
+                        className="w-full border p-2 rounded"
+                        required
+                      >
+                        <option value="">-- Select category --</option>
+                        {categoriesList.map((cat) => (
+                          <option key={cat._id} value={cat.name}>
+                            {cat.name}
                           </option>
                         ))}
-                    </select>
-                  </div>
+                      </select>
+                    </div>
+                  )}
+
+                  {/* Subcategories - Hidden for Child products, shown for Normal/Parent */}
+                  {productType !== "Child" && (
+                    <div className="mb-4">
+                      <h3 className="text-sm font-medium mb-2">Subcategory <span className="text-red-500">*</span></h3>
+                      <select
+                        name="subCategories"
+                        value={formData.subCategories}
+                        onChange={handleChange}
+                        className="w-full border p-2 rounded"
+                        disabled={!formData.categories}
+                        required
+                      >
+                        <option value="">-- Select subcategory --</option>
+                        {categoriesList
+                          .find((cat) => cat.name === formData.categories)
+                          ?.subcategories.map((sub) => (
+                            <option key={sub} value={sub}>
+                              {sub}
+                            </option>
+                          ))}
+                      </select>
+                    </div>
+                  )}
 
                   {/* Tags */}
                   <div className="mb-4">
@@ -1501,7 +1633,7 @@ const AddProduct = () => {
                   {/* Upload Master Image */}
                   <div className="mb-4">
                     <h3 className="text-sm font-medium mb-2">
-                      Upload Master Image
+                      Upload Master Image <span className="text-red-500">*</span>
                     </h3>
                     <div className="border border-dashed border-gray-300 p-4 rounded flex items-center justify-center h-32">
                       {masterImages[0] ? (

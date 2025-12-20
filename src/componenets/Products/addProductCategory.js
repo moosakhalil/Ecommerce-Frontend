@@ -7,6 +7,9 @@ import {
   Plus as PlusIcon,
   Trash2 as TrashIcon,
   XCircle as XIcon,
+  Edit2 as EditIcon,
+  Check as CheckIcon,
+  X as CancelIcon,
 } from "lucide-react";
 import { API_BASE_URL } from "../../utils/config";
 
@@ -20,6 +23,17 @@ export default function AddCategory() {
   const [isSaving, setIsSaving] = useState(false);
   const [categories, setCategories] = useState([]);
   const [isSidebarOpen, setIsSidebarOpen] = useState(true);
+  
+  // Edit modal state
+  const [editingCategory, setEditingCategory] = useState(null);
+  const [editName, setEditName] = useState("");
+  const [editSubs, setEditSubs] = useState([]);
+  const [isEditModalOpen, setIsEditModalOpen] = useState(false);
+  
+  // Field-level edit state
+  const [isEditingName, setIsEditingName] = useState(false);
+  const [editingSubIndex, setEditingSubIndex] = useState(null);
+  const [tempSubValue, setTempSubValue] = useState("");
 
   // --- Load categories ---
   const loadCategories = async () => {
@@ -62,6 +76,135 @@ export default function AddCategory() {
     }
   };
 
+  // --- Open edit modal ---
+  const openEditModal = (category) => {
+    setEditingCategory(category);
+    setEditName(category.name);
+    setEditSubs([...category.subcategories]);
+    setIsEditModalOpen(true);
+    setIsEditingName(false);
+    setEditingSubIndex(null);
+  };
+
+  // --- Close edit modal ---
+  const closeEditModal = () => {
+    setIsEditModalOpen(false);
+    setEditingCategory(null);
+    setEditName("");
+    setEditSubs([]);
+    setIsEditingName(false);
+    setEditingSubIndex(null);
+    setTempSubValue("");
+  };
+
+  // --- Save category name ---
+  const saveCategoryName = async () => {
+    if (!editName.trim()) return toast.error("Category name is required");
+    
+    setIsSaving(true);
+    try {
+      const response = await axios.patch(`${API_URL}/api/categories/${editingCategory._id}`, {
+        name: editName.trim(),
+      });
+      
+      toast.success("Category name updated!");
+      setCategories((cats) =>
+        cats.map((c) => (c._id === editingCategory._id ? response.data.data : c))
+      );
+      setEditingCategory(response.data.data);
+      setIsEditingName(false);
+    } catch (err) {
+      toast.error(err.response?.data?.message ?? "Update failed");
+    } finally {
+      setIsSaving(false);
+    }
+  };
+
+  // --- Cancel name edit ---
+  const cancelNameEdit = () => {
+    setEditName(editingCategory.name);
+    setIsEditingName(false);
+  };
+
+  // --- Start editing subcategory ---
+  const startEditingSubcategory = (index) => {
+    setEditingSubIndex(index);
+    setTempSubValue(editSubs[index]);
+  };
+
+  // --- Save single subcategory ---
+  const saveSubcategory = async (index) => {
+    if (!tempSubValue.trim()) {
+      toast.error("Subcategory cannot be empty");
+      return;
+    }
+
+    const updatedSubs = [...editSubs];
+    updatedSubs[index] = tempSubValue.trim();
+
+    setIsSaving(true);
+    try {
+      const response = await axios.patch(`${API_URL}/api/categories/${editingCategory._id}`, {
+        subcategories: updatedSubs.filter(s => s.trim()), // Filter out empty values
+      });
+      
+      toast.success(editSubs[index] === "" ? "Subcategory added!" : "Subcategory updated!");
+      setCategories((cats) =>
+        cats.map((c) => (c._id === editingCategory._id ? response.data.data : c))
+      );
+      setEditingCategory(response.data.data);
+      setEditSubs([...response.data.data.subcategories]);
+      setEditingSubIndex(null);
+      setTempSubValue("");
+    } catch (err) {
+      toast.error(err.response?.data?.message ?? "Update failed");
+    } finally {
+      setIsSaving(false);
+    }
+  };
+
+  // --- Cancel subcategory edit ---
+  const cancelSubcategoryEdit = () => {
+    // If it was a new subcategory (empty), remove it
+    if (editSubs[editingSubIndex] === "") {
+      setEditSubs(editSubs.filter((_, i) => i !== editingSubIndex));
+    }
+    setEditingSubIndex(null);
+    setTempSubValue("");
+  };
+
+  // --- Delete subcategory ---
+  const deleteSubcategory = async (index) => {
+    if (!window.confirm("Delete this subcategory?")) return;
+
+    const updatedSubs = editSubs.filter((_, i) => i !== index);
+
+    setIsSaving(true);
+    try {
+      const response = await axios.patch(`${API_URL}/api/categories/${editingCategory._id}`, {
+        subcategories: updatedSubs,
+      });
+      
+      toast.success("Subcategory deleted!");
+      setCategories((cats) =>
+        cats.map((c) => (c._id === editingCategory._id ? response.data.data : c))
+      );
+      setEditingCategory(response.data.data);
+      setEditSubs([...response.data.data.subcategories]);
+    } catch (err) {
+      toast.error(err.response?.data?.message ?? "Delete failed");
+    } finally {
+      setIsSaving(false);
+    }
+  };
+
+  // --- Add new subcategory ---
+  const addNewSubcategory = () => {
+    setEditSubs([...editSubs, ""]);
+    setEditingSubIndex(editSubs.length);
+    setTempSubValue("");
+  };
+
   // --- Delete entire category ---
   const deleteCategory = async (id) => {
     if (!window.confirm("Delete this category?")) return;
@@ -71,23 +214,6 @@ export default function AddCategory() {
       setCategories((c) => c.filter((x) => x._id !== id));
     } catch {
       toast.error("Deletion failed");
-    }
-  };
-
-  // --- Delete one subcategory ---
-  const deleteSubcategory = async (catId, sub) => {
-    const cat = categories.find((c) => c._id === catId);
-    const updated = cat.subcategories.filter((s) => s !== sub);
-    try {
-      const res = await axios.patch(`${API_URL}/api/categories/${catId}`, {
-        subcategories: updated,
-      });
-      toast.success(`Removed "${sub}"`);
-      setCategories((cats) =>
-        cats.map((c) => (c._id === catId ? res.data.data : c))
-      );
-    } catch {
-      toast.error("Couldn’t remove subcategory");
     }
   };
 
@@ -205,24 +331,28 @@ export default function AddCategory() {
                     <h3 className="text-lg font-medium text-gray-800">
                       {cat.name}
                     </h3>
-                    <TrashIcon
-                      size={18}
-                      className="text-red-500 hover:text-red-700 cursor-pointer"
-                      onClick={() => deleteCategory(cat._id)}
-                    />
+                    <div className="flex items-center space-x-3">
+                      <EditIcon
+                        size={18}
+                        className="text-blue-500 hover:text-blue-700 cursor-pointer"
+                        onClick={() => openEditModal(cat)}
+                        title="Edit category"
+                      />
+                      <TrashIcon
+                        size={18}
+                        className="text-red-500 hover:text-red-700 cursor-pointer"
+                        onClick={() => deleteCategory(cat._id)}
+                        title="Delete category"
+                      />
+                    </div>
                   </div>
                   <div className="mt-3 flex flex-wrap gap-2">
                     {cat.subcategories.map((sub) => (
                       <div
                         key={sub}
-                        className="flex items-center bg-gray-100 rounded-full px-3 py-1 space-x-2"
+                        className="bg-gray-100 rounded-full px-3 py-1"
                       >
                         <span className="text-gray-700">{sub}</span>
-                        <XIcon
-                          size={16}
-                          className="text-gray-500 hover:text-gray-700 cursor-pointer"
-                          onClick={() => deleteSubcategory(cat._id, sub)}
-                        />
                       </div>
                     ))}
                   </div>
@@ -232,6 +362,170 @@ export default function AddCategory() {
           </div>
         </div>
       </div>
+
+      {/* Edit Modal */}
+      {isEditModalOpen && (
+        <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 p-4">
+          <div className="bg-white rounded-xl shadow-2xl max-w-2xl w-full max-h-[90vh] overflow-hidden">
+            {/* Modal Header */}
+            <div className="bg-gradient-to-r from-blue-500 to-indigo-500 p-6 flex justify-between items-center">
+              <h2 className="text-2xl font-bold text-white">
+                <EditIcon size={24} className="inline mr-2" />
+                Edit Category
+              </h2>
+              <button
+                onClick={closeEditModal}
+                className="text-white hover:text-gray-200 transition-colors"
+              >
+                <XIcon size={28} />
+              </button>
+            </div>
+
+            {/* Modal Body */}
+            <div className="p-6 space-y-6 max-h-[calc(90vh-200px)] overflow-y-auto">
+              {/* Category Name Field */}
+              <div>
+                <div className="flex items-center justify-between mb-2">
+                  <label className="block text-sm font-medium text-gray-700">
+                    Category Name
+                  </label>
+                  {!isEditingName ? (
+                    <button
+                      onClick={() => setIsEditingName(true)}
+                      className="flex items-center text-blue-600 hover:text-blue-700 text-sm"
+                    >
+                      <EditIcon size={14} className="mr-1" />
+                      Edit
+                    </button>
+                  ) : (
+                    <div className="flex items-center space-x-2">
+                      <button
+                        onClick={saveCategoryName}
+                        disabled={isSaving}
+                        className="flex items-center text-green-600 hover:text-green-700 text-sm"
+                      >
+                        <CheckIcon size={14} className="mr-1" />
+                        Save
+                      </button>
+                      <button
+                        onClick={cancelNameEdit}
+                        className="flex items-center text-gray-600 hover:text-gray-700 text-sm"
+                      >
+                        <CancelIcon size={14} className="mr-1" />
+                        Cancel
+                      </button>
+                    </div>
+                  )}
+                </div>
+                {isEditingName ? (
+                  <input
+                    type="text"
+                    value={editName}
+                    onChange={(e) => setEditName(e.target.value)}
+                    className="w-full border border-blue-300 rounded-lg p-3 focus:outline-none focus:ring-2 focus:ring-blue-500"
+                    placeholder="e.g. Electronics"
+                    autoFocus
+                  />
+                ) : (
+                  <div className="w-full border border-gray-200 bg-gray-50 rounded-lg p-3 text-gray-800">
+                    {editName}
+                  </div>
+                )}
+              </div>
+
+              {/* Subcategories List */}
+              <div>
+                <div className="flex items-center justify-between mb-3">
+                  <label className="block text-sm font-medium text-gray-700">
+                    Subcategories
+                  </label>
+                  <button
+                    onClick={addNewSubcategory}
+                    className="flex items-center text-blue-600 hover:text-blue-700 text-sm"
+                  >
+                    <PlusIcon size={14} className="mr-1" />
+                    Add New
+                  </button>
+                </div>
+                <div className="space-y-3">
+                  {editSubs.length === 0 ? (
+                    <p className="text-gray-400 text-sm">No subcategories yet</p>
+                  ) : (
+                    editSubs.map((sub, index) => (
+                      <div key={index} className="border border-gray-200 rounded-lg p-3">
+                        <div className="flex items-center justify-between mb-2">
+                          <span className="text-xs text-gray-500">Subcategory #{index + 1}</span>
+                          <div className="flex items-center space-x-2">
+                            {editingSubIndex === index ? (
+                              <>
+                                <button
+                                  onClick={() => saveSubcategory(index)}
+                                  disabled={isSaving}
+                                  className="flex items-center text-green-600 hover:text-green-700 text-sm"
+                                >
+                                  <CheckIcon size={14} className="mr-1" />
+                                  Save
+                                </button>
+                                <button
+                                  onClick={cancelSubcategoryEdit}
+                                  className="flex items-center text-gray-600 hover:text-gray-700 text-sm"
+                                >
+                                  <CancelIcon size={14} className="mr-1" />
+                                  Cancel
+                                </button>
+                              </>
+                            ) : (
+                              <>
+                                <button
+                                  onClick={() => startEditingSubcategory(index)}
+                                  className="flex items-center text-blue-600 hover:text-blue-700 text-sm"
+                                >
+                                  <EditIcon size={14} className="mr-1" />
+                                  Edit
+                                </button>
+                                <button
+                                  onClick={() => deleteSubcategory(index)}
+                                  className="flex items-center text-red-600 hover:text-red-700 text-sm"
+                                >
+                                  <TrashIcon size={14} className="mr-1" />
+                                  Delete
+                                </button>
+                              </>
+                            )}
+                          </div>
+                        </div>
+                        {editingSubIndex === index ? (
+                          <input
+                            type="text"
+                            value={tempSubValue}
+                            onChange={(e) => setTempSubValue(e.target.value)}
+                            className="w-full border border-blue-300 rounded-lg p-2 focus:outline-none focus:ring-2 focus:ring-blue-500"
+                            autoFocus
+                          />
+                        ) : (
+                          <div className="w-full bg-gray-50 rounded-lg p-2 text-gray-800">
+                            {sub}
+                          </div>
+                        )}
+                      </div>
+                    ))
+                  )}
+                </div>
+              </div>
+            </div>
+
+            {/* Modal Footer */}
+            <div className="bg-gray-50 p-4 border-t flex justify-end">
+              <button
+                onClick={closeEditModal}
+                className="px-6 py-2 bg-gray-600 hover:bg-gray-700 text-white rounded-lg font-semibold transition-colors"
+              >
+                Close
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
     </div>
   );
 }

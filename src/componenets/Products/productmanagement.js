@@ -1277,6 +1277,9 @@ const ProductManagement = () => {
                         Category
                       </th>
                       <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                        Additional Categories
+                      </th>
+                      <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
                         Price/Unit
                       </th>
                       <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
@@ -1296,7 +1299,7 @@ const ProductManagement = () => {
                   <tbody className="bg-white divide-y divide-gray-200">
                     {loading ? (
                       <tr>
-                        <td colSpan="8" className="px-6 py-4 text-center">
+                        <td colSpan="9" className="px-6 py-4 text-center">
                           <div className="flex justify-center items-center space-x-2">
                             <div className="animate-spin rounded-full h-5 w-5 border-b-2 border-purple-700"></div>
                             <span>Loading...</span>
@@ -1306,7 +1309,7 @@ const ProductManagement = () => {
                     ) : error ? (
                       <tr>
                         <td
-                          colSpan="8"
+                          colSpan="9"
                           className="px-6 py-4 text-center text-red-500"
                         >
                           {error}
@@ -1314,7 +1317,7 @@ const ProductManagement = () => {
                       </tr>
                     ) : products.length === 0 ? (
                       <tr>
-                        <td colSpan="8" className="px-6 py-4 text-center">
+                        <td colSpan="9" className="px-6 py-4 text-center">
                           No products found
                         </td>
                       </tr>
@@ -1329,6 +1332,19 @@ const ProductManagement = () => {
                           </td>
                           <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
                             {product.categories || "N/A"}
+                          </td>
+                          <td className="px-6 py-4 text-sm text-gray-500">
+                            {product.productType === "Child" && product.additionalCategories && product.additionalCategories.length > 0 ? (
+                              <div className="space-y-1">
+                                {product.additionalCategories.map((addCat, idx) => (
+                                  <div key={idx} className="text-xs bg-blue-50 px-2 py-1 rounded">
+                                    {addCat.category} / {addCat.subcategory}
+                                  </div>
+                                ))}
+                              </div>
+                            ) : (
+                              <span className="text-gray-400">-</span>
+                            )}
                           </td>
                           <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
                             ${product.NormalPrice || "0.00"}
