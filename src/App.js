@@ -101,6 +101,7 @@ import SupplierOrderList from "./componenets/SupplyStockArrival/SupplierOrderLis
 import OrderDetailsPage from "./componenets/SupplyStockArrival/OrderDetailsPage";
 import DeliveryFees from "./componenets/DeliveryFees/DeliveryFees";
 import FinanceSalesData from "./componenets/Finance/SalesData";
+import BillManagement from "./componenets/Finance/BillManagement";
 
 function App() {
   return (
@@ -751,6 +752,14 @@ function App() {
           element={
             <>
               <FinanceSalesData />
+            </>
+          }
+        />
+        <Route
+          path="/finance/bills"
+          element={
+            <>
+              <BillManagement />
             </>
           }
         />

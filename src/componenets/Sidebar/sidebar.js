@@ -576,6 +576,15 @@ const Sidebar = ({ onSectionClick }) => {
           access: "",
           path: "/finance/sales-data",
         },
+        {
+          id: 260,
+          componentId: "260",
+          number: "260.",
+          icon: <FileText />,
+          name: "Bill Management & History",
+          access: "",
+          path: "/finance/bills",
+        },
       ],
     },
     {
