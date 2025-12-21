@@ -1,4 +1,5 @@
-import React, { useState, useEffect } from "react";
+import React, { useState, useEffect, useRef } from "react";
+import axios from "axios";
 import { toast } from "react-toastify";
 import Sidebar from "../Sidebar/sidebar";
 import EditSupplierModal from "./EditSupplierModal";
@@ -78,6 +79,53 @@ const SuppliersList = () => {
     isOpen: false,
     message: "",
   });
+
+  // CSV Upload state
+  const [uploading, setUploading] = useState(false);
+  const [uploadResult, setUploadResult] = useState(null);
+  const csvFileInputRef = useRef(null);
+
+  // Handle CSV upload
+  const handleCsvUpload = async (e) => {
+    const file = e.target.files[0];
+    if (!file) return;
+
+    const validTypes = ['.xlsx', '.xls', '.csv'];
+    const fileExt = file.name.substring(file.name.lastIndexOf('.')).toLowerCase();
+    if (!validTypes.includes(fileExt)) {
+      toast.error('Please select an Excel or CSV file (.xlsx, .xls, .csv)');
+      return;
+    }
+
+    const formData = new FormData();
+    formData.append('file', file);
+    setUploading(true);
+    setUploadResult(null);
+
+    try {
+      const response = await axios.post(`${API_BASE_URL}/api/suppliers/upload-excel`, formData, {
+        headers: { 'Content-Type': 'multipart/form-data' },
+      });
+
+      if (response.data.success) {
+        toast.success(`Successfully imported ${response.data.summary.created} suppliers!`);
+        setUploadResult(response.data);
+        fetchSuppliers();
+      } else {
+        toast.error(response.data.message || 'Upload failed');
+      }
+    } catch (err) {
+      console.error('Upload error:', err);
+      toast.error(err.response?.data?.message || 'Failed to upload file');
+    } finally {
+      setUploading(false);
+      if (csvFileInputRef.current) csvFileInputRef.current.value = '';
+    }
+  };
+
+  const handleDownloadTemplate = () => {
+    window.open(`${API_BASE_URL}/api/suppliers/download-template`, '_blank');
+  };
 
   // Fetch suppliers on component mount
   useEffect(() => {
@@ -245,7 +293,7 @@ const SuppliersList = () => {
           <h1 className="text-3xl font-semibold mb-6">Suppliers</h1>
 
           {/* Search and Filter Bar */}
-          <div className="bg-white rounded-lg shadow p-4 mb-6 flex items-center">
+          <div className="bg-white rounded-lg shadow p-4 mb-6 flex items-center justify-between">
             <div className="relative w-64">
               <input
                 type="text"
@@ -271,7 +319,75 @@ const SuppliersList = () => {
                 </svg>
               </div>
             </div>
+            
+            {/* CSV Upload Buttons */}
+            <div className="flex items-center space-x-3">
+              <button
+                onClick={() => csvFileInputRef.current?.click()}
+                disabled={uploading}
+                className="flex items-center space-x-2 px-4 py-2 bg-green-600 text-white rounded-lg hover:bg-green-700 disabled:opacity-50"
+              >
+                <svg xmlns="http://www.w3.org/2000/svg" className="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-8l-4-4m0 0L8 8m4-4v12" />
+                </svg>
+                <span>{uploading ? 'Uploading...' : 'Upload CSV'}</span>
+              </button>
+              <button
+                onClick={handleDownloadTemplate}
+                className="flex items-center space-x-2 px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700"
+              >
+                <svg xmlns="http://www.w3.org/2000/svg" className="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-4l-4 4m0 0l-4-4m4 4V4" />
+                </svg>
+                <span>Download Template</span>
+              </button>
+              <input
+                type="file"
+                ref={csvFileInputRef}
+                onChange={handleCsvUpload}
+                accept=".xlsx,.xls,.csv"
+                className="hidden"
+              />
+            </div>
           </div>
+
+          {/* Upload Result Display */}
+          {uploadResult && (
+            <div className="mb-6 p-4 bg-green-50 border border-green-200 rounded-lg">
+              <div className="flex justify-between items-start">
+                <div>
+                  <h3 className="font-semibold text-green-800">Upload Complete</h3>
+                  <p className="text-sm text-green-700">
+                    Created: {uploadResult.summary.created} | Skipped: {uploadResult.summary.skipped} | Total: {uploadResult.summary.total}
+                  </p>
+                  {uploadResult.note && (
+                    <p className="text-xs text-orange-600 mt-1">{uploadResult.note}</p>
+                  )}
+                  {uploadResult.summary.errors?.length > 0 && (
+                    <div className="mt-2">
+                      <p className="text-xs text-red-600 font-medium">Errors:</p>
+                      <ul className="text-xs text-red-500 max-h-20 overflow-y-auto">
+                        {uploadResult.summary.errors.slice(0, 5).map((err, idx) => (
+                          <li key={idx}>Row {err.row}: {err.message}</li>
+                        ))}
+                        {uploadResult.summary.errors.length > 5 && (
+                          <li>...and {uploadResult.summary.errors.length - 5} more errors</li>
+                        )}
+                      </ul>
+                    </div>
+                  )}
+                </div>
+                <button
+                  onClick={() => setUploadResult(null)}
+                  className="text-gray-500 hover:text-gray-700"
+                >
+                  <svg xmlns="http://www.w3.org/2000/svg" className="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
+                  </svg>
+                </button>
+              </div>
+            </div>
+          )}
 
           {/* Suppliers Table */}
           <div className="bg-white rounded-lg shadow overflow-hidden">

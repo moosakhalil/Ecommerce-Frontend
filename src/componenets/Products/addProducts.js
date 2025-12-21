@@ -89,6 +89,8 @@ const AddProduct = () => {
     useAmountStockmintoReorder: false,
     useSafetyDays: false,
     noReorder: false,
+    lowInventoryCalculation: false,
+    dontReorder: false,
     // yellow fields now readOnly No info:
     deliveryDays: "",
     deliveryTime: "",
@@ -168,6 +170,19 @@ const AddProduct = () => {
       useAmountStockmintoReorder: mode === "stock",
       useSafetyDays: mode === "safety",
     }));
+  };
+
+  // Compute best supplier by delivery days
+  const getBestSupplierByDelivery = () => {
+    const suppliersWithDelivery = suppliers.filter(
+      (s) => s.manualAverageDeliveryTime && !isNaN(parseInt(s.manualAverageDeliveryTime))
+    );
+    if (suppliersWithDelivery.length === 0) return null;
+    return suppliersWithDelivery.reduce((best, current) => {
+      const bestDays = parseInt(best.manualAverageDeliveryTime);
+      const currentDays = parseInt(current.manualAverageDeliveryTime);
+      return currentDays < bestDays ? current : best;
+    });
   };
 
   // Fetch parent products and suppliers on component mount
@@ -1128,28 +1143,6 @@ const AddProduct = () => {
                             <p className="text-base font-bold">
                               When send alert massage to make reorder
                             </p>
-                            <div className="flex items-center space-x-2">
-                              <button
-                                type="button"
-                                onClick={() =>
-                                  setFormData({ ...formData, noReorder: true })
-                                }
-                                className="bg-black text-white px-2 py-1 rounded"
-                              >
-                                no reorder
-                              </button>
-                              <input
-                                type="checkbox"
-                                name="noReorder"
-                                checked={formData.noReorder}
-                                onChange={() =>
-                                  setFormData({
-                                    ...formData,
-                                    noReorder: !formData.noReorder,
-                                  })
-                                }
-                              />
-                            </div>
                           </div>
 
                           {/* Amount section */}
@@ -1206,78 +1199,50 @@ const AddProduct = () => {
                             </p>
                           </div>
 
-                          {/* Delivery time section */}
-                          <div className="mb-20 mt-20">
-                            <p className="text-xs mb-2 px-1">delivery days</p>
-                            <p className="text-xs mb-2 px-1 ">
-                              +
+                          {/* Low Inventory Calculation Section */}
+                          <div className="mb-4 mt-6 p-3 bg-gray-50 rounded border border-gray-200">
+                            <div className="flex items-start mb-3">
                               <input
-                                type="text"
-                                name="deliveryDays"
-                                value="No info"
-                                readOnly
-                                className="w-14 bg-yellow-100 border border-yellow-100 p-1 rounded text-xs mb-2"
+                                type="checkbox"
+                                name="lowInventoryCalculation"
+                                checked={formData.lowInventoryCalculation}
+                                onChange={() =>
+                                  setFormData({
+                                    ...formData,
+                                    lowInventoryCalculation: !formData.lowInventoryCalculation,
+                                  })
+                                }
+                                className="mr-2 mt-1"
                               />
-                            </p>
-                          </div>
-                        </div>
-
-                        {/* System Calculation */}
-                        <div className="mb-4">
-                          <p className="text-xs mb-1">
-                            At this moment system calculation
-                          </p>
-                          <p className="text-xs mb-1">
-                            Average items per day sales
-                          </p>
-                          <div className="bg-yellow-100 h-6 w-36 mb-3 flex items-center justify-center text-xs">
-                            No info
-                          </div>
-
-                          <div className="flex justify-between items-center mb-3">
-                            <div>
-                              <p className="text-xs mb-1">
-                                highest sales per day
-                              </p>
-                              <div className="bg-yellow-100 h-6 w-32 flex items-center justify-center text-xs">
-                                No info
-                              </div>
+                              <label className="text-xs text-gray-700">
+                                This product can't show correct statistics or reorder mechanism for sales as it has too low inventory calculation.
+                              </label>
                             </div>
-                            <div className="bg-red-500 text-white px-4 py-1 rounded text-xs">
-                              sales data
-                            </div>
-                          </div>
-
-                          <p className="text-xs mb-1">not normal situation</p>
-                          <div className="grid grid-cols-2 gap-4 mb-4">
-                            <div>
-                              <p className="text-xs mb-1">
-                                amount of high sales
-                              </p>
-                              <div className="flex flex-col gap-1">
-                                <div className="bg-yellow-100 h-6 w-36 flex items-center justify-center text-xs">
-                                  No info
-                                </div>
-                                <div className="bg-yellow-100 h-6 w-36 flex items-center justify-center text-xs">
-                                  No info
-                                </div>
-                                <div className="bg-yellow-100 h-6 w-36 flex items-center justify-center text-xs">
-                                  No info
-                                </div>
-                              </div>
-                            </div>
-                            <div>
-                              <p className="text-xs mb-1">dates</p>
-                              <div className="flex flex-col gap-1">
-                                <div className="bg-yellow-100 h-6 w-36 flex items-center justify-center text-xs">
-                                  No info
-                                </div>
-                                <div className="bg-yellow-100 h-6 w-36 flex items-center justify-center text-xs">
-                                  No info
-                                </div>
-                                <div className="bg-yellow-100 h-6 w-36 flex items-center justify-center text-xs">
-                                  No info
-                                </div>
+                            
+                            <div className="flex items-center justify-between">
+                              <button
+                                type="button"
+                                className="bg-blue-500 text-white px-4 py-1 rounded text-xs hover:bg-blue-600 transition-colors"
+                              >
+                                Sales Data
+                              </button>
+                              
+                              <div className="flex items-center">
+                                <input
+                                  type="checkbox"
+                                  name="dontReorder"
+                                  checked={formData.dontReorder}
+                                  onChange={() =>
+                                    setFormData({
+                                      ...formData,
+                                      dontReorder: !formData.dontReorder,
+                                    })
+                                  }
+                                  className="mr-2"
+                                />
+                                <label className="text-xs text-gray-700">
+                                  Don't reorder
+                                </label>
                               </div>
                             </div>
                           </div>
@@ -1315,6 +1280,186 @@ const AddProduct = () => {
                             required
                             min="0"
                           />
+                        </div>
+
+                        {/* Supplier Delivery Info Section */}
+                        <div className="mb-4 mt-6 p-3 bg-blue-50 rounded border border-blue-200">
+                          <h3 className="text-sm font-medium mb-3 text-blue-800">
+                            Supplier Delivery Information
+                          </h3>
+                          
+                          {/* Allocated Supplier Delivery Time */}
+                          {selectedSupplier ? (
+                            <p className="text-xs text-gray-700 mb-3">
+                              The Manual Average Delivery time for supplier{" "}
+                              <span className="font-semibold">{selectedSupplier.name}</span> is{" "}
+                              <span className="font-semibold">
+                                {selectedSupplier.manualAverageDeliveryTime || "N/A"} days
+                              </span>
+                            </p>
+                          ) : (
+                            <p className="text-xs text-gray-500 mb-3 italic">
+                              No supplier allocated yet
+                            </p>
+                          )}
+
+                          <hr className="border-blue-200 my-3" />
+
+                          {/* Backup Supplier Section */}
+                          <div className="mt-3">
+                            <p className="text-xs font-medium text-gray-700 mb-2">
+                              Backup Supplier
+                            </p>
+                            {(() => {
+                              const bestSupplier = getBestSupplierByDelivery();
+                              return bestSupplier ? (
+                                <p className="text-xs text-gray-700">
+                                  Best supplier according to delivery days (from all suppliers):{" "}
+                                  <span className="font-semibold">{bestSupplier.name}</span>{" "}
+                                  <span className="text-green-600">
+                                    ({bestSupplier.manualAverageDeliveryTime} days)
+                                  </span>
+                                </p>
+                              ) : (
+                                <p className="text-xs text-gray-500 italic">
+                                  No suppliers with delivery time data available
+                                </p>
+                              );
+                            })()}
+                          </div>
+                        </div>
+
+                        {/* General Stock Reorder Time Section */}
+                        <div className="mb-4 mt-6 p-3 bg-green-50 rounded border border-green-200">
+                          <h3 className="text-sm font-medium mb-3 text-green-800">
+                            General Stock Reorder Time
+                          </h3>
+                          
+                          <div className="text-xs text-gray-700">
+                            <p className="mb-2">
+                              <span className="font-medium">Minimum stock to be held</span> = Safety Stock + Delivery Time (in days)
+                            </p>
+                            
+                            {(() => {
+                              const safetyStock = parseInt(formData.safetyDaysStock) || 0;
+                              const deliveryDays = selectedSupplier 
+                                ? parseInt(selectedSupplier.manualAverageDeliveryTime) || 0 
+                                : 0;
+                              const minimumStock = safetyStock + deliveryDays;
+                              
+                              return (
+                                <div className="mt-3 p-2 bg-white rounded border border-green-300">
+                                  <div className="flex items-center justify-between mb-2">
+                                    <span>Safety Stock:</span>
+                                    <span className="font-semibold">{safetyStock} units</span>
+                                  </div>
+                                  <div className="flex items-center justify-between mb-2">
+                                    <span>Supplier Delivery Time:</span>
+                                    <span className="font-semibold">
+                                      {selectedSupplier 
+                                        ? `${deliveryDays} days` 
+                                        : "N/A (no supplier selected)"}
+                                    </span>
+                                  </div>
+                                  <hr className="my-2 border-green-200" />
+                                  <div className="flex items-center justify-between">
+                                    <span className="font-medium text-green-800">Minimum Stock:</span>
+                                    <span className="font-bold text-green-700 text-base">
+                                      {minimumStock} units
+                                    </span>
+                                  </div>
+                                </div>
+                              );
+                            })()}
+                          </div>
+                        </div>
+
+                        {/* Sales Statistics Section */}
+                        <div className="mb-4 mt-6 p-3 bg-yellow-50 rounded border border-yellow-200">
+                          <h3 className="text-sm font-medium mb-3 text-yellow-800">
+                            Sales Statistics
+                          </h3>
+                          
+                          <div className="space-y-3">
+                            {/* Last 48h sales /2 */}
+                            <div className="flex items-center justify-between">
+                              <span className="text-xs text-gray-700 font-bold">Last 48h sales /2</span>
+                              <div className="bg-yellow-100 px-3 py-1 rounded text-xs">
+                                No info
+                              </div>
+                            </div>
+                            <p className="text-xs text-gray-500 italic ml-2">(coming from sales data)</p>
+
+                            {/* Average sales last 10 days */}
+                            <div className="flex items-center justify-between mt-2">
+                              <span className="text-xs text-gray-700 font-bold">Average sales last 10 days</span>
+                              <div className="bg-yellow-100 px-3 py-1 rounded text-xs">
+                                No info
+                              </div>
+                            </div>
+                            <p className="text-xs text-gray-500 italic ml-2">(coming from sales data)</p>
+
+                            {/* Average sales in general last 60 days */}
+                            <div className="flex items-center justify-between mt-2">
+                              <span className="text-xs text-gray-700 font-bold">Average sales in general last 60 days</span>
+                              <div className="bg-yellow-100 px-3 py-1 rounded text-xs">
+                                No info
+                              </div>
+                            </div>
+                            <p className="text-xs text-gray-500 italic ml-2">(coming from sales data)</p>
+
+                            {/* Not Normal Situation - Highest Sales Per Day */}
+                            <div className="mt-4 pt-3 border-t border-yellow-200">
+                              <p className="text-xs font-bold mb-2">Not normal situation</p>
+                              <div className="space-y-2">
+                                {/* Row 1 */}
+                                <div className="flex items-center gap-8">
+                                  <div className="flex items-center gap-2">
+                                    <span className="text-xs">highest sales per day</span>
+                                    <div className="bg-yellow-100 h-6 w-24 flex items-center justify-center text-xs">
+                                      No info
+                                    </div>
+                                  </div>
+                                  <div className="flex items-center gap-2">
+                                    <span className="text-xs">Date</span>
+                                    <div className="bg-yellow-100 h-6 w-24 flex items-center justify-center text-xs">
+                                      No info
+                                    </div>
+                                  </div>
+                                </div>
+                                {/* Row 2 */}
+                                <div className="flex items-center gap-8">
+                                  <div className="flex items-center gap-2">
+                                    <span className="text-xs">highest sales per day</span>
+                                    <div className="bg-yellow-100 h-6 w-24 flex items-center justify-center text-xs">
+                                      No info
+                                    </div>
+                                  </div>
+                                  <div className="flex items-center gap-2">
+                                    <span className="text-xs">Date</span>
+                                    <div className="bg-yellow-100 h-6 w-24 flex items-center justify-center text-xs">
+                                      No info
+                                    </div>
+                                  </div>
+                                </div>
+                                {/* Row 3 */}
+                                <div className="flex items-center gap-8">
+                                  <div className="flex items-center gap-2">
+                                    <span className="text-xs">highest sales per day</span>
+                                    <div className="bg-yellow-100 h-6 w-24 flex items-center justify-center text-xs">
+                                      No info
+                                    </div>
+                                  </div>
+                                  <div className="flex items-center gap-2">
+                                    <span className="text-xs">Date</span>
+                                    <div className="bg-yellow-100 h-6 w-24 flex items-center justify-center text-xs">
+                                      No info
+                                    </div>
+                                  </div>
+                                </div>
+                              </div>
+                            </div>
+                          </div>
                         </div>
                       </>
                     )}
@@ -1723,59 +1868,8 @@ const AddProduct = () => {
                     </div>
                   </div>
 
-                  {/* Information about inventory - ONLY for Child and Normal products */}
-                  {productType !== "Parent" && (
-                    <div className="mb-4">
-                      <p className="text-xs mb-2">
-                        when we have left 2 days of stock
-                      </p>
 
-                      {/* Re-order settings */}
-                      <div className="bg-orange-100 p-3 rounded mb-4 space-y-2">
-                        <h3 className="text-sm font-medium">
-                          re-order setting
-                        </h3>
-                        <h3 className="text-sm font-extrabold bg-red-500">
-                          THis section is not correct for the moment
-                        </h3>
-                        <div>
-                          <p className="text-sm font-semibold">
-                            {formData.reOrderSetting}
-                          </p>
-                        </div>
-
-                        <div>
-                          <p className="text-xs">amount of inventory in days</p>
-                          <p className="text-sm font-semibold mb-1">
-                            {formData.inventoryInDays}
-                          </p>
-                          <p className="text-xs text-gray-600">
-                            (25 products/items)
-                          </p>
-                        </div>
-
-                        <div>
-                          <p className="text-xs">belived order period</p>
-                          <p className="text-sm font-semibold">
-                            {formData.deliveryPeriod}
-                          </p>
-                        </div>
-
-                        <div>
-                          <p className="text-xs">
-                            order time + backup inventory
-                          </p>
-                          <input
-                            type="text"
-                            name="orderTimeBackupInventory"
-                            value={formData.orderTimeBackupInventory}
-                            onChange={handleChange}
-                            className="w-full border border-gray-300 p-1 rounded text-sm mt-1"
-                          />
-                        </div>
-                      </div>
-
-                      {/* Notes */}
+                  {/* Notes */}
                       <div className="mb-4">
                         <h3 className="text-sm font-medium mb-2">
                           Notes for us
@@ -1788,8 +1882,6 @@ const AddProduct = () => {
                           rows="4"
                         ></textarea>
                       </div>
-                    </div>
-                  )}
                 </div>
               </div>
             )}

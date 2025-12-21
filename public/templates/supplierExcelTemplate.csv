@@ -1,0 +1,13 @@
+name,email,phone,secondPhone,nameOrDepartment,address,warehouseLocation,bankAccount,bankName,emergencyContact,manualAverageDeliveryTime,status,assignedTo
+PT Semen Indonesia,semenindonesia@gmail.com,6.28123E+12,6.28123E+12,Sales Department,Jl. Veteran No. 10 Gresik Jawa Timur 61122,Gudang Gresik Jl. Industri No. 5,1234567890123456,Bank Mandiri,6.28123E+12,3,unblocked,Admin
+CV Bata Merah Jaya,batamerahjaya@gmail.com,6.28235E+12,6.28235E+12,Purchasing,Jl. Raya Cibadak No. 88 Sukabumi Jawa Barat,Gudang Sukabumi Jl. Pasar No. 12,2345678901234567,Bank BCA,6.28235E+12,2,unblocked,Admin
+PT Pasir Putih Nusantara,pasirputih@gmail.com,6.28346E+12,6.28346E+12,Logistik,Jl. Pantai Indah No. 25 Lumajang Jawa Timur,Gudang Lumajang Jl. Raya Pantai No. 8,3456789012345678,Bank BRI,6.28346E+12,6,unblocked,Manager
+CV Genteng Sokka Prima,gentingsokka@gmail.com,6.28457E+12,6.28457E+12,Marketing,Jl. Kebumen Raya No. 45 Kebumen Jawa Tengah,Gudang Kebumen Jl. Genteng No. 20,4567890123456789,Bank BNI,6.28457E+12,7,unblocked,Admin
+PT Atap Baja Ringan,atapbajaringan@gmail.com,6.28568E+12,6.28568E+12,Sales,Jl. Industri Berat No. 100 Sidoarjo Jawa Timur,Gudang Sidoarjo Jl. Logam No. 15,5678901234567890,Bank Mandiri,6.28568E+12,5,unblocked,Supervisor
+CV Plastik Atap Gelombang,plastikgelombang@gmail.com,6.28679E+12,6.28679E+12,Produksi,Jl. Cipinang Raya No. 67 Jakarta Timur,Gudang Jakarta Jl. Plastik No. 30,6789012345678901,Bank BCA,6.28679E+12,3,unblocked,Admin
+PT Pintu Kayu Jati,pintukayu@gmail.com,6.28789E+12,6.28789E+12,Export-Import,Jl. Jepara Raya No. 88 Jepara Jawa Tengah,Gudang Jepara Jl. Kayu No. 55,7890123456789012,Bank Danamon,6.28789E+12,7,unblocked,Manager
+CV Lampu LED Terang,lampuled@gmail.com,6.2889E+12,6.2889E+12,Warehouse,Jl. Elektronik No. 33 Surabaya Jawa Timur,Gudang Surabaya Jl. Lampu No. 22,8901234567890123,Bank CIMB,6.2889E+12,1,unblocked,Admin
+PT Kabel Listrik Nusantara,kabellistrik@gmail.com,6.28901E+12,6.28901E+12,Technical,Jl. Kebon Jeruk No. 99 Jakarta Barat,Gudang Jakarta Jl. Kabel No. 11,9012345678901234,Bank Permata,6.28901E+12,2,unblocked,Supervisor
+CV Paku Besi Kuat,pakubesi@gmail.com,6.28112E+12,6.28112E+12,Sales,Jl. Tandes Raya No. 50 Surabaya Jawa Timur,Gudang Surabaya Jl. Besi No. 18,1123456789012345,Bank BRI,6.28112E+12,5,unblocked,Admin
+PT Cat Tembok Warna,cattembok@gmail.com,6.28223E+12,6.28223E+12,Marketing,Jl. Tangerang Raya No. 77 Tangerang Banten,Gudang Tangerang Jl. Cat No. 25,2234567890123456,Bank BNI,6.28223E+12,3,unblocked,Admin
+CV Keramik Lantai Indah,keramiklantai@gmail.com,6.28335E+12,6.28335E+12,Purchasing,Jl. Gresik Raya No. 120 Gresik Jawa Timur,Gudang Gresik Jl. Keramik No. 40,3345678901234567,Bank Mandiri,6.28335E+12,4,unblocked,Manager

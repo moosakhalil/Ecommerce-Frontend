@@ -13,6 +13,7 @@ const AddProductsToSupplier = () => {
   const [selectedSuppliers, setSelectedSuppliers] = useState([]);
   const [loading, setLoading] = useState(false);
   const [allRelationships, setAllRelationships] = useState([]);
+  const [savingFavorite, setSavingFavorite] = useState(null); // Track which product is being saved
 
   // Fetch suppliers
   useEffect(() => {
@@ -46,8 +47,10 @@ const AddProductsToSupplier = () => {
 
   const fetchProducts = async () => {
     try {
+      console.log("Fetching products...");
       const response = await fetch(`${API_BASE_URL}/api/products`);
       const data = await response.json();
+      console.log("Products API response:", data);
       if (data.success) {
         // Map the product data to ensure consistency
         const mappedProducts = (data.data || data.products || []).map(product => ({
@@ -59,6 +62,7 @@ const AddProductsToSupplier = () => {
           NormalPrice: product.NormalPrice,
           selectedSupplierId: product.selectedSupplierId // Include supplier ID
         }));
+        console.log("Mapped products with selectedSupplierId:", mappedProducts.filter(p => p.selectedSupplierId));
         setProducts(mappedProducts);
       }
     } catch (error) {
@@ -422,6 +426,95 @@ const AddProductsToSupplier = () => {
     }
   };
 
+  // Handle setting favorite supplier for a product
+  const handleSetFavoriteSupplier = async (productId, supplierId) => {
+    console.log("Setting favorite:", { productId, supplierId });
+    setSavingFavorite(String(productId)); // Ensure it's a string
+    try {
+      // Use String() comparison to handle ObjectId vs string mismatch
+      const supplier = suppliers.find(s => String(s._id) === String(supplierId));
+      console.log("Found supplier:", supplier);
+      
+      if (!supplier) {
+        console.error("Supplier not found with ID:", supplierId);
+        toast.error("Supplier not found");
+        setSavingFavorite(null);
+        return;
+      }
+
+      console.log("Calling API:", `${API_BASE_URL}/api/products/${productId}/supplier`);
+      const response = await fetch(
+        `${API_BASE_URL}/api/products/${productId}/supplier`,
+        {
+          method: "PUT",
+          headers: {
+            "Content-Type": "application/json",
+          },
+          body: JSON.stringify({
+            selectedSupplierId: supplier._id,
+            supplierName: supplier.name,
+            supplierContact: supplier.phone,
+            supplierEmail: supplier.email,
+            supplierAddress: supplier.address,
+          }),
+        }
+      );
+
+      console.log("API Response status:", response.status);
+      
+      if (response.ok) {
+        const data = await response.json();
+        console.log("API Response data:", data);
+        toast.success("Favorite supplier set successfully!");
+        await fetchProducts();
+      } else {
+        const errorData = await response.json();
+        console.error("API Error:", errorData);
+        throw new Error(errorData.message || "Failed to set favorite supplier");
+      }
+    } catch (error) {
+      console.error("Error setting favorite supplier:", error);
+      toast.error("Failed to set favorite supplier: " + error.message);
+    } finally {
+      console.log("Resetting savingFavorite to null");
+      setSavingFavorite(null);
+    }
+  };
+
+  // Get products with multiple suppliers
+  const getProductsWithMultipleSuppliers = () => {
+    const productSupplierMap = new Map();
+
+    // Build a map of products to their suppliers
+    suppliers.forEach(supplier => {
+      if (supplier.supplyProducts && supplier.supplyProducts.length > 0) {
+        supplier.supplyProducts.forEach(productId => {
+          const product = products.find(p => p._id === productId);
+          if (product) {
+            if (!productSupplierMap.has(productId)) {
+              productSupplierMap.set(productId, {
+                product: product,
+                suppliers: []
+              });
+            }
+            productSupplierMap.get(productId).suppliers.push({
+              _id: supplier._id,
+              name: supplier.name,
+              phone: supplier.phone,
+              email: supplier.email,
+              deliveryTime: supplier.manualAverageDeliveryTime || "Not specified"
+            });
+          }
+        });
+      }
+    });
+
+    // Filter to only products with more than one supplier
+    return Array.from(productSupplierMap.values()).filter(
+      item => item.suppliers.length > 1
+    );
+  };
+
   return (
     <div className="flex bg-gray-100 min-h-screen">
       <Sidebar />
@@ -473,6 +566,16 @@ const AddProductsToSupplier = () => {
                 }`}
               >
                 Products with No Supplier
+              </button>
+              <button
+                onClick={() => setActiveTab("allocateFavorite")}
+                className={`flex-1 px-6 py-4 text-center font-medium transition-colors ${
+                  activeTab === "allocateFavorite"
+                    ? "bg-green-500 text-white border-b-2 border-green-600"
+                    : "text-gray-600 hover:bg-gray-50"
+                }`}
+              >
+                Allocate Favorite Supplier
               </button>
             </div>
           </div>
@@ -1022,6 +1125,123 @@ const AddProductsToSupplier = () => {
                     </div>
                   );
                 })()}
+              </div>
+            ) : activeTab === "allocateFavorite" ? (
+              <div>
+                <h2 className="text-xl font-semibold mb-4 text-gray-800">
+                  Allocate Favorite Supplier
+                </h2>
+                <p className="text-gray-600 mb-6">
+                  Select a favorite supplier for products that have multiple suppliers assigned
+                </p>
+
+                {getProductsWithMultipleSuppliers().length > 0 ? (
+                  <div>
+                    <div className="mb-4 text-sm text-gray-600">
+                      Found {getProductsWithMultipleSuppliers().length} product(s) with multiple suppliers
+                    </div>
+                    <div className="space-y-6">
+                      {getProductsWithMultipleSuppliers().map((item) => {
+                        const currentFav = item.product.selectedSupplierId ? String(item.product.selectedSupplierId) : null;
+                        const favSupplier = currentFav ? item.suppliers.find(s => String(s._id) === currentFav) : null;
+                        
+                        return (
+                          <div
+                            key={item.product._id}
+                            className={`border rounded-lg p-4 shadow-sm ${currentFav ? "border-green-400 bg-green-50" : "border-gray-200 bg-white"}`}
+                          >
+                            <div className="flex items-start justify-between mb-4">
+                              <div>
+                                <h3 className="text-lg font-semibold text-gray-900">{item.product.name}</h3>
+                                <p className="text-sm text-gray-600">Category: {item.product.category}</p>
+                              </div>
+                              <div className="flex flex-col items-end gap-2">
+                                <span className="bg-blue-100 text-blue-800 px-3 py-1 rounded-full text-sm font-medium">
+                                  {item.suppliers.length} Suppliers
+                                </span>
+                                {favSupplier ? (
+                                  <span className="bg-green-500 text-white px-3 py-1 rounded-full text-sm font-medium">
+                                    ★ Favorite: {favSupplier.name}
+                                  </span>
+                                ) : (
+                                  <span className="bg-yellow-100 text-yellow-800 px-3 py-1 rounded-full text-sm font-medium">
+                                    ⚠ No Favorite Set
+                                  </span>
+                                )}
+                              </div>
+                            </div>
+
+                            <table className="min-w-full divide-y divide-gray-200">
+                              <thead className="bg-gray-50">
+                                <tr>
+                                  <th className="px-4 py-2 text-left text-xs font-medium text-gray-500 uppercase">Supplier Name</th>
+                                  <th className="px-4 py-2 text-left text-xs font-medium text-gray-500 uppercase">Phone</th>
+                                  <th className="px-4 py-2 text-left text-xs font-medium text-gray-500 uppercase">Delivery Time</th>
+                                  <th className="px-4 py-2 text-left text-xs font-medium text-gray-500 uppercase">Action</th>
+                                </tr>
+                              </thead>
+                              <tbody className="bg-white divide-y divide-gray-200">
+                                {item.suppliers.map((sup) => (
+                                  <tr key={sup._id} className={currentFav === String(sup._id) ? "bg-green-50" : ""}>
+                                    <td className="px-4 py-3">
+                                      <span className="font-medium text-gray-900">{sup.name}</span>
+                                      {currentFav === String(sup._id) && (
+                                        <span className="ml-2 bg-green-500 text-white text-xs px-2 py-0.5 rounded">★</span>
+                                      )}
+                                    </td>
+                                    <td className="px-4 py-3 text-sm text-gray-600">{sup.phone}</td>
+                                    <td className="px-4 py-3 text-sm text-gray-600">{sup.deliveryTime || "N/A"}</td>
+                                    <td className="px-4 py-3">
+                                      {currentFav === String(sup._id) ? (
+                                        <span className="px-3 py-1 text-sm rounded font-medium bg-gray-200 text-gray-500">✓ Selected</span>
+                                      ) : (
+                                        <button
+                                          type="button"
+                                          className="px-3 py-1 text-sm rounded font-medium bg-green-500 text-white hover:bg-green-600"
+                                          onClick={async () => {
+                                            console.log("Saving favorite for product:", item.product._id, item.product.name, "supplier:", sup._id, sup.name);
+                                            try {
+                                              const res = await fetch(`${API_BASE_URL}/api/products/${item.product._id}/supplier`, {
+                                                method: "PUT",
+                                                headers: { "Content-Type": "application/json" },
+                                                body: JSON.stringify({
+                                                  selectedSupplierId: sup._id,
+                                                  supplierName: sup.name,
+                                                  supplierContact: sup.phone,
+                                                  supplierEmail: sup.email,
+                                                  supplierAddress: sup.address
+                                                })
+                                              });
+                                              if (res.ok) {
+                                                toast.success("Favorite saved!");
+                                                await fetchProducts();
+                                              } else {
+                                                toast.error("Failed to save");
+                                              }
+                                            } catch (err) {
+                                              toast.error("Error: " + err.message);
+                                            }
+                                          }}
+                                        >
+                                          Save Favorite
+                                        </button>
+                                      )}
+                                    </td>
+                                  </tr>
+                                ))}
+                              </tbody>
+                            </table>
+                          </div>
+                        );
+                      })}
+                    </div>
+                  </div>
+                ) : (
+                  <div className="text-center py-8 bg-gray-50 rounded-lg">
+                    <p className="text-gray-500">No products found with multiple suppliers.</p>
+                    <p className="text-sm text-gray-400 mt-2">Assign multiple suppliers to products first.</p>
+                  </div>
+                )}
               </div>
             ) : null}
           </div>

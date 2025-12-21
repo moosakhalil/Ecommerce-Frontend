@@ -100,6 +100,7 @@ import AreaManagementB from "./componenets/Settings/AreaManagementB";
 import SupplierOrderList from "./componenets/SupplyStockArrival/SupplierOrderList";
 import OrderDetailsPage from "./componenets/SupplyStockArrival/OrderDetailsPage";
 import DeliveryFees from "./componenets/DeliveryFees/DeliveryFees";
+import FinanceSalesData from "./componenets/Finance/SalesData";
 
 function App() {
   return (
@@ -742,6 +743,14 @@ function App() {
           element={
             <>
               <DeliveryFees />
+            </>
+          }
+        />
+        <Route
+          path="/finance/sales-data"
+          element={
+            <>
+              <FinanceSalesData />
             </>
           }
         />

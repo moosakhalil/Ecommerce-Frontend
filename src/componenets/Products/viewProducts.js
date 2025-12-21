@@ -1,4 +1,4 @@
-import React, { useState, useEffect, useCallback } from "react";
+import React, { useState, useEffect, useCallback, useRef } from "react";
 import axios from "axios";
 import {
   SearchIcon,
@@ -7,6 +7,8 @@ import {
   ChevronRightIcon,
   XCircleIcon,
   ArrowLeftIcon,
+  UploadIcon,
+  DownloadIcon,
 } from "lucide-react";
 import Sidebar from "../Sidebar/sidebar";
 import { toast } from "react-hot-toast";
@@ -29,6 +31,60 @@ const ViewProducts = () => {
   const [totalItems, setTotalItems] = useState(0);
   const [showDetails, setShowDetails] = useState(false);
   const [selectedProduct, setSelectedProduct] = useState(null);
+  
+  // Excel upload state
+  const [uploading, setUploading] = useState(false);
+  const [uploadResult, setUploadResult] = useState(null);
+  const fileInputRef = useRef(null);
+
+  // Handle Excel file upload
+  const handleExcelUpload = async (e) => {
+    const file = e.target.files[0];
+    if (!file) return;
+
+    // Validate file type
+    const validTypes = ['.xlsx', '.xls', '.csv'];
+    const fileExt = file.name.substring(file.name.lastIndexOf('.')).toLowerCase();
+    if (!validTypes.includes(fileExt)) {
+      toast.error('Please select an Excel or CSV file (.xlsx, .xls, .csv)');
+      return;
+    }
+
+    const formData = new FormData();
+    formData.append('file', file);
+
+    setUploading(true);
+    setUploadResult(null);
+
+    try {
+      const response = await axios.post(`${API_URL}/api/products/upload-excel`, formData, {
+        headers: { 'Content-Type': 'multipart/form-data' },
+      });
+
+      if (response.data.success) {
+        const { summary } = response.data;
+        toast.success(`Successfully imported ${summary.created} products!`);
+        setUploadResult(response.data);
+        fetchProducts(); // Refresh the product list
+      } else {
+        toast.error(response.data.message || 'Upload failed');
+      }
+    } catch (err) {
+      console.error('Upload error:', err);
+      toast.error(err.response?.data?.message || 'Failed to upload file');
+    } finally {
+      setUploading(false);
+      // Reset file input
+      if (fileInputRef.current) {
+        fileInputRef.current.value = '';
+      }
+    }
+  };
+
+  // Download template
+  const handleDownloadTemplate = () => {
+    window.open(`${API_URL}/api/products/download-template`, '_blank');
+  };
 
   // Fetch products with search, filter, and pagination
   const fetchProducts = useCallback(async () => {
@@ -158,11 +214,69 @@ const ViewProducts = () => {
         <div className="bg-purple-900 text-white p-3 flex justify-between items-center mb-4">
           <h1 className="text-xl font-medium">Product List</h1>
           <div className="flex items-center space-x-2">
+            {/* Excel Upload Button */}
+            <button
+              onClick={() => fileInputRef.current?.click()}
+              disabled={uploading}
+              className="flex items-center space-x-1 bg-green-600 hover:bg-green-700 px-3 py-1 rounded text-sm disabled:opacity-50"
+            >
+              <UploadIcon size={16} />
+              <span>{uploading ? 'Uploading...' : 'Upload Excel'}</span>
+            </button>
+            {/* Download Template Button */}
+            <button
+              onClick={handleDownloadTemplate}
+              className="flex items-center space-x-1 bg-blue-600 hover:bg-blue-700 px-3 py-1 rounded text-sm"
+            >
+              <DownloadIcon size={16} />
+              <span>Template</span>
+            </button>
+            {/* Hidden file input */}
+            <input
+              type="file"
+              ref={fileInputRef}
+              onChange={handleExcelUpload}
+              accept=".xlsx,.xls,.csv"
+              className="hidden"
+            />
             <span className="text-xs bg-purple-700 px-2 py-1 rounded">
               {totalItems} Products
             </span>
           </div>
         </div>
+
+        {/* Upload Result Display */}
+        {uploadResult && (
+          <div className="mb-4 p-4 bg-green-50 border border-green-200 rounded-lg">
+            <div className="flex justify-between items-start">
+              <div>
+                <h3 className="font-semibold text-green-800">Upload Complete</h3>
+                <p className="text-sm text-green-700">
+                  Created: {uploadResult.summary.created} | Skipped: {uploadResult.summary.skipped} | Total: {uploadResult.summary.total}
+                </p>
+                {uploadResult.summary.errors?.length > 0 && (
+                  <div className="mt-2">
+                    <p className="text-xs text-red-600 font-medium">Errors:</p>
+                    <ul className="text-xs text-red-500 max-h-20 overflow-y-auto">
+                      {uploadResult.summary.errors.slice(0, 5).map((err, idx) => (
+                        <li key={idx}>Row {err.row}: {err.message}</li>
+                      ))}
+                      {uploadResult.summary.errors.length > 5 && (
+                        <li>...and {uploadResult.summary.errors.length - 5} more errors</li>
+                      )}
+                    </ul>
+                  </div>
+                )}
+              </div>
+              <button
+                onClick={() => setUploadResult(null)}
+                className="text-gray-500 hover:text-gray-700"
+              >
+                <XCircleIcon size={20} />
+              </button>
+            </div>
+          </div>
+        )}
 
         {!showDetails ? (
           <>

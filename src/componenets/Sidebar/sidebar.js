@@ -567,6 +567,15 @@ const Sidebar = ({ onSectionClick }) => {
           access: "",
           path: "/sales-data",
         },
+        {
+          id: 259,
+          componentId: "259",
+          number: "259.",
+          icon: <CreditCard />,
+          name: "Sales Data",
+          access: "",
+          path: "/finance/sales-data",
+        },
       ],
     },
     {
