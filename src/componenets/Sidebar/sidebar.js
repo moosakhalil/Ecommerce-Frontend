@@ -30,6 +30,8 @@ const Edit = () => <span>✏️</span>;
 const Plus = () => <span>➕</span>;
 const DollarSign = () => <span>💰</span>;
 const MapPin = () => <span>📍</span>;
+const Search = () => <span>🔍</span>;
+const ClipboardCheck = () => <span>✅</span>;
 
 const Sidebar = ({ onSectionClick }) => {
   const [isOpen, setIsOpen] = useState(true);
@@ -927,6 +929,83 @@ const Sidebar = ({ onSectionClick }) => {
           name: "Complaint Manager (after 24 hours)",
           access: "",
           path: "/delivery/complaint-after-24",
+        },
+      ],
+    },
+    {
+      title: "PRODUCT TRACKING",
+      sections: [
+        {
+          id: 301,
+          componentId: "301",
+          number: "301.",
+          icon: <Package />,
+          name: "Tracking Dashboard",
+          access: "",
+          path: "/tracking/dashboard",
+        },
+        {
+          id: 302,
+          componentId: "302",
+          number: "302.",
+          icon: <Search />,
+          name: "Scan & Track",
+          access: "",
+          path: "/tracking/scan",
+        },
+        {
+          id: 303,
+          componentId: "303",
+          number: "303.",
+          icon: <Search />,
+          name: "Advanced Search",
+          access: "",
+          path: "/tracking/search",
+        },
+        {
+          id: 304,
+          componentId: "304",
+          number: "304.",
+          icon: <Package />,
+          name: "Batch Management",
+          access: "",
+          path: "/tracking/batches",
+        },
+        {
+          id: 305,
+          componentId: "305",
+          number: "305.",
+          icon: <MapPin />,
+          name: "Location Management",
+          access: "",
+          path: "/tracking/locations",
+        },
+        {
+          id: 306,
+          componentId: "306",
+          number: "306.",
+          icon: <ClipboardCheck />,
+          name: "Quality Control",
+          access: "",
+          path: "/tracking/quality",
+        },
+        {
+          id: 307,
+          componentId: "307",
+          number: "307.",
+          icon: <FileText />,
+          name: "Reports & Analytics",
+          access: "",
+          path: "/tracking/reports",
+        },
+        {
+          id: 308,
+          componentId: "308",
+          number: "308.",
+          icon: <Settings />,
+          name: "Tracking Settings",
+          access: "",
+          path: "/tracking/settings",
         },
       ],
     },

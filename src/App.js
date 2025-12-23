@@ -103,6 +103,16 @@ import DeliveryFees from "./componenets/DeliveryFees/DeliveryFees";
 import FinanceSalesData from "./componenets/Finance/SalesData";
 import BillManagement from "./componenets/Finance/BillManagement";
 
+// Product Tracking System - IDs 301-308
+import TrackingDashboard from "./componenets/ProductTracking/TrackingDashboard";
+import ScanTrack from "./componenets/ProductTracking/ScanTrack";
+import AdvancedSearch from "./componenets/ProductTracking/AdvancedSearch";
+import BatchManagement from "./componenets/ProductTracking/BatchManagement";
+import LocationManagement from "./componenets/ProductTracking/LocationManagement";
+import QualityControl from "./componenets/ProductTracking/QualityControl";
+import ReportsAnalytics from "./componenets/ProductTracking/ReportsAnalytics";
+import TrackingSettings from "./componenets/ProductTracking/TrackingSettings";
+
 function App() {
   return (
     <Router>
@@ -763,6 +773,16 @@ function App() {
             </>
           }
         />
+
+        {/* Product Tracking Routes - IDs 301-308 */}
+        <Route path="/tracking/dashboard" element={<TrackingDashboard />} />
+        <Route path="/tracking/scan" element={<ScanTrack />} />
+        <Route path="/tracking/search" element={<AdvancedSearch />} />
+        <Route path="/tracking/batches" element={<BatchManagement />} />
+        <Route path="/tracking/locations" element={<LocationManagement />} />
+        <Route path="/tracking/quality" element={<QualityControl />} />
+        <Route path="/tracking/reports" element={<ReportsAnalytics />} />
+        <Route path="/tracking/settings" element={<TrackingSettings />} />
         
       </Routes>
 
