@@ -990,7 +990,7 @@ const ProductManagement = () => {
                   <h3 className="text-lg font-medium mb-4">Pricing</h3>
                   <div className="grid grid-cols-2 gap-4">
                     {renderEditableField(
-                      "Retail Price",
+                      "Net Total Final Payment",
                       editingProduct.NormalPrice,
                       "NormalPrice",
                       "number"
@@ -1387,7 +1387,7 @@ const ProductManagement = () => {
                         Additional Categories
                       </th>
                       <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                        Price/Unit
+                        Net Total Final Payment
                       </th>
                       <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
                         Stock

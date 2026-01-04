@@ -764,7 +764,7 @@ const AddProductsToSupplier = () => {
                               )}
                               {rel.product.NormalPrice != null && (
                                 <p>
-                                  <span className="font-medium">Price:</span> Rp{" "}
+                                  <span className="font-medium">Net Total Final Payment:</span> Rp{" "}
                                   {rel.product.NormalPrice.toLocaleString()}
                                 </p>
                               )}
@@ -965,7 +965,7 @@ const AddProductsToSupplier = () => {
                               )}
                               {rel.product.NormalPrice != null && (
                                 <p>
-                                  <span className="font-medium">Price:</span> Rp{" "}
+                                  <span className="font-medium">Net Total Final Payment:</span> Rp{" "}
                                   {rel.product.NormalPrice.toLocaleString()}
                                 </p>
                               )}
@@ -1108,7 +1108,7 @@ const AddProductsToSupplier = () => {
                               )}
                               {product.NormalPrice != null && (
                                 <p>
-                                  <span className="font-medium">Price:</span> Rp{" "}
+                                  <span className="font-medium">Net Total Final Payment:</span> Rp{" "}
                                   {product.NormalPrice.toLocaleString()}
                                 </p>
                               )}

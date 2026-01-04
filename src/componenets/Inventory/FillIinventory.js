@@ -662,7 +662,7 @@ export default function FillingInventory() {
                       "Product ID",
                       "Product Name",
                       "Category",
-                      "Price/Unit",
+                      "Net Total Final Payment",
                       "Current Stock",
                       "Reorder Threshold",
                       "Filling Stock",

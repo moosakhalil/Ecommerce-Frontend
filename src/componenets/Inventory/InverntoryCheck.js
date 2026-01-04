@@ -508,7 +508,7 @@ export default function InventoryCheck() {
                       "Product ID",
                       "Product Name",
                       "Category",
-                      "Price/Unit",
+                      "Net Total Final Payment",
                       "Current Stock",
                       "Reorder Threshold",
                       "Units Sold",

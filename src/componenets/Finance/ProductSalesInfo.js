@@ -224,7 +224,7 @@ const ProductSalesInfo = () => {
                     <div className="text-lg font-bold text-purple-800">
                       ${selectedProduct.NormalPrice || 0}
                     </div>
-                    <div className="text-sm text-purple-600">Normal Price</div>
+                    <div className="text-sm text-purple-600">Net Total Final Payment</div>
                   </div>
                 </div>
               </div>
@@ -333,7 +333,7 @@ const ProductSalesInfo = () => {
                         Quantity Sold
                       </th>
                       <th className="px-6 py-4 text-left text-xs font-semibold text-gray-700 uppercase tracking-wider">
-                        Normal Price
+                        Net Total Final Payment
                       </th>
                       <th className="px-6 py-4 text-left text-xs font-semibold text-gray-700 uppercase tracking-wider">
                         Original Price

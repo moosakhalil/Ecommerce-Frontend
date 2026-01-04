@@ -1094,7 +1094,7 @@ export default function LostStockManagement() {
                     </div>
                     <div>
                       <span className="text-sm font-medium text-gray-600">
-                        Price per Unit:
+                        Net Total Final Payment:
                       </span>
                       <p className="font-medium">
                         ${detailsModal.product.NormalPrice || 0}

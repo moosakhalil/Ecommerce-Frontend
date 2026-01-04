@@ -631,7 +631,7 @@ export default function InventoryControlCheck() {
                   "Product ID",
                   "Product Name",
                   "Category",
-                  "Price/Unit",
+                  "Net Total Final Payment",
                   "Current Stock",
                   "Threshold",
                   "Lost Stock",

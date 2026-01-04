@@ -1251,7 +1251,7 @@ const AddProduct = () => {
                         {/* Price after discount */}
                         <div className="mb-4">
                           <h3 className="text-xs font-medium mb-1">
-                            Normal Price without any discounts <span className="text-red-500">*</span>
+                            Net Total Final Payment <span className="text-red-500">*</span>
                           </h3>
                           <input
                             type="number"

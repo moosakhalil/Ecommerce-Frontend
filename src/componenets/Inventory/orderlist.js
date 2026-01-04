@@ -918,8 +918,8 @@ const OrderListApprovedStock = () => {
               <thead className="bg-orange-500 text-white">
                 <tr>
                   <th className="px-4 py-3 text-left font-medium">
-                    Product ID
-                  </th>
+                  Net Total Final Payment
+                </th>
                   <th className="px-4 py-3 text-left font-medium">
                     Product Name
                   </th>
@@ -1399,7 +1399,7 @@ const OrderListApprovedStock = () => {
                       </div>
                       <div className="flex justify-between">
                         <span className="font-medium text-gray-600">
-                          Unit Price:
+                          Net Total Final Payment:
                         </span>
                         <span className="text-gray-900">
                           ${(selectedOrderDetails.price || 0).toFixed(2)}

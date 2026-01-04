@@ -368,7 +368,7 @@ const ViewProducts = () => {
                         scope="col"
                         className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider"
                       >
-                        Price/Unit
+                        Net Total Final Payment
                       </th>
                       <th
                         scope="col"
@@ -991,7 +991,7 @@ const ViewProducts = () => {
 
                       <div>
                         <label className="block text-sm font-medium text-gray-700 mb-1">
-                          Price After Discount
+                          Net Total Final Payment
                         </label>
                         <input
                           type="text"
