@@ -437,7 +437,7 @@ export default function DiscountedProductsInvA() {
                       "Type",
                       "Quantity",
                       "New Price",
-                      "Original Price",
+                      "Net Total Final Payment",
                       "Savings",
                       "Status",
                       "End Date",
