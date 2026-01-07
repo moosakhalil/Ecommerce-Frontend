@@ -20,7 +20,8 @@ import {
   Users,
   MapPinIcon,
 } from "lucide-react";
-import { API_BASE_URL } from "../../utils/config";
+
+const API_BASE_URL = "http://localhost:5000";
 
 const VendorManagementDashboard = () => {
   // State Management

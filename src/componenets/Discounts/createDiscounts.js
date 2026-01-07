@@ -12,7 +12,6 @@ import {
   Users,
   Package,
 } from "lucide-react";
-import { API_BASE_URL } from "../../utils/config";
 
 const discountTypes = [
   "clearance",
@@ -78,8 +77,9 @@ export default function CreateDiscount() {
 
     setIsSearching(true);
     try {
+      // Try multiple possible endpoints
       const possibleEndpoints = [
-        `${API_BASE_URL}/api/products`,
+        `http://localhost:5000/api/products`,
       ];
 
       let response;
@@ -235,9 +235,10 @@ export default function CreateDiscount() {
       // Validate form
       validateForm();
 
+      // Try multiple possible endpoints for creating discount
       const possibleEndpoints = [
-        `${API_BASE_URL}/api/products/${selectedProduct.id}/discount`,
-        `${API_BASE_URL}/api/products/${selectedProduct.id}`, // Fallback to regular update
+        `http://localhost:5000/api/products/${selectedProduct.id}/discount`,
+        `http://localhost:5000/api/products/${selectedProduct.id}`, // Fallback to regular update
       ];
 
       let response;

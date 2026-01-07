@@ -1106,6 +1106,27 @@ const ViewProducts = () => {
                       />
                     </div>
 
+                    <div className="mb-4">
+                      <label className="block text-sm font-medium text-gray-700 mb-1">
+                        Tax Bracket
+                      </label>
+                      <div className="flex items-center gap-2">
+                        <input
+                          type="text"
+                          value={selectedProduct.taxBracketCode ? 
+                            `${selectedProduct.taxBracketCode} - ${selectedProduct.taxPercentage || 0}%` : 
+                            "Not Set"}
+                          readOnly
+                          className="w-full border border-gray-300 p-2 rounded bg-gray-100"
+                        />
+                        {selectedProduct.taxBracketCode && (
+                          <span className="px-3 py-1 bg-blue-100 text-blue-800 text-sm rounded-full whitespace-nowrap">
+                            {selectedProduct.taxPercentage || 0}%
+                          </span>
+                        )}
+                      </div>
+                    </div>
+
                     <h3 className="text-lg font-medium my-4">Tags</h3>
 
                     <div className="flex flex-wrap gap-2">

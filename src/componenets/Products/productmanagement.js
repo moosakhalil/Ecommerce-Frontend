@@ -49,6 +49,9 @@ const ProductManagement = () => {
   const [uploading, setUploading] = useState(false);
   const [uploadResult, setUploadResult] = useState(null);
   const excelFileInputRef = useRef(null);
+  
+  // Tax brackets state
+  const [taxBrackets, setTaxBrackets] = useState([]);
 
   // Handle Excel file upload
   const handleExcelUpload = async (e) => {
@@ -132,6 +135,18 @@ const ProductManagement = () => {
   useEffect(() => {
     fetchProducts();
   }, [fetchProducts]);
+
+  // Fetch tax brackets
+  useEffect(() => {
+    axios
+      .get(`${API_URL}/api/tax-brackets/active`)
+      .then((res) => {
+        if (res.data.success) {
+          setTaxBrackets(res.data.data);
+        }
+      })
+      .catch(console.error);
+  }, []);
 
   // Handle search
   const handleSearch = (e) => {
@@ -1076,6 +1091,35 @@ const ProductManagement = () => {
                     editingProduct.subCategories,
                     "subCategories"
                   )}
+
+                  {/* Tax Bracket Selection */}
+                  <div className="mt-4">
+                    <label className="block text-sm font-medium text-gray-700 mb-1">
+                      Tax Bracket
+                    </label>
+                    <select
+                      value={editingProduct.taxBracketId || ""}
+                      onChange={(e) => {
+                        const selectedBracket = taxBrackets.find(b => b._id === e.target.value);
+                        handleEditChange("taxBracketId", e.target.value);
+                        handleEditChange("taxBracketCode", selectedBracket?.bracketCode || "");
+                        handleEditChange("taxPercentage", selectedBracket?.taxPercentage || 0);
+                      }}
+                      className="w-full border border-gray-300 p-2 rounded"
+                    >
+                      <option value="">-- Select Tax Bracket --</option>
+                      {taxBrackets.map((bracket) => (
+                        <option key={bracket._id} value={bracket._id}>
+                          {bracket.bracketName} - {bracket.taxPercentage}%
+                        </option>
+                      ))}
+                    </select>
+                    {editingProduct.taxBracketId && (
+                      <p className="text-xs text-gray-500 mt-1">
+                        Tax Rate: {editingProduct.taxPercentage || 0}% ({editingProduct.taxBracketCode})
+                      </p>
+                    )}
+                  </div>
 
                   <h3 className="text-lg font-medium my-4">Tags</h3>
                   {editingProduct.tags?.map((tag, index) => (

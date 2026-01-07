@@ -60,6 +60,7 @@ import LostStockManagement from "./componenets/Inventory/Loststock";
 import CustomerChatView from "./componenets/Customers/viewChat";
 import ReferralVideos from "./componenets/Refferal/referralDashboard";
 import ForemanReferrals from "./componenets/Refferal/Foremanprofits";
+import ForemanReferralManagement from "./componenets/Refferal/ForemanReferralManagement";
 import RolePermissionsManager from "./componenets/Home/RoleManagement";
 import ManageUsers from "./componenets/Home/userManagement";
 import ReferralVideoSending from "./componenets/Refferal/referraldemovideo";
@@ -102,6 +103,9 @@ import OrderDetailsPage from "./componenets/SupplyStockArrival/OrderDetailsPage"
 import DeliveryFees from "./componenets/DeliveryFees/DeliveryFees";
 import FinanceSalesData from "./componenets/Finance/SalesData";
 import BillManagement from "./componenets/Finance/BillManagement";
+import TaxBrackets from "./componenets/Finance/TaxBrackets";
+import WalletManagement from "./componenets/Finance/WalletManagement";
+import FeeControlManagement from "./componenets/Finance/FeeControlManagement";
 
 // Product Tracking System - IDs 301-308
 import TrackingDashboard from "./componenets/ProductTracking/TrackingDashboard";
@@ -346,6 +350,14 @@ function App() {
           element={
             <>
               <ForemanReferrals />
+            </>
+          }
+        />
+        <Route
+          path="/foreman-referral-management"
+          element={
+            <>
+              <ForemanReferralManagement />
             </>
           }
         />
@@ -770,6 +782,30 @@ function App() {
           element={
             <>
               <BillManagement />
+            </>
+          }
+        />
+        <Route
+          path="/finance/tax-brackets"
+          element={
+            <>
+              <TaxBrackets />
+            </>
+          }
+        />
+        <Route
+          path="/finance/wallet"
+          element={
+            <>
+              <WalletManagement />
+            </>
+          }
+        />
+        <Route
+          path="/finance/fee-control"
+          element={
+            <>
+              <FeeControlManagement />
             </>
           }
         />

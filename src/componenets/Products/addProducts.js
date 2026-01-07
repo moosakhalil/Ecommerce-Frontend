@@ -50,10 +50,22 @@ const AddProduct = () => {
 
   // near top of AddProduct()
   const [categoriesList, setCategoriesList] = useState([]);
+  const [taxBrackets, setTaxBrackets] = useState([]);
+  
   useEffect(() => {
     axios
       .get(`${API_URL}/api/categories`)
       .then((res) => setCategoriesList(res.data.data))
+      .catch(console.error);
+    
+    // Fetch tax brackets
+    axios
+      .get(`${API_URL}/api/tax-brackets/active`)
+      .then((res) => {
+        if (res.data.success) {
+          setTaxBrackets(res.data.data);
+        }
+      })
       .catch(console.error);
   }, []);
 
@@ -119,6 +131,9 @@ const AddProduct = () => {
     subCategories: "",
     packageSize: "Large",
     selectedSupplierId: "", // Optional supplier allocation
+    taxBracketId: "", // Tax bracket selection
+    taxBracketCode: "",
+    taxPercentage: 0,
   });
 
   const toBase64 = (file) =>
@@ -1682,6 +1697,37 @@ const AddProduct = () => {
                       </select>
                     </div>
                   )}
+
+                  {/* Tax Bracket Selection */}
+                  <div className="mb-4">
+                    <h3 className="text-sm font-medium mb-2">Tax Bracket</h3>
+                    <select
+                      name="taxBracketId"
+                      value={formData.taxBracketId}
+                      onChange={(e) => {
+                        const selectedBracket = taxBrackets.find(b => b._id === e.target.value);
+                        setFormData(prev => ({
+                          ...prev,
+                          taxBracketId: e.target.value,
+                          taxBracketCode: selectedBracket?.bracketCode || '',
+                          taxPercentage: selectedBracket?.taxPercentage || 0
+                        }));
+                      }}
+                      className="w-full border p-2 rounded"
+                    >
+                      <option value="">-- Select Tax Bracket --</option>
+                      {taxBrackets.map((bracket) => (
+                        <option key={bracket._id} value={bracket._id}>
+                          {bracket.bracketName} - {bracket.taxPercentage}%
+                        </option>
+                      ))}
+                    </select>
+                    {formData.taxBracketId && (
+                      <p className="text-xs text-gray-500 mt-1">
+                        Tax Rate: {formData.taxPercentage}% ({formData.taxBracketCode})
+                      </p>
+                    )}
+                  </div>
 
                   {/* Tags */}
                   <div className="mb-4">

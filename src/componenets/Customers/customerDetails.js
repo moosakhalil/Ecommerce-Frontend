@@ -20,7 +20,6 @@ import {
   Unlock,
   ChevronRight,
 } from "lucide-react";
-import { API_BASE_URL } from "../../utils/config";
 
 const CustomerDetail = () => {
   const [customer, setCustomer] = useState(null);
@@ -48,7 +47,7 @@ const CustomerDetail = () => {
     try {
       setLoading(true);
       const response = await fetch(
-        `${API_BASE_URL}/api/customers/${id}`
+        `http://localhost:5000/api/customers/${id}`
       );
       if (!response.ok) {
         if (response.status === 404) {
@@ -85,7 +84,7 @@ const CustomerDetail = () => {
       }
 
       const response = await fetch(
-        `${API_BASE_URL}/api/customers/${id}/orders?${params}`
+        `http://localhost:5000/api/customers/${id}/orders?${params}`
       );
       if (!response.ok) throw new Error("Failed to fetch orders");
 
@@ -101,7 +100,7 @@ const CustomerDetail = () => {
   const fetchChatHistory = async () => {
     try {
       const response = await fetch(
-        `${API_BASE_URL}/api/customers/${id}/chat`
+        `http://localhost:5000/api/customers/${id}/chat`
       );
       if (!response.ok) throw new Error("Failed to fetch chat history");
 
@@ -129,7 +128,7 @@ const CustomerDetail = () => {
   const handleUpdateCustomer = async () => {
     try {
       const response = await fetch(
-        `${API_BASE_URL}/api/customers/${id}`,
+        `http://localhost:5000/api/customers/${id}`,
         {
           method: "PUT",
           headers: {
@@ -159,8 +158,8 @@ const CustomerDetail = () => {
 
     try {
       const url = isBlocked
-        ? `${API_BASE_URL}/api/customers/${id}/unblock`
-        : `${API_BASE_URL}/api/customers/${id}`;
+        ? `http://localhost:5000/api/customers/${id}/unblock`
+        : `http://localhost:5000/api/customers/${id}`;
       const method = isBlocked ? "PUT" : "DELETE";
 
       const response = await fetch(url, { method });
@@ -179,7 +178,7 @@ const CustomerDetail = () => {
 
     try {
       const response = await fetch(
-        `${API_BASE_URL}/api/customers/${id}/notes`,
+        `http://localhost:5000/api/customers/${id}/notes`,
         {
           method: "POST",
           headers: {
