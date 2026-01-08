@@ -1418,8 +1418,14 @@ const ProductManagement = () => {
                 <table className="min-w-full divide-y divide-gray-200">
                   <thead className="bg-gray-50">
                     <tr>
-                      <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                        ID
+                      <th className="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                        NID
+                      </th>
+                      <th className="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                        CID
+                      </th>
+                      <th className="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                        PID
                       </th>
                       <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
                         Product Name
@@ -1450,7 +1456,7 @@ const ProductManagement = () => {
                   <tbody className="bg-white divide-y divide-gray-200">
                     {loading ? (
                       <tr>
-                        <td colSpan="9" className="px-6 py-4 text-center">
+                        <td colSpan="11" className="px-6 py-4 text-center">
                           <div className="flex justify-center items-center space-x-2">
                             <div className="animate-spin rounded-full h-5 w-5 border-b-2 border-purple-700"></div>
                             <span>Loading...</span>
@@ -1460,7 +1466,7 @@ const ProductManagement = () => {
                     ) : error ? (
                       <tr>
                         <td
-                          colSpan="9"
+                          colSpan="11"
                           className="px-6 py-4 text-center text-red-500"
                         >
                           {error}
@@ -1468,15 +1474,40 @@ const ProductManagement = () => {
                       </tr>
                     ) : products.length === 0 ? (
                       <tr>
-                        <td colSpan="9" className="px-6 py-4 text-center">
+                        <td colSpan="11" className="px-6 py-4 text-center">
                           No products found
                         </td>
                       </tr>
                     ) : (
                       products.map((product) => (
                         <tr key={product._id} className="hover:bg-gray-50">
-                          <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
-                            {product.productId || "N/A"}
+                          {/* NID - Normal ID */}
+                          <td className="px-4 py-4 whitespace-nowrap text-sm text-gray-500">
+                            {product.productType === "Normal" ? (
+                              <span className="font-medium text-green-600">{product.productId}</span>
+                            ) : product.productType === "Child" && product.normalId ? (
+                              <span className="font-medium text-green-600">{product.normalId}</span>
+                            ) : (
+                              <span className="text-gray-300">-</span>
+                            )}
+                          </td>
+                          {/* CID - Child ID */}
+                          <td className="px-4 py-4 whitespace-nowrap text-sm text-gray-500">
+                            {product.productType === "Child" ? (
+                              <span className="font-medium text-blue-600">{product.productId}</span>
+                            ) : (
+                              <span className="text-gray-300">-</span>
+                            )}
+                          </td>
+                          {/* PID - Parent ID */}
+                          <td className="px-4 py-4 whitespace-nowrap text-sm text-gray-500">
+                            {product.productType === "Parent" ? (
+                              <span className="font-medium text-purple-600">{product.productId}</span>
+                            ) : product.productType === "Child" && product.parentProduct ? (
+                              <span className="font-medium text-purple-400">{product.parentProduct}</span>
+                            ) : (
+                              <span className="text-gray-300">-</span>
+                            )}
                           </td>
                           <td className="px-6 py-4 whitespace-nowrap text-sm font-medium text-gray-900">
                             {product.productName || "N/A"}

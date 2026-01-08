@@ -487,8 +487,9 @@ const AddProduct = () => {
       ],
     };
 
-    // GTIN is required for all product types
-    const additionalRequiredFields = ["globalTradeItemNumber"];
+    // ✅ GTIN is required only for Child and Normal products (hidden for Parent)
+    const additionalRequiredFields = 
+      productType === "Parent" ? [] : ["globalTradeItemNumber"];
 
     const allRequiredFields = [
       ...requiredFields[productType],
@@ -1014,55 +1015,54 @@ const AddProduct = () => {
                 {/* Left and middle columns */}
                 <div className="lg:col-span-2">
                   <div className="bg-white p-4 rounded shadow">
-                    {productType === "Parent" ? (
-                      <></>
-                    ) : (
+                    {/* GTIN to Sales Statistics - Hidden for Parent products */}
+                    {productType !== "Parent" && (
                       <>
-                        {/* Global Trade Item Number - for non-Parent product types */}
-                        <div className="mb-4 grid grid-cols-3 gap-4">
-                          <div>
-                            <label className="block text-xs font-medium mb-1">
-                              Global Trade Item Number (GTIN) <span className="text-red-500">*</span>
-                            </label>
-                            <input
-                              type="text"
-                              name="globalTradeItemNumber"
-                              value={formData.globalTradeItemNumber}
-                              onChange={handleChange}
-                              className="w-full border border-gray-300 p-1 rounded text-sm"
-                              required
-                            />
-                          </div>
-                          <div>
-                            <label className="block text-xs font-medium mb-1">
-                              K3L NUMBER
-                            </label>
-                            <input
-                              type="text"
-                              name="k3lNumber"
-                              value={formData.k3lNumber}
-                              onChange={handleChange}
-                              className="w-full border border-gray-300 p-1 rounded text-sm"
-                            />
-                          </div>
-                          <div>
-                            <label className="block text-xs font-medium mb-1">
-                              SNI NUMBER
-                            </label>
-                            <input
-                              type="text"
-                              name="sniNumber"
-                              value={formData.sniNumber || ""}
-                              onChange={handleChange}
-                              className="w-full border border-gray-300 p-1 rounded text-sm"
-                            />
-                          </div>
-                        </div>
-                        {/* Specifications - Single Row Only */}
-                        <div className="mb-4">
-                          <h3 className="text-sm font-medium mb-2">
-                            Specifications
-                          </h3>
+                    {/* Global Trade Item Number - for Child and Normal product types */}
+                    <div className="mb-4 grid grid-cols-3 gap-4">
+                      <div>
+                        <label className="block text-xs font-medium mb-1">
+                          Global Trade Item Number (GTIN) <span className="text-red-500">*</span>
+                        </label>
+                        <input
+                          type="text"
+                          name="globalTradeItemNumber"
+                          value={formData.globalTradeItemNumber}
+                          onChange={handleChange}
+                          className="w-full border border-gray-300 p-1 rounded text-sm"
+                          required
+                        />
+                      </div>
+                      <div>
+                        <label className="block text-xs font-medium mb-1">
+                          K3L NUMBER
+                        </label>
+                        <input
+                          type="text"
+                          name="k3lNumber"
+                          value={formData.k3lNumber}
+                          onChange={handleChange}
+                          className="w-full border border-gray-300 p-1 rounded text-sm"
+                        />
+                      </div>
+                      <div>
+                        <label className="block text-xs font-medium mb-1">
+                          SNI NUMBER
+                        </label>
+                        <input
+                          type="text"
+                          name="sniNumber"
+                          value={formData.sniNumber || ""}
+                          onChange={handleChange}
+                          className="w-full border border-gray-300 p-1 rounded text-sm"
+                        />
+                      </div>
+                    </div>
+                    {/* Specifications - Single Row Only */}
+                    <div className="mb-4">
+                      <h3 className="text-sm font-medium mb-2">
+                        Specifications
+                      </h3>
                           <div className="border border-gray-300 rounded-lg">
                             {/* Header row */}
                             <div className="grid grid-cols-5 gap-2 p-2 bg-gray-100 text-xs font-medium">
