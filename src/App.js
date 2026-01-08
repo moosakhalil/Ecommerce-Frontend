@@ -45,6 +45,8 @@ import CreateDiscount from "./componenets/Discounts/createDiscounts";
 import AllDiscounts from "./componenets/Discounts/allDiscounts";
 import DiscountedProductsInvA from "./componenets/Discounts/DiscountedInventory";
 import InventoryControlCheckDiscount from "./componenets/Discounts/Inventorycontrol(discounts)";
+import DiscountPageInfo from "./componenets/Discounts/DiscountPageInfo";
+
 
 import ReferralProfit from "./componenets/Refferal/referralProfits";
 import ScooterDelivery from "./componenets/Order-management/ScooterDelivery";
@@ -608,6 +610,14 @@ function App() {
           element={
             <>
               <InventoryControlCheckDiscount />
+            </>
+          }
+        />
+        <Route
+          path="/discount-page-info"
+          element={
+            <>
+              <DiscountPageInfo />
             </>
           }
         />

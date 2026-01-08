@@ -48,6 +48,54 @@ const AddProduct = () => {
     technicalDetails: "",
   });
 
+  // ✅ NEW: Batch Discount Allocation state
+  const [showBatchSection, setShowBatchSection] = useState(false);
+  const [batchNumber, setBatchNumber] = useState("");
+  const [selectedCategories, setSelectedCategories] = useState([]);
+  const [batchDiscountPrice, setBatchDiscountPrice] = useState("");
+  const [batchDiscountPercentage, setBatchDiscountPercentage] = useState("");
+
+  // Discount category options
+  const discountCategories = [
+    { id: 'foremen', name: 'Foremen', color: 'bg-blue-100 border-blue-400' },
+    { id: 'foremen_commission', name: 'Foremen+', color: 'bg-blue-200 border-blue-500' },
+    { id: 'referral_3_days', name: 'Referral 3', color: 'bg-green-100 border-green-400' },
+    { id: 'new_customer_referred', name: 'New Cust Ref', color: 'bg-yellow-100 border-yellow-400' },
+    { id: 'new_customer', name: 'New Cust', color: 'bg-orange-100 border-orange-400' },
+    { id: 'shopping_30m', name: 'VIP 30M', color: 'bg-purple-100 border-purple-400' },
+    { id: 'shopping_100m_60d', name: 'Valued 100M', color: 'bg-pink-100 border-pink-400' },
+    { id: 'everyone', name: 'Everyone', color: 'bg-gray-100 border-gray-400' },
+  ];
+
+  // Generate batch number on component mount
+  useEffect(() => {
+    const year = new Date().getFullYear();
+    const randomNum = String(Math.floor(Math.random() * 9999) + 1).padStart(4, '0');
+    setBatchNumber(`BATCH-${year}-${randomNum}`);
+  }, []);
+
+  // Calculate discount percentage when discount price changes
+  const handleBatchDiscountPriceChange = (value) => {
+    setBatchDiscountPrice(value);
+    const price = parseFloat(value);
+    const originalPrice = parseFloat(formData.NormalPrice);
+    if (originalPrice && originalPrice > 0 && price > 0) {
+      const percentage = ((originalPrice - price) / originalPrice) * 100;
+      setBatchDiscountPercentage(Math.round(percentage * 100) / 100);
+    } else {
+      setBatchDiscountPercentage("");
+    }
+  };
+
+  // Toggle category selection
+  const toggleCategory = (categoryId) => {
+    setSelectedCategories(prev => 
+      prev.includes(categoryId)
+        ? prev.filter(c => c !== categoryId)
+        : [...prev, categoryId]
+    );
+  };
+
   // near top of AddProduct()
   const [categoriesList, setCategoriesList] = useState([]);
   const [taxBrackets, setTaxBrackets] = useState([]);
@@ -554,6 +602,19 @@ const AddProduct = () => {
           );
         }
       }
+
+      // ✅ Add batch discount data if any categories are selected
+      if (showBatchSection && selectedCategories.length > 0 && batchDiscountPrice) {
+        payload.batchDiscounts = selectedCategories.map(category => ({
+          category: category,
+          batchNumber: batchNumber,
+          discountPrice: parseFloat(batchDiscountPrice),
+          discountPercentage: parseFloat(batchDiscountPercentage) || 0,
+          originalPriceAtCreation: parseFloat(formData.NormalPrice) || 0,
+          isActive: true
+        }));
+        console.log("🏷️ Batch discounts added to payload:", payload.batchDiscounts);
+      }
       
       console.log("📦 Preparing payload with formData:", {
         productType: payload.productType,
@@ -561,6 +622,7 @@ const AddProduct = () => {
         categories: payload.categories,
         subCategories: payload.subCategories,
         additionalCategories: payload.additionalCategories,
+        batchDiscounts: payload.batchDiscounts,
       });
 
       // 2) Convert masterImage File to Base64
@@ -1927,6 +1989,119 @@ const AddProduct = () => {
                           className="w-full border border-gray-300 p-2 rounded"
                           rows="4"
                         ></textarea>
+                      </div>
+
+                      {/* ✅ BATCH ALLOCATION SECTION */}
+                      <div className="mb-4 border-t pt-4">
+                        <div className="flex items-center justify-between mb-3">
+                          <h3 className="text-sm font-medium flex items-center">
+                            🏷️ Batch Allocation
+                          </h3>
+                          <button
+                            type="button"
+                            onClick={() => setShowBatchSection(!showBatchSection)}
+                            className={`px-4 py-1.5 text-sm font-medium rounded-lg transition-colors ${
+                              showBatchSection
+                                ? "bg-orange-500 text-white"
+                                : "bg-purple-600 text-white hover:bg-purple-700"
+                            }`}
+                          >
+                            {showBatchSection ? "− Close" : "+ Batch"}
+                          </button>
+                        </div>
+
+                        {showBatchSection && (
+                          <div className="bg-gray-50 p-4 rounded-lg border border-gray-200 space-y-4">
+                            {/* Batch Number */}
+                            <div>
+                              <label className="block text-xs font-medium text-gray-600 mb-1">
+                                Batch Allocation Product Number:
+                              </label>
+                              <input
+                                type="text"
+                                value={batchNumber}
+                                onChange={(e) => setBatchNumber(e.target.value)}
+                                className="w-full border border-gray-300 p-2 rounded text-sm bg-white"
+                                placeholder="BATCH-2026-0001"
+                              />
+                            </div>
+
+                            {/* Category Selection */}
+                            <div>
+                              <label className="block text-xs font-medium text-gray-600 mb-2">
+                                Select Discount Categories (min 1):
+                              </label>
+                              <div className="grid grid-cols-4 gap-2">
+                                {discountCategories.map((cat) => (
+                                  <button
+                                    key={cat.id}
+                                    type="button"
+                                    onClick={() => toggleCategory(cat.id)}
+                                    className={`px-2 py-3 text-xs font-medium rounded-lg border-2 transition-all ${
+                                      selectedCategories.includes(cat.id)
+                                        ? "bg-purple-500 text-white border-purple-600 shadow-md"
+                                        : `${cat.color} text-gray-700 hover:shadow-sm`
+                                    }`}
+                                  >
+                                    {selectedCategories.includes(cat.id) && "✓ "}
+                                    {cat.name}
+                                  </button>
+                                ))}
+                              </div>
+                              {selectedCategories.length > 0 && (
+                                <p className="text-xs text-green-600 mt-2">
+                                  ✓ {selectedCategories.length} category(ies) selected
+                                </p>
+                              )}
+                            </div>
+
+                            {/* Discount Fields */}
+                            <div className="grid grid-cols-2 gap-4">
+                              <div>
+                                <label className="block text-xs font-medium text-gray-600 mb-1">
+                                  Discount % (Auto-calculated)
+                                </label>
+                                <input
+                                  type="number"
+                                  value={batchDiscountPercentage}
+                                  readOnly
+                                  className="w-full border border-gray-300 p-2 rounded text-sm bg-gray-100"
+                                  placeholder="Auto-calculated"
+                                />
+                              </div>
+                              <div>
+                                <label className="block text-xs font-medium text-gray-600 mb-1">
+                                  Discount Price (Manual)
+                                </label>
+                                <input
+                                  type="number"
+                                  value={batchDiscountPrice}
+                                  onChange={(e) => handleBatchDiscountPriceChange(e.target.value)}
+                                  className="w-full border border-gray-300 p-2 rounded text-sm"
+                                  placeholder="Enter discount price"
+                                />
+                              </div>
+                            </div>
+
+                            {/* Original Price Display */}
+                            <div className="text-xs text-gray-500 bg-white p-2 rounded border">
+                              <span className="font-medium">Original Price:</span> Rp {formData.NormalPrice ? parseFloat(formData.NormalPrice).toLocaleString() : "0"}
+                              {batchDiscountPercentage && (
+                                <span className="ml-2 text-green-600 font-medium">
+                                  → {batchDiscountPercentage}% off
+                                </span>
+                              )}
+                            </div>
+
+                            {/* Info Note */}
+                            <div className="text-xs text-blue-600 bg-blue-50 p-2 rounded flex items-start">
+                              <span className="mr-1">💡</span>
+                              <span>
+                                Enter the discount price manually. The discount percentage will be calculated automatically based on the original price.
+                              </span>
+                            </div>
+                          </div>
+                        )}
                       </div>
                 </div>
               </div>

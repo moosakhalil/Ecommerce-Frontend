@@ -464,6 +464,15 @@ const Sidebar = ({ onSectionClick }) => {
           highlight: true,
           path: "/discount-policies",
         },
+        {
+          id: 75,
+          componentId: "75",
+          number: "75.",
+          icon: <Tag />,
+          name: "Discount Page Info (Batch Discounts)",
+          access: "",
+          path: "/discount-page-info",
+        },
       ],
     },
     {

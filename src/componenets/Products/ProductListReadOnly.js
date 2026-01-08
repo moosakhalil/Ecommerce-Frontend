@@ -705,6 +705,9 @@ const ProductListReadOnly = () => {
                       <th className="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
                         PID
                       </th>
+                      <th className="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                        BID
+                      </th>
                       <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
                         Product Name
                       </th>
@@ -734,7 +737,7 @@ const ProductListReadOnly = () => {
                   <tbody className="bg-white divide-y divide-gray-200">
                     {loading ? (
                       <tr>
-                        <td colSpan="11" className="px-6 py-4 text-center">
+                        <td colSpan="12" className="px-6 py-4 text-center">
                           <div className="flex justify-center items-center space-x-2">
                             <div className="animate-spin rounded-full h-5 w-5 border-b-2 border-purple-700"></div>
                             <span>Loading...</span>
@@ -744,7 +747,7 @@ const ProductListReadOnly = () => {
                     ) : error ? (
                       <tr>
                         <td
-                          colSpan="11"
+                          colSpan="12"
                           className="px-6 py-4 text-center text-red-500"
                         >
                           {error}
@@ -752,7 +755,7 @@ const ProductListReadOnly = () => {
                       </tr>
                     ) : products.length === 0 ? (
                       <tr>
-                        <td colSpan="11" className="px-6 py-4 text-center">
+                        <td colSpan="12" className="px-6 py-4 text-center">
                           No products found
                         </td>
                       </tr>
@@ -783,6 +786,19 @@ const ProductListReadOnly = () => {
                               <span className="font-medium text-purple-600">{product.productId}</span>
                             ) : product.productType === "Child" && product.parentProduct ? (
                               <span className="font-medium text-purple-400">{product.parentProduct}</span>
+                            ) : (
+                              <span className="text-gray-300">-</span>
+                            )}
+                          </td>
+                          {/* BID - Batch ID */}
+                          <td className="px-4 py-4 whitespace-nowrap text-sm text-gray-500">
+                            {product.batchDiscounts && product.batchDiscounts.length > 0 ? (
+                              <span className="font-medium text-orange-600">
+                                {product.batchDiscounts[0].batchNumber}
+                                {product.batchDiscounts.length > 1 && (
+                                  <span className="text-xs text-gray-400"> +{product.batchDiscounts.length - 1}</span>
+                                )}
+                              </span>
                             ) : (
                               <span className="text-gray-300">-</span>
                             )}
