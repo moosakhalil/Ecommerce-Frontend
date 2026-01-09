@@ -1,6 +1,6 @@
 import { AreaChart } from "lucide-react";
-import React, { useState, useEffect, useCallback, useMemo } from "react";
-import { useNavigate } from "react-router-dom";
+import React, { useState, useEffect, useCallback, useMemo, useRef } from "react";
+import { useNavigate, useLocation } from "react-router-dom";
 // Simple icon replacements for lucide-react
 const X = () => <span>✕</span>;
 const Menu = () => <span>☰</span>;
@@ -43,6 +43,33 @@ const Sidebar = ({ onSectionClick }) => {
   const [customerOpen, setCustomerOpen] = useState(false);
 
   const navigate = useNavigate();
+  const location = useLocation();
+  const sidebarRef = useRef(null);
+
+  // Restore scroll position when component mounts or location changes
+  useEffect(() => {
+    const savedScrollPosition = sessionStorage.getItem('sidebarScrollPosition');
+    if (savedScrollPosition && sidebarRef.current) {
+      // Use setTimeout to ensure DOM is fully rendered before scrolling
+      const timeoutId = setTimeout(() => {
+        if (sidebarRef.current) {
+          sidebarRef.current.scrollTop = parseInt(savedScrollPosition, 10);
+        }
+      }, 100);
+      return () => clearTimeout(timeoutId);
+    }
+  }, [location.pathname, currentUser]);
+
+  // Save scroll position before unload
+  useEffect(() => {
+    const handleBeforeUnload = () => {
+      if (sidebarRef.current) {
+        sessionStorage.setItem('sidebarScrollPosition', sidebarRef.current.scrollTop.toString());
+      }
+    };
+    window.addEventListener('beforeunload', handleBeforeUnload);
+    return () => window.removeEventListener('beforeunload', handleBeforeUnload);
+  }, []);
 
   // Initialize user from localStorage - same as AdminDashboard
   useEffect(() => {
@@ -102,8 +129,13 @@ const Sidebar = ({ onSectionClick }) => {
     navigate("/dashboard");
   };
   const handleSectionClick = (sectionId, path) => {
+    // Save scroll position before navigating
+    if (sidebarRef.current) {
+      sessionStorage.setItem('sidebarScrollPosition', sidebarRef.current.scrollTop.toString());
+    }
+
     if (path) {
-      window.location.href = path;
+      navigate(path);
     } else if (onSectionClick) {
       onSectionClick(sectionId);
     }
@@ -1185,6 +1217,7 @@ const Sidebar = ({ onSectionClick }) => {
 
       {/* Sidebar */}
       <div
+        ref={sidebarRef}
         className={`fixed top-0 mr-14 h-full bg-gray-900 text-gray-200 transition-all z-40 shadow-xl overflow-y-auto ${
           isOpen ? "w-80" : "w-0"
         }`}
