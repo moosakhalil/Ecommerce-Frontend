@@ -24,7 +24,7 @@ const TABS = [
   { key: "unverified", label: "150.A  Incoming unverified videos" },
   { key: "manager", label: " 150.B  Videos moved to manager" },
   { key: "verified", label: "150.C  Verified videos" },
-  { key: "spam", label: "150.D  Videos moved to video not passed" },
+  { key: "not_passed", label: "150.D  Videos moved to video not passed" },
 ];
 
 // Status mapping for display
@@ -41,8 +41,8 @@ const STATUS_MAP = {
     text: "Verified",
     classes: "bg-green-200 text-green-800",
   },
-  spam: {
-    text: "Moved to spam",
+  not_passed: {
+    text: "Not Passed",
     classes: "bg-red-200 text-red-800",
   },
 };
@@ -157,7 +157,7 @@ export default function ReferralVideos() {
             customerId,
             videoId,
             status: newStatus,
-            ...(newStatus === "spam" && { rejectionReason, note }),
+            ...(newStatus === "not_passed" && { rejectionReason, note }),
           }),
         }
       );
@@ -201,7 +201,7 @@ export default function ReferralVideos() {
 
     if (action === "view") {
       setSelectedVideo(video);
-    } else if (action === "spam") {
+    } else if (action === "not_passed") {
       // Open rejection modal for "Video Not Passed"
       setRejectionModal({ isOpen: true, video });
     } else {
@@ -417,9 +417,9 @@ export default function ReferralVideos() {
                                 Move to Manager
                               </button>
                             )}
-                            {activeTab !== "spam" && (
+                            {activeTab !== "not_passed" && (
                               <button
-                                onClick={() => handleAction(video, "spam")}
+                                onClick={() => handleAction(video, "not_passed")}
                                 className="block w-full text-left px-4 py-2 hover:bg-gray-100 text-sm text-red-600"
                                 disabled={updating}
                               >
@@ -459,7 +459,7 @@ export default function ReferralVideos() {
             updateVideoStatus(
               rejectionModal.video.customerId,
               rejectionModal.video.imageId,
-              "spam",
+              "not_passed",
               reason,
               note
             );
@@ -479,7 +479,7 @@ function RejectionModal({ video, onClose, onSubmit, updating }) {
   const REJECTION_REASONS = [
     { value: "vulgar", label: "Vulgar" },
     { value: "error", label: "Error" },
-    { value: "spam", label: "Spam" },
+    { value: "spam", label: "Spam Content" },
     { value: "not_good_enough", label: "Not Good Enough" },
     { value: "other", label: "Other" },
   ];
@@ -656,7 +656,7 @@ function BulkVideoManagement({
   const [selectedVideo, setSelectedVideo] = useState(null);
   const [processing, setProcessing] = useState(false);
   const [rejectionModal, setRejectionModal] = useState({ isOpen: false });
-  const [filterTab, setFilterTab] = useState('all'); // 'all', 'pending', 'manager', 'verified', 'spam'
+  const [filterTab, setFilterTab] = useState('all'); // 'all', 'pending', 'manager', 'verified', 'not_passed'
   const videoListRef = useRef(null);
 
   // Filter videos based on selected tab
@@ -715,7 +715,7 @@ function BulkVideoManagement({
   const fetchAllVideos = async () => {
     try {
       setLoading(true);
-      const statuses = ["unverified", "manager", "verified", "spam"];
+      const statuses = ["unverified", "manager", "verified", "not_passed"];
       const allFetched = [];
 
       for (const status of statuses) {
@@ -849,14 +849,14 @@ function BulkVideoManagement({
                     Verified ({allVideos.filter(v => v.status === 'verified').length})
                   </button>
                   <button
-                    onClick={() => setFilterTab('spam')}
+                    onClick={() => setFilterTab('not_passed')}
                     className={`px-3 py-1.5 rounded-full transition-colors ${
-                      filterTab === 'spam' 
+                      filterTab === 'not_passed' 
                         ? 'bg-red-500 text-white' 
                         : 'bg-red-100 text-red-700 hover:bg-red-200'
                     }`}
                   >
-                    Not Passed ({allVideos.filter(v => v.status === 'spam').length})
+                    Not Passed ({allVideos.filter(v => v.status === 'not_passed').length})
                   </button>
                 </div>
               </div>
@@ -893,7 +893,7 @@ function BulkVideoManagement({
                     // Get background color based on video status
                     const getStatusBgColor = (status) => {
                       switch (status) {
-                        case "spam":
+                        case "not_passed":
                           return "bg-red-50 border-l-4 border-red-500";
                         case "manager":
                           return "bg-orange-50 border-l-4 border-orange-500";
@@ -938,7 +938,7 @@ function BulkVideoManagement({
                           {/* Video icon */}
                           <div className="flex-shrink-0">
                             <FileVideo className={`h-8 w-8 ${
-                              video.status === "spam" ? "text-red-400" :
+                              video.status === "not_passed" ? "text-red-400" :
                               video.status === "manager" ? "text-orange-400" :
                               video.status === "verified" ? "text-green-400" :
                               "text-gray-400"
@@ -960,12 +960,12 @@ function BulkVideoManagement({
                             </p>
                             {/* Status badge */}
                             <span className={`inline-block mt-1 px-2 py-0.5 text-xs rounded-full ${
-                              video.status === "spam" ? "bg-red-200 text-red-800" :
+                              video.status === "not_passed" ? "bg-red-200 text-red-800" :
                               video.status === "manager" ? "bg-orange-200 text-orange-800" :
                               video.status === "verified" ? "bg-green-200 text-green-800" :
                               "bg-gray-200 text-gray-700"
                             }`}>
-                              {video.status === "spam" ? "Not Passed" :
+                              {video.status === "not_passed" ? "Not Passed" :
                                video.status === "manager" ? "Manager" :
                                video.status === "verified" ? "Verified" :
                                "Pending"}
@@ -1157,7 +1157,7 @@ function BulkVideoManagement({
           video={selectedVideo}
           onClose={() => setRejectionModal({ isOpen: false })}
           onSubmit={(reason, note) => {
-            handleStatusUpdate("spam", reason, note);
+            handleStatusUpdate("not_passed", reason, note);
           }}
           updating={processing || updating}
         />
@@ -1359,7 +1359,7 @@ function VideoDetailView({
           video={video}
           onClose={() => setRejectionModal({ isOpen: false })}
           onSubmit={(reason, note) => {
-            handleStatusUpdate("spam", reason, note);
+            handleStatusUpdate("not_passed", reason, note);
           }}
           updating={updating}
         />
