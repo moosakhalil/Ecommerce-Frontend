@@ -683,7 +683,7 @@ const Sidebar = ({ onSectionClick }) => {
           componentId: "admin-drivers",
           number: "102.",
           icon: <Truck />,
-          name: "Truck Drivers",
+          name: "Assign Driver to Vehicles",
           access: "",
           path: "/admin/drivers",
         },

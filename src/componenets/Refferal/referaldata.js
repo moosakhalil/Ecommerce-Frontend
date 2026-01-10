@@ -21,6 +21,7 @@ import {
 } from "lucide-react";
 import Sidebar from "../Sidebar/sidebar";
 import { API_BASE_URL } from "../../utils/config";
+import TriggerManagement from "./TriggerManagement";
 
 const CUSTOMER_TYPES = [
   {
@@ -79,8 +80,9 @@ const FILTER_OPTIONS = [
 
 export default function ReferralData() {
   const [sidebarOpen, setSidebarOpen] = useState(true);
+  const toggleSidebar = () => setSidebarOpen(!sidebarOpen);
   const [loading, setLoading] = useState(true);
-  const [mainTab, setMainTab] = useState("data"); // "data" or "averages"
+  const [mainTab, setMainTab] = useState("data"); // "data" or "averages" or "triggers"
   const [averagesLoading, setAveragesLoading] = useState(false);
   const [averagesData, setAveragesData] = useState(null);
   const [selectedCustomerType, setSelectedCustomerType] =
@@ -307,6 +309,17 @@ export default function ReferralData() {
           >
             <BarChart3 size={20} className="mr-2" />
             Averages & Charts
+          </button>
+          <button
+            onClick={() => setMainTab("triggers")}
+            className={`flex items-center px-6 py-3 rounded-lg font-medium transition-all ml-2 ${
+              mainTab === "triggers"
+                ? "bg-orange-500 text-white shadow-md"
+                : "bg-gray-100 text-gray-700 hover:bg-gray-200"
+            }`}
+          >
+            <Activity size={20} className="mr-2" />
+            Triggers
           </button>
         </div>
 
@@ -563,6 +576,14 @@ export default function ReferralData() {
           </div>
         )}
 
+        {/* TRIGGERS TAB CONTENT */}
+        {mainTab === "triggers" && (
+          <TriggerManagement
+            sidebarOpen={sidebarOpen}
+            toggleSidebar={toggleSidebar}
+          />
+        )}
+
         {/* CUSTOMER DATA TAB CONTENT */}
         {mainTab === "data" && (
           <>
@@ -570,52 +591,65 @@ export default function ReferralData() {
           Customer Categories
         </h3>
         {/* Customer Type Selector */}
-        <div className="bg-gray-200 rounded-lg shadow-sm p-4 mb-6">
-          <div className="grid grid-cols-1 lg:grid-cols-2 gap-3">
-            {CUSTOMER_TYPES.slice(0, 2).map((type) => {
-              const Icon = type.icon;
-              return (
-                <button
-                  key={type.key}
-                  onClick={() => {
-                    setSelectedCustomerType(type.key);
-                    setSelectedFilter("all");
-                  }}
-                  className={`flex items-center px-4 py-3 rounded-lg font-medium transition-all duration-200 text-left ${
-                    selectedCustomerType === type.key
-                      ? `${type.color} text-white shadow-lg transform scale-105`
-                      : "bg-gray-100 text-gray-700 hover:bg-gray-200  border-4 border-blue-500 p-10 hover:shadow-md "
-                  }`}
-                >
-                  <Icon size={18} className="mr-3 flex-shrink-0" />
-                  <span className="text-sm">{type.label}</span>
-                </button>
-              );
-            })}
-
-            {/* Add spacer on large screens */}
-            <div className="hidden lg:block col-span-2 my-1" />
-
-            {CUSTOMER_TYPES.slice(2).map((type) => {
-              const Icon = type.icon;
-              return (
-                <button
-                  key={type.key}
-                  onClick={() => {
-                    setSelectedCustomerType(type.key);
-                    setSelectedFilter("all");
-                  }}
-                  className={`flex items-center px-4 py-3 rounded-lg font-medium transition-all duration-200 text-left ${
-                    selectedCustomerType === type.key
-                      ? `${type.color} text-white shadow-lg transform scale-105`
-                      : "bg-gray-100 text-gray-700 hover:bg-gray-200  border-4 border-green-500 hover:shadow-md"
-                  }`}
-                >
-                  <Icon size={18} className="mr-3 flex-shrink-0" />
-                  <span className="text-sm">{type.label}</span>
-                </button>
-              );
-            })}
+        <div className="bg-gray-100 rounded-lg shadow-sm p-4 mb-6">
+          <div className="flex flex-col lg:flex-row gap-4">
+            {/* Left Box - Blue Border Buttons */}
+            <div className="flex-1 bg-blue-100 rounded-lg p-3 border-2 border-blue-400">
+              <div className="flex flex-col gap-2">
+                {[CUSTOMER_TYPES[0], CUSTOMER_TYPES[2]].map((type) => {
+                  const Icon = type.icon;
+                  return (
+                    <button
+                      key={type.key}
+                      onClick={() => {
+                        setSelectedCustomerType(type.key);
+                        setSelectedFilter("all");
+                      }}
+                      className={`inline-flex items-center px-4 py-2 rounded-md font-medium transition-all duration-200 ${
+                        selectedCustomerType === type.key
+                          ? `${type.color} text-white shadow-md`
+                          : `bg-gray-50 text-gray-700 hover:bg-blue-50 border border-blue-500 hover:shadow-sm`
+                      }`}
+                    >
+                      <Icon size={18} className="mr-2 flex-shrink-0" />
+                      <span className="text-base">{type.label}</span>
+                    </button>
+                  );
+                })}
+              </div>
+            </div>
+            
+            {/* Red Divider */}
+            <div className="hidden lg:flex items-center px-3">
+              <div className="w-4 h-full bg-red-500 rounded-full"></div>
+            </div>
+            <div className="lg:hidden w-full h-4 bg-red-500 rounded-full my-2"></div>
+            
+            {/* Right Box - Green Border Buttons */}
+            <div className="flex-1 bg-green-100 rounded-lg p-3 border-2 border-green-400">
+              <div className="flex flex-col gap-2">
+                {[CUSTOMER_TYPES[1], CUSTOMER_TYPES[3]].map((type) => {
+                  const Icon = type.icon;
+                  return (
+                    <button
+                      key={type.key}
+                      onClick={() => {
+                        setSelectedCustomerType(type.key);
+                        setSelectedFilter("all");
+                      }}
+                      className={`inline-flex items-center px-4 py-2 rounded-md font-medium transition-all duration-200 ${
+                        selectedCustomerType === type.key
+                          ? `${type.color} text-white shadow-md`
+                          : `bg-gray-50 text-gray-700 hover:bg-green-50 border border-green-500 hover:shadow-sm`
+                      }`}
+                    >
+                      <Icon size={18} className="mr-2 flex-shrink-0" />
+                      <span className="text-base">{type.label}</span>
+                    </button>
+                  );
+                })}
+              </div>
+            </div>
           </div>
         </div>
 
