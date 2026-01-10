@@ -13,6 +13,11 @@ import {
   Activity,
   Filter,
   UserX,
+  BarChart3,
+  Clock,
+  Percent,
+  Video,
+  Share2,
 } from "lucide-react";
 import Sidebar from "../Sidebar/sidebar";
 import { API_BASE_URL } from "../../utils/config";
@@ -75,6 +80,9 @@ const FILTER_OPTIONS = [
 export default function ReferralData() {
   const [sidebarOpen, setSidebarOpen] = useState(true);
   const [loading, setLoading] = useState(true);
+  const [mainTab, setMainTab] = useState("data"); // "data" or "averages"
+  const [averagesLoading, setAveragesLoading] = useState(false);
+  const [averagesData, setAveragesData] = useState(null);
   const [selectedCustomerType, setSelectedCustomerType] =
     useState("referred_potential");
   const [selectedReferralTab, setSelectedReferralTab] =
@@ -154,6 +162,13 @@ export default function ReferralData() {
     fetchReferralData();
   }, [selectedCustomerType, selectedPeriod, selectedFilter]);
 
+  // Fetch averages when mainTab switches to averages or period changes
+  useEffect(() => {
+    if (mainTab === "averages") {
+      fetchAveragesData();
+    }
+  }, [mainTab, selectedPeriod]);
+
   const fetchReferralData = async () => {
     try {
       setLoading(true);
@@ -171,6 +186,26 @@ export default function ReferralData() {
       console.error("Error fetching referral data:", error);
     } finally {
       setLoading(false);
+    }
+  };
+
+  const fetchAveragesData = async () => {
+    try {
+      setAveragesLoading(true);
+      const response = await fetch(
+        `${API_BASE_URL}/api/referral-data/averages?period=${selectedPeriod}`
+      );
+      const data = await response.json();
+
+      if (data.success) {
+        setAveragesData(data.data);
+      } else {
+        console.error("Failed to fetch averages data:", data.message);
+      }
+    } catch (error) {
+      console.error("Error fetching averages data:", error);
+    } finally {
+      setAveragesLoading(false);
     }
   };
 
@@ -248,6 +283,289 @@ export default function ReferralData() {
             with advanced filtering
           </p>
         </div>
+
+        {/* Main Tab Switcher */}
+        <div className="bg-white rounded-lg shadow-sm p-2 mb-6 inline-flex">
+          <button
+            onClick={() => setMainTab("data")}
+            className={`flex items-center px-6 py-3 rounded-lg font-medium transition-all ${
+              mainTab === "data"
+                ? "bg-blue-500 text-white shadow-md"
+                : "bg-gray-100 text-gray-700 hover:bg-gray-200"
+            }`}
+          >
+            <Users size={20} className="mr-2" />
+            Customer Data
+          </button>
+          <button
+            onClick={() => setMainTab("averages")}
+            className={`flex items-center px-6 py-3 rounded-lg font-medium transition-all ml-2 ${
+              mainTab === "averages"
+                ? "bg-purple-500 text-white shadow-md"
+                : "bg-gray-100 text-gray-700 hover:bg-gray-200"
+            }`}
+          >
+            <BarChart3 size={20} className="mr-2" />
+            Averages & Charts
+          </button>
+        </div>
+
+        {/* AVERAGES TAB CONTENT */}
+        {mainTab === "averages" && (
+          <div className="space-y-6">
+            {/* Time Period Selector for Averages */}
+            <div className="bg-white rounded-lg shadow-sm p-4">
+              <h3 className="text-lg font-semibold mb-3 text-gray-700">Select Time Period</h3>
+              <div className="flex flex-wrap gap-2">
+                {TIME_PERIODS.map((period) => (
+                  <button
+                    key={period.key}
+                    onClick={() => setSelectedPeriod(period.key)}
+                    className={`flex items-center px-4 py-2 rounded-lg font-medium transition-colors ${
+                      selectedPeriod === period.key
+                        ? "bg-purple-500 text-white"
+                        : "bg-gray-100 text-gray-700 hover:bg-gray-200"
+                    }`}
+                  >
+                    <Calendar size={16} className="mr-2" />
+                    {period.label}
+                  </button>
+                ))}
+              </div>
+            </div>
+
+            {averagesLoading ? (
+              <div className="bg-white rounded-lg shadow-sm p-12 text-center">
+                <div className="inline-block animate-spin rounded-full h-12 w-12 border-b-4 border-purple-500"></div>
+                <p className="mt-4 text-gray-500 text-lg">Loading averages data...</p>
+              </div>
+            ) : averagesData ? (
+              <>
+                {/* Key Metrics Cards */}
+                <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
+                  <div className="bg-gradient-to-br from-blue-500 to-blue-600 rounded-xl p-6 text-white">
+                    <div className="flex items-center justify-between">
+                      <div>
+                        <p className="text-blue-100 text-sm font-medium">Avg Referrals Before "Hi"</p>
+                        <p className="text-3xl font-bold mt-1">{averagesData.avgReferralsBeforeHi}</p>
+                      </div>
+                      <UserPlus className="h-10 w-10 text-blue-200" />
+                    </div>
+                  </div>
+                  
+                  <div className="bg-gradient-to-br from-green-500 to-green-600 rounded-xl p-6 text-white">
+                    <div className="flex items-center justify-between">
+                      <div>
+                        <p className="text-green-100 text-sm font-medium">Avg Referrals Before Purchase</p>
+                        <p className="text-3xl font-bold mt-1">{averagesData.avgReferralsBeforePurchase}</p>
+                      </div>
+                      <ShoppingCart className="h-10 w-10 text-green-200" />
+                    </div>
+                  </div>
+                  
+                  <div className="bg-gradient-to-br from-orange-500 to-orange-600 rounded-xl p-6 text-white">
+                    <div className="flex items-center justify-between">
+                      <div>
+                        <p className="text-orange-100 text-sm font-medium">Avg Days to First Purchase</p>
+                        <p className="text-3xl font-bold mt-1">{averagesData.avgDaysToFirstPurchase}</p>
+                        <p className="text-xs text-orange-200">days</p>
+                      </div>
+                      <Clock className="h-10 w-10 text-orange-200" />
+                    </div>
+                  </div>
+                  
+                  <div className="bg-gradient-to-br from-purple-500 to-purple-600 rounded-xl p-6 text-white">
+                    <div className="flex items-center justify-between">
+                      <div>
+                        <p className="text-purple-100 text-sm font-medium">Avg Hours to "Hi"</p>
+                        <p className="text-3xl font-bold mt-1">{averagesData.avgHoursToHiResponse}</p>
+                        <p className="text-xs text-purple-200">hours</p>
+                      </div>
+                      <Activity className="h-10 w-10 text-purple-200" />
+                    </div>
+                  </div>
+                </div>
+
+                {/* Conversion Rates */}
+                <div className="bg-white rounded-lg shadow-sm p-6">
+                  <h3 className="text-xl font-semibold text-gray-800 mb-4 flex items-center">
+                    <Percent className="mr-2 text-purple-500" /> Conversion Rates
+                  </h3>
+                  <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                    <div className="text-center">
+                      <div className="relative inline-flex items-center justify-center">
+                        <svg className="w-32 h-32">
+                          <circle cx="64" cy="64" r="56" fill="none" stroke="#e5e7eb" strokeWidth="8"/>
+                          <circle 
+                            cx="64" cy="64" r="56" fill="none" 
+                            stroke="#10b981" strokeWidth="8" strokeLinecap="round"
+                            strokeDasharray={`${(averagesData.hiConversionRate / 100) * 352} 352`}
+                            transform="rotate(-90 64 64)"
+                          />
+                        </svg>
+                        <span className="absolute text-2xl font-bold text-gray-800">
+                          {averagesData.hiConversionRate}%
+                        </span>
+                      </div>
+                      <p className="mt-2 font-medium text-gray-700">Referral → "Hi" Response</p>
+                      <p className="text-sm text-gray-500">{averagesData.referredWhoRepliedHi} of {averagesData.totalReferredCustomers}</p>
+                    </div>
+                    
+                    <div className="text-center">
+                      <div className="relative inline-flex items-center justify-center">
+                        <svg className="w-32 h-32">
+                          <circle cx="64" cy="64" r="56" fill="none" stroke="#e5e7eb" strokeWidth="8"/>
+                          <circle 
+                            cx="64" cy="64" r="56" fill="none" 
+                            stroke="#8b5cf6" strokeWidth="8" strokeLinecap="round"
+                            strokeDasharray={`${(averagesData.purchaseConversionRate / 100) * 352} 352`}
+                            transform="rotate(-90 64 64)"
+                          />
+                        </svg>
+                        <span className="absolute text-2xl font-bold text-gray-800">
+                          {averagesData.purchaseConversionRate}%
+                        </span>
+                      </div>
+                      <p className="mt-2 font-medium text-gray-700">Referral → Purchase</p>
+                      <p className="text-sm text-gray-500">{averagesData.referredWhoPurchased} of {averagesData.totalReferredCustomers}</p>
+                    </div>
+                  </div>
+                </div>
+
+                {/* Trend Charts */}
+                <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
+                  {/* Referrals Over Time Chart */}
+                  <div className="bg-white rounded-lg shadow-sm p-6">
+                    <h3 className="text-lg font-semibold text-gray-800 mb-4 flex items-center">
+                      <TrendingUp className="mr-2 text-blue-500" /> Referrals Over Time
+                    </h3>
+                    <div className="h-48 flex items-end justify-between gap-1">
+                      {averagesData.chartData?.referralsOverTime?.map((item, index) => {
+                        const maxValue = Math.max(...averagesData.chartData.referralsOverTime.map(i => i.value), 1);
+                        const height = (item.value / maxValue) * 100;
+                        return (
+                          <div key={index} className="flex flex-col items-center flex-1">
+                            <span className="text-xs text-gray-600 mb-1">{item.value}</span>
+                            <div 
+                              className="w-full bg-gradient-to-t from-blue-500 to-blue-400 rounded-t transition-all hover:from-blue-600 hover:to-blue-500"
+                              style={{ height: `${Math.max(height, 5)}%` }}
+                            ></div>
+                            <span className="text-xs text-gray-500 mt-1 truncate w-full text-center">{item.label}</span>
+                          </div>
+                        );
+                      })}
+                    </div>
+                  </div>
+
+                  {/* Conversions Over Time Chart */}
+                  <div className="bg-white rounded-lg shadow-sm p-6">
+                    <h3 className="text-lg font-semibold text-gray-800 mb-4 flex items-center">
+                      <ShoppingCart className="mr-2 text-green-500" /> Conversions Over Time
+                    </h3>
+                    <div className="h-48 flex items-end justify-between gap-1">
+                      {averagesData.chartData?.conversionsOverTime?.map((item, index) => {
+                        const maxValue = Math.max(...averagesData.chartData.conversionsOverTime.map(i => i.value), 1);
+                        const height = (item.value / maxValue) * 100;
+                        return (
+                          <div key={index} className="flex flex-col items-center flex-1">
+                            <span className="text-xs text-gray-600 mb-1">{item.value}</span>
+                            <div 
+                              className="w-full bg-gradient-to-t from-green-500 to-green-400 rounded-t transition-all hover:from-green-600 hover:to-green-500"
+                              style={{ height: `${Math.max(height, 5)}%` }}
+                            ></div>
+                            <span className="text-xs text-gray-500 mt-1 truncate w-full text-center">{item.label}</span>
+                          </div>
+                        );
+                      })}
+                    </div>
+                  </div>
+                </div>
+
+                {/* Videos Chart and Summary */}
+                <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
+                  {/* Videos Over Time */}
+                  <div className="bg-white rounded-lg shadow-sm p-6">
+                    <h3 className="text-lg font-semibold text-gray-800 mb-4 flex items-center">
+                      <Video className="mr-2 text-purple-500" /> Videos Uploaded Over Time
+                    </h3>
+                    <div className="h-48 flex items-end justify-between gap-1">
+                      {averagesData.chartData?.videosOverTime?.map((item, index) => {
+                        const maxValue = Math.max(...averagesData.chartData.videosOverTime.map(i => i.value), 1);
+                        const height = (item.value / maxValue) * 100;
+                        return (
+                          <div key={index} className="flex flex-col items-center flex-1">
+                            <span className="text-xs text-gray-600 mb-1">{item.value}</span>
+                            <div 
+                              className="w-full bg-gradient-to-t from-purple-500 to-purple-400 rounded-t transition-all hover:from-purple-600 hover:to-purple-500"
+                              style={{ height: `${Math.max(height, 5)}%` }}
+                            ></div>
+                            <span className="text-xs text-gray-500 mt-1 truncate w-full text-center">{item.label}</span>
+                          </div>
+                        );
+                      })}
+                    </div>
+                  </div>
+
+                  {/* Video & Share Stats */}
+                  <div className="bg-white rounded-lg shadow-sm p-6">
+                    <h3 className="text-lg font-semibold text-gray-800 mb-4 flex items-center">
+                      <Share2 className="mr-2 text-orange-500" /> Video & Share Stats
+                    </h3>
+                    <div className="space-y-4">
+                      <div className="flex items-center justify-between p-4 bg-gray-50 rounded-lg">
+                        <div className="flex items-center">
+                          <Video className="h-8 w-8 text-purple-500 mr-3" />
+                          <div>
+                            <p className="text-sm text-gray-600">Avg Videos per Customer</p>
+                            <p className="text-2xl font-bold text-gray-800">{averagesData.avgVideosPerCustomer}</p>
+                          </div>
+                        </div>
+                        <div className="text-right">
+                          <p className="text-sm text-gray-500">Total: {averagesData.totalVideosUploaded}</p>
+                        </div>
+                      </div>
+                      
+                      <div className="flex items-center justify-between p-4 bg-gray-50 rounded-lg">
+                        <div className="flex items-center">
+                          <Share2 className="h-8 w-8 text-orange-500 mr-3" />
+                          <div>
+                            <p className="text-sm text-gray-600">Avg Shares per Customer</p>
+                            <p className="text-2xl font-bold text-gray-800">{averagesData.avgVideoSharesPerCustomer}</p>
+                          </div>
+                        </div>
+                        <div className="text-right">
+                          <p className="text-sm text-gray-500">Total: {averagesData.totalVideoShares}</p>
+                        </div>
+                      </div>
+                      
+                      <div className="flex items-center justify-between p-4 bg-gray-50 rounded-lg">
+                        <div className="flex items-center">
+                          <Users className="h-8 w-8 text-blue-500 mr-3" />
+                          <div>
+                            <p className="text-sm text-gray-600">Customers with Videos</p>
+                            <p className="text-2xl font-bold text-gray-800">{averagesData.totalCustomersWithVideos}</p>
+                          </div>
+                        </div>
+                        <div className="text-right">
+                          <p className="text-sm text-gray-500">Sample: {averagesData.sampleSize}</p>
+                        </div>
+                      </div>
+                    </div>
+                  </div>
+                </div>
+              </>
+            ) : (
+              <div className="bg-white rounded-lg shadow-sm p-12 text-center">
+                <BarChart3 className="h-16 w-16 text-gray-300 mx-auto mb-4" />
+                <p className="text-gray-500">No data available. Select a time period to load averages.</p>
+              </div>
+            )}
+          </div>
+        )}
+
+        {/* CUSTOMER DATA TAB CONTENT */}
+        {mainTab === "data" && (
+          <>
         <h3 className="text-lg font-semibold mb-4 text-gray-700">
           Customer Categories
         </h3>
@@ -794,6 +1112,8 @@ export default function ReferralData() {
             </div>
           </div>
         </div>
+          </>
+        )}
       </div>
     </div>
   );
