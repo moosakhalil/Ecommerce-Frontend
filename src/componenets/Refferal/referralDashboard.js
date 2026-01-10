@@ -1,16 +1,20 @@
 // ReferralVideos.js
-import React, { useState, useEffect } from "react";
+import React, { useState, useEffect, useRef } from "react";
 import {
   Search,
   Filter,
   MoreVertical,
   ChevronLeft,
+  ChevronUp,
+  ChevronDown,
   X,
   Play,
   Grid,
   List,
   FileVideo,
   AlertCircle,
+  Eye,
+  Sparkles,
 } from "lucide-react";
 import Sidebar from "../Sidebar/sidebar";
 import { useNavigate } from "react-router-dom";
@@ -20,7 +24,7 @@ const TABS = [
   { key: "unverified", label: "150.A  Incoming unverified videos" },
   { key: "manager", label: " 150.B  Videos moved to manager" },
   { key: "verified", label: "150.C  Verified videos" },
-  { key: "spam", label: "150.D  Videos moved to spam" },
+  { key: "spam", label: "150.D  Videos moved to video not passed" },
 ];
 
 // Status mapping for display
@@ -64,6 +68,42 @@ const formatFileSize = (sizeInMB) => {
   return `${sizeInMB.toFixed(1)} MB`;
 };
 
+// Helper function to get relative time (e.g., "2 days ago", "3 hours ago")
+const getRelativeTime = (dateString) => {
+  if (!dateString) return { date: "Unknown", time: "", isRecent: false };
+  
+  const date = new Date(dateString);
+  const now = new Date();
+  const diffMs = now - date;
+  const diffSeconds = Math.floor(diffMs / 1000);
+  const diffMinutes = Math.floor(diffSeconds / 60);
+  const diffHours = Math.floor(diffMinutes / 60);
+  const diffDays = Math.floor(diffHours / 24);
+  const diffWeeks = Math.floor(diffDays / 7);
+  const diffMonths = Math.floor(diffDays / 30);
+
+  // If within 23 hours - show ONLY hours/minutes in larger text (no date, no time)
+  if (diffHours < 24) {
+    let recentText = "";
+    if (diffHours >= 1) {
+      recentText = `${diffHours} hour${diffHours > 1 ? 's' : ''} ago`;
+    } else if (diffMinutes >= 1) {
+      recentText = `${diffMinutes} min${diffMinutes > 1 ? 's' : ''} ago`;
+    } else {
+      recentText = "Just now";
+    }
+    return { date: recentText, time: "", isRecent: true };
+  }
+
+  // 24+ hours - show exact date on top, time received on bottom
+  const dateStr = date.toLocaleDateString([], { month: 'short', day: 'numeric' });
+  
+  // Show the actual time received (e.g., 1:35 PM)
+  const timeStr = date.toLocaleTimeString([], { hour: 'numeric', minute: '2-digit', hour12: true });
+
+  return { date: dateStr, time: timeStr, isRecent: false };
+};
+
 export default function ReferralVideos() {
   const [sidebarOpen, setSidebarOpen] = useState(true);
   const [search, setSearch] = useState("");
@@ -74,6 +114,7 @@ export default function ReferralVideos() {
   const [loading, setLoading] = useState(true);
   const [updating, setUpdating] = useState(false);
   const [bulkMode, setBulkMode] = useState(false);
+  const [rejectionModal, setRejectionModal] = useState({ isOpen: false, video: null });
   const navigate = useNavigate();
 
   // Fetch videos on component mount and tab change
@@ -102,7 +143,7 @@ export default function ReferralVideos() {
   };
 
   // Update video status
-  const updateVideoStatus = async (customerId, videoId, newStatus) => {
+  const updateVideoStatus = async (customerId, videoId, newStatus, rejectionReason = null, note = null) => {
     try {
       setUpdating(true);
       const response = await fetch(
@@ -116,6 +157,7 @@ export default function ReferralVideos() {
             customerId,
             videoId,
             status: newStatus,
+            ...(newStatus === "spam" && { rejectionReason, note }),
           }),
         }
       );
@@ -130,6 +172,9 @@ export default function ReferralVideos() {
         if (selectedVideo) {
           setSelectedVideo(null);
         }
+
+        // Close rejection modal if open
+        setRejectionModal({ isOpen: false, video: null });
 
         alert(`Video successfully moved to ${newStatus}`);
       } else {
@@ -156,6 +201,9 @@ export default function ReferralVideos() {
 
     if (action === "view") {
       setSelectedVideo(video);
+    } else if (action === "spam") {
+      // Open rejection modal for "Video Not Passed"
+      setRejectionModal({ isOpen: true, video });
     } else {
       updateVideoStatus(video.customerId, video.imageId, action);
     }
@@ -264,6 +312,9 @@ export default function ReferralVideos() {
               <thead className="bg-gray-100">
                 <tr>
                   <th className="px-6 py-3 text-left text-sm font-medium text-gray-700">
+                    View
+                  </th>
+                  <th className="px-6 py-3 text-left text-sm font-medium text-gray-700">
                     Video ID
                   </th>
                   <th className="px-6 py-3 text-left text-sm font-medium text-gray-700">
@@ -299,6 +350,15 @@ export default function ReferralVideos() {
                       key={video.imageId}
                       className={idx % 2 ? "bg-gray-50" : ""}
                     >
+                      <td className="px-6 py-4 text-sm text-gray-700">
+                        <button
+                          onClick={() => setSelectedVideo(video)}
+                          className="p-2 hover:bg-gray-100 rounded-full transition-colors"
+                          title="View Video"
+                        >
+                          <Eye className="text-blue-600 hover:text-blue-700" size={20} />
+                        </button>
+                      </td>
                       <td className="px-6 py-4 text-sm text-gray-700">
                         <div className="flex items-center">
                           <FileVideo className="mr-2 text-gray-400" size={16} />
@@ -339,12 +399,6 @@ export default function ReferralVideos() {
                         />
                         {menuOpen === idx && (
                           <div className="absolute right-0 mt-2 w-48 bg-white border rounded shadow-lg z-10">
-                            <button
-                              onClick={() => handleAction(video, "view")}
-                              className="block w-full text-left px-4 py-2 hover:bg-gray-100 text-sm"
-                            >
-                              View Video
-                            </button>
                             {activeTab !== "verified" && (
                               <button
                                 onClick={() => handleAction(video, "verified")}
@@ -369,7 +423,7 @@ export default function ReferralVideos() {
                                 className="block w-full text-left px-4 py-2 hover:bg-gray-100 text-sm text-red-600"
                                 disabled={updating}
                               >
-                                Move to Spam
+                                Move to Video Not Passed
                               </button>
                             )}
                           </div>
@@ -380,7 +434,7 @@ export default function ReferralVideos() {
                 ) : (
                   <tr>
                     <td
-                      colSpan="9"
+                      colSpan="10"
                       className="px-6 py-4 text-center text-gray-500"
                     >
                       No videos found for "{activeTab}" status
@@ -394,6 +448,121 @@ export default function ReferralVideos() {
             </div>
           </div>
         )}
+      </div>
+
+      {/* Rejection Modal */}
+      {rejectionModal.isOpen && (
+        <RejectionModal
+          video={rejectionModal.video}
+          onClose={() => setRejectionModal({ isOpen: false, video: null })}
+          onSubmit={(reason, note) => {
+            updateVideoStatus(
+              rejectionModal.video.customerId,
+              rejectionModal.video.imageId,
+              "spam",
+              reason,
+              note
+            );
+          }}
+          updating={updating}
+        />
+      )}
+    </div>
+  );
+}
+
+// Rejection Modal Component
+function RejectionModal({ video, onClose, onSubmit, updating }) {
+  const [reason, setReason] = useState("");
+  const [note, setNote] = useState("");
+
+  const REJECTION_REASONS = [
+    { value: "vulgar", label: "Vulgar" },
+    { value: "error", label: "Error" },
+    { value: "spam", label: "Spam" },
+    { value: "not_good_enough", label: "Not Good Enough" },
+    { value: "other", label: "Other" },
+  ];
+
+  const handleSubmit = (e) => {
+    e.preventDefault();
+    if (!reason) {
+      alert("Please select a reason");
+      return;
+    }
+    onSubmit(reason, note);
+  };
+
+  return (
+    <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">
+      <div className="bg-white rounded-lg shadow-xl w-full max-w-md p-6">
+        <div className="flex items-center justify-between mb-4">
+          <h3 className="text-lg font-semibold text-gray-900">
+            Video Not Passed
+          </h3>
+          <button
+            onClick={onClose}
+            className="text-gray-400 hover:text-gray-600"
+          >
+            <X size={20} />
+          </button>
+        </div>
+
+        <p className="text-sm text-gray-600 mb-4">
+          Please select a reason for marking this video as not passed.
+        </p>
+
+        <form onSubmit={handleSubmit}>
+          <div className="mb-4">
+            <label className="block text-sm font-medium text-gray-700 mb-2">
+              Reason <span className="text-red-500">*</span>
+            </label>
+            <select
+              value={reason}
+              onChange={(e) => setReason(e.target.value)}
+              className="w-full border border-gray-300 rounded-lg px-3 py-2 focus:outline-none focus:ring-2 focus:ring-blue-500"
+              required
+            >
+              <option value="">Select a reason...</option>
+              {REJECTION_REASONS.map((r) => (
+                <option key={r.value} value={r.value}>
+                  {r.label}
+                </option>
+              ))}
+            </select>
+          </div>
+
+          <div className="mb-6">
+            <label className="block text-sm font-medium text-gray-700 mb-2">
+              Note (Optional)
+            </label>
+            <textarea
+              value={note}
+              onChange={(e) => setNote(e.target.value)}
+              placeholder="Add any additional notes..."
+              rows={3}
+              className="w-full border border-gray-300 rounded-lg px-3 py-2 focus:outline-none focus:ring-2 focus:ring-blue-500 resize-none"
+            />
+          </div>
+
+          <div className="flex gap-3 justify-end">
+            <button
+              type="button"
+              onClick={onClose}
+              className="px-4 py-2 text-gray-700 bg-gray-100 hover:bg-gray-200 rounded-lg transition-colors"
+              disabled={updating}
+            >
+              Cancel
+            </button>
+            <button
+              type="submit"
+              className="px-4 py-2 bg-red-600 hover:bg-red-700 text-white rounded-lg transition-colors disabled:opacity-50"
+              disabled={updating || !reason}
+            >
+              {updating ? "Processing..." : "Confirm"}
+            </button>
+          </div>
+        </form>
       </div>
     </div>
   );
@@ -474,7 +643,7 @@ function VideoPlayer({ video, className = "", ...props }) {
 
 // Bulk Video Management Component
 function BulkVideoManagement({
-  videos,
+  videos: initialVideos,
   activeTab,
   onBack,
   onStatusUpdate,
@@ -482,21 +651,99 @@ function BulkVideoManagement({
   toggleSidebar,
   updating,
 }) {
-  const [selectedVideo, setSelectedVideo] = useState(videos[0] || null);
+  const [allVideos, setAllVideos] = useState([]);
+  const [loading, setLoading] = useState(true);
+  const [selectedVideo, setSelectedVideo] = useState(null);
   const [processing, setProcessing] = useState(false);
+  const [rejectionModal, setRejectionModal] = useState({ isOpen: false });
+  const [filterTab, setFilterTab] = useState('all'); // 'all', 'pending', 'manager', 'verified', 'spam'
+  const videoListRef = useRef(null);
 
-  // Update selected video when videos change
-  useEffect(() => {
-    if (videos.length > 0 && !selectedVideo) {
-      setSelectedVideo(videos[0]);
+  // Filter videos based on selected tab
+  const filteredVideos = filterTab === 'all' 
+    ? allVideos 
+    : filterTab === 'pending'
+      ? allVideos.filter(v => v.status === 'unverified' || !v.status)
+      : allVideos.filter(v => v.status === filterTab);
+
+  // Scroll functions for video list navigation
+  const scrollUp = () => {
+    if (videoListRef.current) {
+      videoListRef.current.scrollBy({ top: -200, behavior: 'smooth' });
     }
-  }, [videos, selectedVideo]);
+  };
+
+  const scrollDown = () => {
+    if (videoListRef.current) {
+      videoListRef.current.scrollBy({ top: 200, behavior: 'smooth' });
+    }
+  };
+
+  const scrollToTop = () => {
+    if (videoListRef.current) {
+      videoListRef.current.scrollTo({ top: 0, behavior: 'smooth' });
+    }
+  };
+
+  const scrollToBottom = () => {
+    if (videoListRef.current) {
+      videoListRef.current.scrollTo({ top: videoListRef.current.scrollHeight, behavior: 'smooth' });
+    }
+  };
+
+  // Scroll to newest video (most recently added based on approvalDate)
+  const scrollToNewest = () => {
+    if (allVideos.length === 0) return;
+    
+    // Find the newest video
+    const newestVideo = allVideos.reduce((newest, video) => {
+      const newestDate = new Date(newest.approvalDate || 0);
+      const videoDate = new Date(video.approvalDate || 0);
+      return videoDate > newestDate ? video : newest;
+    }, allVideos[0]);
+    
+    // Select it and scroll to top (newest should be first if sorted by date)
+    setSelectedVideo(newestVideo);
+    scrollToTop();
+  };
+
+  // Fetch ALL videos from all statuses on mount
+  useEffect(() => {
+    fetchAllVideos();
+  }, []);
+
+  const fetchAllVideos = async () => {
+    try {
+      setLoading(true);
+      const statuses = ["unverified", "manager", "verified", "spam"];
+      const allFetched = [];
+
+      for (const status of statuses) {
+        const response = await fetch(
+          `${API_BASE_URL}/api/referral-videos?status=${status}`
+        );
+        const data = await response.json();
+        if (data.success && data.videos) {
+          allFetched.push(...data.videos);
+        }
+      }
+
+      setAllVideos(allFetched);
+      if (allFetched.length > 0 && !selectedVideo) {
+        setSelectedVideo(allFetched[0]);
+      }
+    } catch (error) {
+      console.error("Error fetching all videos:", error);
+    } finally {
+      setLoading(false);
+    }
+  };
 
   const handleVideoSelect = (video) => {
     setSelectedVideo(video);
   };
 
-  const handleStatusUpdate = async (status) => {
+  const handleStatusUpdate = async (status, rejectionReason = null, note = null) => {
     if (!selectedVideo) return;
 
     if (
@@ -507,17 +754,14 @@ function BulkVideoManagement({
         await onStatusUpdate(
           selectedVideo.customerId,
           selectedVideo.imageId,
-          status
+          status,
+          rejectionReason,
+          note
         );
-        // Remove the updated video from the list or refresh
-        const updatedVideos = videos.filter(
-          (v) => v.imageId !== selectedVideo.imageId
-        );
-        if (updatedVideos.length > 0) {
-          setSelectedVideo(updatedVideos[0]);
-        } else {
-          onBack(); // Go back if no more videos
-        }
+        // Close rejection modal
+        setRejectionModal({ isOpen: false });
+        // Refresh videos list to show updated status
+        await fetchAllVideos();
       } catch (error) {
         console.error("Error updating video:", error);
       } finally {
@@ -545,54 +789,204 @@ function BulkVideoManagement({
             Back to List View
           </button>
           <h1 className="text-2xl font-semibold">
-            Bulk Video Management -{" "}
-            {activeTab.charAt(0).toUpperCase() + activeTab.slice(1)}
+            Bulk Video Management - All Videos
           </h1>
         </div>
 
         <div className="grid grid-cols-12 gap-6">
           {/* Video List Sidebar */}
           <div className="col-span-4">
-            <div className="bg-white rounded-lg shadow max-h-screen overflow-y-auto">
+            <div className="bg-white rounded-lg shadow flex flex-col" style={{ maxHeight: 'calc(100vh - 150px)' }}>
+              {/* Header */}
               <div className="p-4 border-b">
-                <h3 className="font-semibold text-lg">
-                  Videos ({videos.length})
+                <h3 className="font-semibold text-lg mb-3">
+                  {filterTab === 'all' ? 'All Videos' : 
+                   filterTab === 'pending' ? 'Pending Videos' :
+                   filterTab === 'manager' ? 'Manager Videos' :
+                   filterTab === 'verified' ? 'Verified Videos' :
+                   'Not Passed Videos'} ({filteredVideos.length})
                 </h3>
-              </div>
-              <div className="divide-y">
-                {videos.map((video) => (
-                  <div
-                    key={video.imageId}
-                    onClick={() => handleVideoSelect(video)}
-                    className={`p-4 cursor-pointer hover:bg-gray-50 ${
-                      selectedVideo?.imageId === video.imageId
-                        ? "bg-blue-50 border-r-4 border-blue-500"
-                        : ""
+                {/* Filter Tabs */}
+                <div className="flex gap-1 text-xs flex-wrap">
+                  <button
+                    onClick={() => setFilterTab('all')}
+                    className={`px-3 py-1.5 rounded-full transition-colors ${
+                      filterTab === 'all' 
+                        ? 'bg-blue-500 text-white' 
+                        : 'bg-blue-100 text-blue-700 hover:bg-blue-200'
                     }`}
                   >
-                    <div className="flex items-center space-x-3">
-                      <div className="flex-shrink-0">
-                        <FileVideo className="h-8 w-8 text-gray-400" />
-                      </div>
-                      <div className="flex-1 min-w-0">
-                        <p className="text-sm font-medium text-gray-900 truncate">
-                          {video.customerName}
-                        </p>
-                        <p className="text-sm text-gray-500 truncate">
-                          ID: {video.imageId}
-                        </p>
-                        <p className="text-xs text-gray-400">
-                          {video.sharedCount} shares •{" "}
-                          {formatFileSize(video.fileSize)}
-                        </p>
-                        <p className="text-xs text-gray-400">
-                          {video.totalContactsReferred || 0} referred
-                        </p>
-                      </div>
-                    </div>
-                  </div>
-                ))}
+                    All ({allVideos.length})
+                  </button>
+                  <button
+                    onClick={() => setFilterTab('pending')}
+                    className={`px-3 py-1.5 rounded-full transition-colors ${
+                      filterTab === 'pending' 
+                        ? 'bg-gray-600 text-white' 
+                        : 'bg-gray-200 text-gray-700 hover:bg-gray-300'
+                    }`}
+                  >
+                    Pending ({allVideos.filter(v => v.status === 'unverified' || !v.status).length})
+                  </button>
+                  <button
+                    onClick={() => setFilterTab('manager')}
+                    className={`px-3 py-1.5 rounded-full transition-colors ${
+                      filterTab === 'manager' 
+                        ? 'bg-orange-500 text-white' 
+                        : 'bg-orange-100 text-orange-700 hover:bg-orange-200'
+                    }`}
+                  >
+                    Manager ({allVideos.filter(v => v.status === 'manager').length})
+                  </button>
+                  <button
+                    onClick={() => setFilterTab('verified')}
+                    className={`px-3 py-1.5 rounded-full transition-colors ${
+                      filterTab === 'verified' 
+                        ? 'bg-green-500 text-white' 
+                        : 'bg-green-100 text-green-700 hover:bg-green-200'
+                    }`}
+                  >
+                    Verified ({allVideos.filter(v => v.status === 'verified').length})
+                  </button>
+                  <button
+                    onClick={() => setFilterTab('spam')}
+                    className={`px-3 py-1.5 rounded-full transition-colors ${
+                      filterTab === 'spam' 
+                        ? 'bg-red-500 text-white' 
+                        : 'bg-red-100 text-red-700 hover:bg-red-200'
+                    }`}
+                  >
+                    Not Passed ({allVideos.filter(v => v.status === 'spam').length})
+                  </button>
+                </div>
               </div>
+              {/* Scrollable video list */}
+              {loading ? (
+                <div className="p-8 text-center">
+                  <div className="inline-block animate-spin rounded-full h-8 w-8 border-b-2 border-gray-900"></div>
+                  <p className="mt-2 text-sm text-gray-500">Loading all videos...</p>
+                </div>
+              ) : (
+              <>
+                {/* Navigation Row with Newest Button and Scroll Up */}
+                <div className="flex border-b">
+                  <button
+                    onClick={scrollToNewest}
+                    className="flex-1 py-3 bg-blue-50 hover:bg-blue-100 flex items-center justify-center gap-2 text-blue-600 hover:text-blue-800 transition-colors border-r"
+                    title="Jump to Newest Video"
+                  >
+                    <Sparkles size={20} />
+                    <span className="text-sm font-medium">Newest</span>
+                  </button>
+                  <button
+                    onClick={scrollUp}
+                    className="flex-1 py-3 bg-gray-100 hover:bg-gray-200 flex items-center justify-center text-gray-600 hover:text-gray-800 transition-colors"
+                    title="Scroll Up"
+                  >
+                    <ChevronUp size={32} />
+                  </button>
+                </div>
+                
+                {/* Video List */}
+                <div ref={videoListRef} className="divide-y overflow-y-auto flex-1">
+                  {filteredVideos.map((video) => {
+                    // Get background color based on video status
+                    const getStatusBgColor = (status) => {
+                      switch (status) {
+                        case "spam":
+                          return "bg-red-50 border-l-4 border-red-500";
+                        case "manager":
+                          return "bg-orange-50 border-l-4 border-orange-500";
+                        case "verified":
+                          return "bg-green-50 border-l-4 border-green-500";
+                        default:
+                          return ""; // unverified - no special color
+                      }
+                    };
+
+                    return (
+                      <div
+                        key={video.imageId}
+                        onClick={() => handleVideoSelect(video)}
+                        className={`p-4 cursor-pointer hover:bg-gray-100 ${getStatusBgColor(video.status)} ${
+                          selectedVideo?.imageId === video.imageId
+                            ? "ring-2 ring-blue-500 ring-inset"
+                            : ""
+                        }`}
+                      >
+                        <div className="flex items-center space-x-3">
+                          {/* Date/Time on left */}
+                          <div className="flex-shrink-0 w-20 text-center">
+                            {(() => {
+                              const relTime = getRelativeTime(video.approvalDate);
+                              if (relTime.isRecent) {
+                                // Within 23 hours - show only relative time in larger text
+                                return (
+                                  <p className="text-sm font-semibold text-gray-700">{relTime.date}</p>
+                                );
+                              } else {
+                                // 24+ hours - show date on top, time received on bottom
+                                return (
+                                  <>
+                                    <p className="text-xs font-medium text-gray-600">{relTime.date}</p>
+                                    <p className="text-xs text-gray-400">{relTime.time}</p>
+                                  </>
+                                );
+                              }
+                            })()}
+                          </div>
+                          {/* Video icon */}
+                          <div className="flex-shrink-0">
+                            <FileVideo className={`h-8 w-8 ${
+                              video.status === "spam" ? "text-red-400" :
+                              video.status === "manager" ? "text-orange-400" :
+                              video.status === "verified" ? "text-green-400" :
+                              "text-gray-400"
+                            }`} />
+                          </div>
+                          <div className="flex-1 min-w-0">
+                            <p className="text-sm font-medium text-gray-900 truncate">
+                              {video.customerName}
+                            </p>
+                            <p className="text-sm text-gray-500 truncate">
+                              ID: {video.imageId}
+                            </p>
+                            <p className="text-xs text-gray-400">
+                              {video.sharedCount} shares •{" "}
+                              {formatFileSize(video.fileSize)}
+                            </p>
+                            <p className="text-xs text-gray-400">
+                              {video.totalContactsReferred || 0} referred
+                            </p>
+                            {/* Status badge */}
+                            <span className={`inline-block mt-1 px-2 py-0.5 text-xs rounded-full ${
+                              video.status === "spam" ? "bg-red-200 text-red-800" :
+                              video.status === "manager" ? "bg-orange-200 text-orange-800" :
+                              video.status === "verified" ? "bg-green-200 text-green-800" :
+                              "bg-gray-200 text-gray-700"
+                            }`}>
+                              {video.status === "spam" ? "Not Passed" :
+                               video.status === "manager" ? "Manager" :
+                               video.status === "verified" ? "Verified" :
+                               "Pending"}
+                            </span>
+                          </div>
+                        </div>
+                      </div>
+                    );
+                  })}
+                </div>
+                
+                {/* Large Scroll Down Button */}
+                <button
+                  onClick={scrollDown}
+                  className="w-full py-3 bg-gray-100 hover:bg-gray-200 flex items-center justify-center text-gray-600 hover:text-gray-800 transition-colors border-t"
+                  title="Scroll Down"
+                >
+                  <ChevronDown size={32} />
+                </button>
+              </>
+              )}
             </div>
           </div>
 
@@ -666,11 +1060,11 @@ function BulkVideoManagement({
                 {/* Action Buttons */}
                 <div className="flex gap-4 justify-center">
                   <button
-                    onClick={() => handleStatusUpdate("spam")}
+                    onClick={() => setRejectionModal({ isOpen: true })}
                     disabled={processing || updating}
                     className="px-8 py-3 bg-red-600 hover:bg-red-700 text-white rounded-lg font-medium disabled:opacity-50"
                   >
-                    {processing ? "Processing..." : "Move to Spam"}
+                    {processing ? "Processing..." : "Move to Video Not Passed"}
                   </button>
                   <button
                     onClick={() => handleStatusUpdate("verified")}
@@ -756,6 +1150,18 @@ function BulkVideoManagement({
           </div>
         </div>
       </div>
+
+      {/* Rejection Modal */}
+      {rejectionModal.isOpen && selectedVideo && (
+        <RejectionModal
+          video={selectedVideo}
+          onClose={() => setRejectionModal({ isOpen: false })}
+          onSubmit={(reason, note) => {
+            handleStatusUpdate("spam", reason, note);
+          }}
+          updating={processing || updating}
+        />
+      )}
     </div>
   );
 }
@@ -769,11 +1175,15 @@ function VideoDetailView({
   toggleSidebar,
   updating,
 }) {
-  const handleStatusUpdate = (status) => {
+  const [rejectionModal, setRejectionModal] = useState({ isOpen: false });
+
+  const handleStatusUpdate = (status, rejectionReason = null, note = null) => {
     if (
       window.confirm(`Are you sure you want to move this video to ${status}?`)
     ) {
-      onStatusUpdate(video.customerId, video.imageId, status);
+      onStatusUpdate(video.customerId, video.imageId, status, rejectionReason, note);
+      // Close rejection modal if open
+      setRejectionModal({ isOpen: false });
     }
   };
 
@@ -919,11 +1329,11 @@ function VideoDetailView({
           {/* Action Buttons */}
           <div className="flex gap-4 flex-wrap">
             <button
-              onClick={() => handleStatusUpdate("spam")}
+              onClick={() => setRejectionModal({ isOpen: true })}
               disabled={updating}
               className="px-6 py-2 bg-red-600 hover:bg-red-700 text-white rounded disabled:opacity-50"
             >
-              {updating ? "Updating..." : "Move to Spam"}
+              {updating ? "Updating..." : "Move to Video Not Passed"}
             </button>
             <button
               onClick={() => handleStatusUpdate("verified")}
@@ -942,6 +1352,18 @@ function VideoDetailView({
           </div>
         </div>
       </div>
+
+      {/* Rejection Modal */}
+      {rejectionModal.isOpen && (
+        <RejectionModal
+          video={video}
+          onClose={() => setRejectionModal({ isOpen: false })}
+          onSubmit={(reason, note) => {
+            handleStatusUpdate("spam", reason, note);
+          }}
+          updating={updating}
+        />
+      )}
     </div>
   );
 }
