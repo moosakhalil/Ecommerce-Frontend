@@ -1,13 +1,14 @@
 import React, { useState, useEffect } from "react";
 import {
   Search,
-  Eye,
   CheckCircle,
   XCircle,
   User,
   Users,
   Shield,
   UserCheck,
+  ShieldCheck,
+  ArrowRight,
 } from "lucide-react";
 import Sidebar from "../Sidebar/sidebar";
 import { API_BASE_URL } from "../../utils/config";
@@ -29,7 +30,20 @@ export default function ForemanApproval() {
   const fetchCustomers = async () => {
     try {
       setLoading(true);
-      const status = activeTab === "pending" ? "customers" : "approved_foreman";
+      let status;
+      switch (activeTab) {
+        case "pending":
+          status = "customers";
+          break;
+        case "approved":
+          status = "approved_foreman";
+          break;
+        case "all":
+          status = "Everyone";
+          break;
+        default:
+          status = "customers";
+      }
       const response = await fetch(
         `${API_BASE_URL}/api/foreman-customers?status=${status}`
       );
@@ -101,6 +115,50 @@ export default function ForemanApproval() {
       customer.referralCode?.toLowerCase().includes(search.toLowerCase())
   );
 
+  // Helper function to get status badge
+  const getStatusBadge = (customer) => {
+    if (customer.isCommissionEligible) {
+      return (
+        <span style={{ 
+          padding: '4px 12px', 
+          backgroundColor: '#ede9fe', 
+          color: '#7c3aed', 
+          borderRadius: '20px',
+          fontSize: '12px',
+          fontWeight: '500'
+        }}>
+          💰 Commission Eligible
+        </span>
+      );
+    } else if (customer.isForemanApproved) {
+      return (
+        <span style={{ 
+          padding: '4px 12px', 
+          backgroundColor: '#dcfce7', 
+          color: '#16a34a', 
+          borderRadius: '20px',
+          fontSize: '12px',
+          fontWeight: '500'
+        }}>
+          🛡️ Foreman
+        </span>
+      );
+    } else {
+      return (
+        <span style={{ 
+          padding: '4px 12px', 
+          backgroundColor: '#f1f5f9', 
+          color: '#64748b', 
+          borderRadius: '20px',
+          fontSize: '12px',
+          fontWeight: '500'
+        }}>
+          👤 Normal Customer
+        </span>
+      );
+    }
+  };
+
   const cardStyle = {
     backgroundColor: '#ffffff',
     padding: '20px',
@@ -132,7 +190,7 @@ export default function ForemanApproval() {
         </div>
 
         {/* Stats */}
-        <div style={{ display: 'grid', gridTemplateColumns: 'repeat(3, 1fr)', gap: '16px', marginBottom: '24px' }}>
+        <div style={{ display: 'grid', gridTemplateColumns: 'repeat(4, 1fr)', gap: '16px', marginBottom: '24px' }}>
           <div style={cardStyle}>
             <User size={24} style={{ color: '#3b82f6', marginBottom: '8px' }} />
             <div style={{ fontSize: '28px', fontWeight: 'bold', color: '#1f2937' }}>
@@ -141,11 +199,11 @@ export default function ForemanApproval() {
             <div style={{ color: '#6b7280', fontSize: '14px' }}>Total Customers</div>
           </div>
           <div style={cardStyle}>
-            <Users size={24} style={{ color: '#f59e0b', marginBottom: '8px' }} />
+            <Users size={24} style={{ color: '#64748b', marginBottom: '8px' }} />
             <div style={{ fontSize: '28px', fontWeight: 'bold', color: '#1f2937' }}>
-              {(stats.totalCustomers || 0) - (stats.approvedForeman || 0)}
+              {stats.regularCustomers || ((stats.totalCustomers || 0) - (stats.approvedForeman || 0))}
             </div>
-            <div style={{ color: '#6b7280', fontSize: '14px' }}>Pending Foreman</div>
+            <div style={{ color: '#6b7280', fontSize: '14px' }}>Normal Customers</div>
           </div>
           <div style={cardStyle}>
             <Shield size={24} style={{ color: '#16a34a', marginBottom: '8px' }} />
@@ -153,6 +211,13 @@ export default function ForemanApproval() {
               {stats.approvedForeman || 0}
             </div>
             <div style={{ color: '#6b7280', fontSize: '14px' }}>Approved Foreman</div>
+          </div>
+          <div style={cardStyle}>
+            <ShieldCheck size={24} style={{ color: '#8b5cf6', marginBottom: '8px' }} />
+            <div style={{ fontSize: '28px', fontWeight: 'bold', color: '#1f2937' }}>
+              {stats.commissionEligible || 0}
+            </div>
+            <div style={{ color: '#6b7280', fontSize: '14px' }}>Commission Eligible</div>
           </div>
         </div>
 
@@ -190,6 +255,22 @@ export default function ForemanApproval() {
             <Shield size={16} style={{ marginRight: '8px', verticalAlign: 'middle' }} />
             Approved Foreman
           </button>
+          <button
+            onClick={() => setActiveTab("all")}
+            style={{
+              padding: '10px 24px',
+              backgroundColor: activeTab === "all" ? '#3b82f6' : '#f1f5f9',
+              color: activeTab === "all" ? '#ffffff' : '#374151',
+              border: 'none',
+              borderRadius: '8px',
+              cursor: 'pointer',
+              fontWeight: '500',
+              fontSize: '14px'
+            }}
+          >
+            <Users size={16} style={{ marginRight: '8px', verticalAlign: 'middle' }} />
+            All Customers
+          </button>
         </div>
 
         {/* Search */}
@@ -219,7 +300,7 @@ export default function ForemanApproval() {
                 <th style={{ padding: '14px 16px', textAlign: 'left', fontWeight: '600', color: '#374151', borderBottom: '1px solid #e2e8f0' }}>Customer</th>
                 <th style={{ padding: '14px 16px', textAlign: 'left', fontWeight: '600', color: '#374151', borderBottom: '1px solid #e2e8f0' }}>Status</th>
                 <th style={{ padding: '14px 16px', textAlign: 'left', fontWeight: '600', color: '#374151', borderBottom: '1px solid #e2e8f0' }}>Referrals</th>
-                <th style={{ padding: '14px 16px', textAlign: 'center', fontWeight: '600', color: '#374151', borderBottom: '1px solid #e2e8f0' }}>Actions</th>
+                <th style={{ padding: '14px 16px', textAlign: 'right', fontWeight: '600', color: '#374151', borderBottom: '1px solid #e2e8f0' }}>Actions</th>
               </tr>
             </thead>
             <tbody>
@@ -244,33 +325,37 @@ export default function ForemanApproval() {
                       <div style={{ fontSize: '12px', color: '#9ca3af' }}>{customer.referralCode}</div>
                     </td>
                     <td style={{ padding: '14px 16px' }}>
-                      {customer.isForemanApproved ? (
-                        <span style={{ 
-                          padding: '4px 12px', 
-                          backgroundColor: '#dcfce7', 
-                          color: '#16a34a', 
-                          borderRadius: '20px',
-                          fontSize: '12px',
-                          fontWeight: '500'
-                        }}>
-                          ✓ Foreman Approved
-                        </span>
-                      ) : (
-                        <span style={{ 
-                          padding: '4px 12px', 
-                          backgroundColor: '#fef3c7', 
-                          color: '#d97706', 
-                          borderRadius: '20px',
-                          fontSize: '12px',
-                          fontWeight: '500'
-                        }}>
-                          Pending
-                        </span>
-                      )}
-                      {customer.foremanApprovalDate && (
-                        <div style={{ fontSize: '11px', color: '#9ca3af', marginTop: '4px' }}>
-                          Since: {new Date(customer.foremanApprovalDate).toLocaleDateString()}
-                        </div>
+                      {activeTab === "all" ? getStatusBadge(customer) : (
+                        <>
+                          {customer.isForemanApproved ? (
+                            <span style={{ 
+                              padding: '4px 12px', 
+                              backgroundColor: '#dcfce7', 
+                              color: '#16a34a', 
+                              borderRadius: '20px',
+                              fontSize: '12px',
+                              fontWeight: '500'
+                            }}>
+                              ✓ Foreman Approved
+                            </span>
+                          ) : (
+                            <span style={{ 
+                              padding: '4px 12px', 
+                              backgroundColor: '#fef3c7', 
+                              color: '#d97706', 
+                              borderRadius: '20px',
+                              fontSize: '12px',
+                              fontWeight: '500'
+                            }}>
+                              Pending
+                            </span>
+                          )}
+                          {customer.foremanApprovalDate && (
+                            <div style={{ fontSize: '11px', color: '#9ca3af', marginTop: '4px' }}>
+                              Since: {new Date(customer.foremanApprovalDate).toLocaleDateString()}
+                            </div>
+                          )}
+                        </>
                       )}
                     </td>
                     <td style={{ padding: '14px 16px' }}>
@@ -279,45 +364,73 @@ export default function ForemanApproval() {
                         {customer.successfulReferrals || 0} / {customer.totalReferrals || 0}
                       </div>
                     </td>
-                    <td style={{ padding: '14px 16px', textAlign: 'center' }}>
-                      {!customer.isForemanApproved ? (
-                        <button
-                          onClick={() => updateForemanStatus(customer._id, true)}
-                          disabled={updating}
-                          style={{
-                            padding: '8px 16px',
-                            backgroundColor: '#16a34a',
-                            color: '#ffffff',
-                            border: 'none',
-                            borderRadius: '6px',
-                            cursor: updating ? 'not-allowed' : 'pointer',
-                            fontSize: '13px',
-                            fontWeight: '500',
-                            opacity: updating ? 0.6 : 1
-                          }}
-                        >
-                          <CheckCircle size={14} style={{ marginRight: '6px', verticalAlign: 'middle' }} />
-                          Approve Foreman
-                        </button>
+                    <td style={{ padding: '14px 16px', textAlign: 'right' }}>
+                      {activeTab === "all" ? (
+                        // All Customers tab - show "Push to Approval" button for normal customers
+                        !customer.isForemanApproved && (
+                          <button
+                            onClick={() => updateForemanStatus(customer._id, true)}
+                            disabled={updating}
+                            style={{
+                              padding: '8px 16px',
+                              backgroundColor: '#3b82f6',
+                              color: '#ffffff',
+                              border: 'none',
+                              borderRadius: '6px',
+                              cursor: updating ? 'not-allowed' : 'pointer',
+                              fontSize: '13px',
+                              fontWeight: '500',
+                              opacity: updating ? 0.6 : 1,
+                              display: 'inline-flex',
+                              alignItems: 'center',
+                              gap: '6px'
+                            }}
+                          >
+                            Push to Foreman
+                            <ArrowRight size={14} />
+                          </button>
+                        )
                       ) : (
-                        <button
-                          onClick={() => updateForemanStatus(customer._id, false)}
-                          disabled={updating}
-                          style={{
-                            padding: '8px 16px',
-                            backgroundColor: '#dc2626',
-                            color: '#ffffff',
-                            border: 'none',
-                            borderRadius: '6px',
-                            cursor: updating ? 'not-allowed' : 'pointer',
-                            fontSize: '13px',
-                            fontWeight: '500',
-                            opacity: updating ? 0.6 : 1
-                          }}
-                        >
-                          <XCircle size={14} style={{ marginRight: '6px', verticalAlign: 'middle' }} />
-                          Revoke Foreman
-                        </button>
+                        // Other tabs - show approve/revoke buttons
+                        !customer.isForemanApproved ? (
+                          <button
+                            onClick={() => updateForemanStatus(customer._id, true)}
+                            disabled={updating}
+                            style={{
+                              padding: '8px 16px',
+                              backgroundColor: '#16a34a',
+                              color: '#ffffff',
+                              border: 'none',
+                              borderRadius: '6px',
+                              cursor: updating ? 'not-allowed' : 'pointer',
+                              fontSize: '13px',
+                              fontWeight: '500',
+                              opacity: updating ? 0.6 : 1
+                            }}
+                          >
+                            <CheckCircle size={14} style={{ marginRight: '6px', verticalAlign: 'middle' }} />
+                            Approve Foreman
+                          </button>
+                        ) : (
+                          <button
+                            onClick={() => updateForemanStatus(customer._id, false)}
+                            disabled={updating}
+                            style={{
+                              padding: '8px 16px',
+                              backgroundColor: '#dc2626',
+                              color: '#ffffff',
+                              border: 'none',
+                              borderRadius: '6px',
+                              cursor: updating ? 'not-allowed' : 'pointer',
+                              fontSize: '13px',
+                              fontWeight: '500',
+                              opacity: updating ? 0.6 : 1
+                            }}
+                          >
+                            <XCircle size={14} style={{ marginRight: '6px', verticalAlign: 'middle' }} />
+                            Revoke Foreman
+                          </button>
+                        )
                       )}
                     </td>
                   </tr>
