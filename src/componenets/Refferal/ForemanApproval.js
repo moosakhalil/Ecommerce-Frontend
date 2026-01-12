@@ -182,7 +182,7 @@ export default function ForemanApproval() {
         {/* Header */}
         <div style={{ marginBottom: '24px' }}>
           <h1 style={{ fontSize: '28px', fontWeight: 'bold', color: '#1f2937', marginBottom: '8px' }}>
-            🛡️ 153. Foreman Approval
+            🛡️ 153. Approval Of Foreman
           </h1>
           <p style={{ color: '#6b7280' }}>
             Approve or revoke foreman status for customers

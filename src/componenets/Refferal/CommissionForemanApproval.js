@@ -129,7 +129,7 @@ export default function CommissionForemanApproval() {
         {/* Header */}
         <div style={{ marginBottom: '24px' }}>
           <h1 style={{ fontSize: '28px', fontWeight: 'bold', color: '#1f2937', marginBottom: '8px' }}>
-            💰 154. Commission Foreman Approval
+            💰 154. Approval Of Foreman With Commission
           </h1>
           <p style={{ color: '#6b7280' }}>
             Approve or revoke commission eligibility for approved foremen
