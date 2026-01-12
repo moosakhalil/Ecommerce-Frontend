@@ -150,7 +150,7 @@ export default function CommissionForemanApproval() {
             <div style={{ fontSize: '28px', fontWeight: 'bold', color: '#1f2937' }}>
               {(stats.approvedForeman || 0) - (stats.commissionEligible || 0)}
             </div>
-            <div style={{ color: '#6b7280', fontSize: '14px' }}>Pending Commission</div>
+            <div style={{ color: '#6b7280', fontSize: '14px' }}>Pending Approval Of Foreman With Commission</div>
           </div>
           <div style={cardStyle}>
             <ShieldCheck size={24} style={{ color: '#8b5cf6', marginBottom: '8px' }} />
@@ -193,7 +193,7 @@ export default function CommissionForemanApproval() {
             }}
           >
             <ShieldCheck size={16} style={{ marginRight: '8px', verticalAlign: 'middle' }} />
-            Commission Approved
+            Approved Already Foreman With Commission
           </button>
         </div>
 
