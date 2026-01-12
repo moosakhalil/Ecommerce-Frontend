@@ -177,7 +177,7 @@ export default function CommissionForemanApproval() {
             }}
           >
             <Shield size={16} style={{ marginRight: '8px', verticalAlign: 'middle' }} />
-            Pending Commission
+            Pending Approval Of Foreman With Commission
           </button>
           <button
             onClick={() => setActiveTab("approved")}
