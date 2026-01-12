@@ -63,6 +63,9 @@ import CustomerChatView from "./componenets/Customers/viewChat";
 import ReferralVideos from "./componenets/Refferal/referralDashboard";
 import ForemanReferrals from "./componenets/Refferal/Foremanprofits";
 import ForemanReferralManagement from "./componenets/Refferal/ForemanReferralManagement";
+import ForemanApproval from "./componenets/Refferal/ForemanApproval";
+import CommissionForemanApproval from "./componenets/Refferal/CommissionForemanApproval";
+import PayCommission from "./componenets/Refferal/PayCommission";
 import RolePermissionsManager from "./componenets/Home/RoleManagement";
 import ManageUsers from "./componenets/Home/userManagement";
 import ReferralVideoSending from "./componenets/Refferal/referraldemovideo";
@@ -360,6 +363,30 @@ function App() {
           element={
             <>
               <ForemanReferralManagement />
+            </>
+          }
+        />
+        <Route
+          path="/foreman-approval"
+          element={
+            <>
+              <ForemanApproval />
+            </>
+          }
+        />
+        <Route
+          path="/commission-foreman-approval"
+          element={
+            <>
+              <CommissionForemanApproval />
+            </>
+          }
+        />
+        <Route
+          path="/pay-commission"
+          element={
+            <>
+              <PayCommission />
             </>
           }
         />

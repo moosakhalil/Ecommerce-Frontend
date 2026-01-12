@@ -863,6 +863,24 @@ const Sidebar = ({ onSectionClick }) => {
           path: "/referrals-data",
         },
         {
+          id: 153,
+          componentId: "153",
+          number: "153.",
+          icon: <Users />,
+          name: "Foreman Approval",
+          access: "Approve/revoke foreman status",
+          path: "/foreman-approval",
+        },
+        {
+          id: 154,
+          componentId: "154",
+          number: "154.",
+          icon: <Users />,
+          name: "Commission Foreman Approval",
+          access: "Approve/revoke commission eligibility",
+          path: "/commission-foreman-approval",
+        },
+        {
           id: 155,
           componentId: "155",
           number: "155.",
@@ -870,6 +888,15 @@ const Sidebar = ({ onSectionClick }) => {
           name: "Referrals foreman income",
           access: "Video verification & sharing discount for each referral",
           path: "/referals-foreman",
+        },
+        {
+          id: 156,
+          componentId: "156",
+          number: "156.",
+          icon: <Users />,
+          name: "Pay Commission",
+          access: "Pay commission to foremen",
+          path: "/pay-commission",
         },
         {
           id: 159,
@@ -1464,19 +1491,7 @@ const Sidebar = ({ onSectionClick }) => {
                               <span className="text-gray-300">Calendar</span>
                             </button>
                           )}
-                          {hasAccess("vehicle-types") && (
-                            <button
-                              onClick={() =>
-                                handleSectionClick("vehicle-types", "/vehicle-types")
-                              }
-                              className="w-full text-left px-2 lg:px-3 py-2 flex items-center gap-2 rounded-md hover:bg-gray-800 transition-colors text-xs lg:text-sm"
-                            >
-                              <span className="text-blue-400">
-                                🚚
-                              </span>
-                              <span className="text-gray-300">Vehicle Types</span>
-                            </button>
-                          )}
+
                         </div>
                       )}
                     </div>

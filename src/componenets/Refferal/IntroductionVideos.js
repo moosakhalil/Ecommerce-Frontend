@@ -59,8 +59,11 @@ const IntroductionVideoManagement159B = () => {
   const API_BASE =
     `${API_BASE_URL}/api/videos/introduction`;
 
+  // State for lazy-loaded video URLs - videos are loaded on-demand when user clicks play
+  const [videoUrls, setVideoUrls] = useState({});
+  const [loadingVideoId, setLoadingVideoId] = useState(null);
 
-  // Fetch videos
+  // Fetch videos (metadata only - no base64 data for fast loading)
   useEffect(() => {
     const fetchVideos = async () => {
       try {
@@ -79,6 +82,34 @@ const IntroductionVideoManagement159B = () => {
     const interval = setInterval(fetchVideos, 30000);
     return () => clearInterval(interval);
   }, []);
+
+  // Lazy load video data when user wants to play
+  const loadVideoData = async (videoId) => {
+    if (videoUrls[videoId]) return; // Already loaded
+    
+    try {
+      setLoadingVideoId(videoId);
+      const response = await axios.get(`${API_BASE_URL}/api/videos/data/${videoId}`);
+      const { base64Data, mimetype } = response.data;
+      
+      if (base64Data && mimetype) {
+        setVideoUrls(prev => ({
+          ...prev,
+          [videoId]: `data:${mimetype};base64,${base64Data}`
+        }));
+      }
+    } catch (err) {
+      console.error("Failed to load video data:", err);
+      setError("Failed to load video");
+    } finally {
+      setLoadingVideoId(null);
+    }
+  };
+
+  // Get video URL - returns cached URL or null if not loaded
+  const getVideoUrl = (videoId) => {
+    return videoUrls[videoId] || null;
+  };
 
   // Start editing title
   const startEditingTitle = (video) => {
@@ -105,10 +136,6 @@ const IntroductionVideoManagement159B = () => {
   const cancelTitleEdit = () => {
     setEditingTitle(null);
     setTempTitle("");
-  };
-  const createVideoURL = (video) => {
-    if (!video.base64Data || !video.mimetype) return null;
-    return `data:${video.mimetype};base64,${video.base64Data}`;
   };
 
   // Handle file upload
@@ -535,25 +562,39 @@ const IntroductionVideoManagement159B = () => {
                         ) : null}
                       </div>
 
-                      {/* Video Player */}
+                      {/* Video Player - Lazy Loading */}
                       <div className="relative aspect-video bg-slate-100 rounded-t-2xl overflow-hidden">
-                        {createVideoURL(video) ? (
+                        {getVideoUrl(video._id) ? (
                           <video
                             controls
                             className="w-full h-full object-cover"
                             preload="metadata"
+                            autoPlay
                           >
                             <source
-                              src={createVideoURL(video)}
+                              src={getVideoUrl(video._id)}
                               type={video.mimetype}
                             />
                             Your browser does not support the video tag.
                           </video>
                         ) : (
-                          <div className="flex items-center justify-center h-full text-slate-400">
+                          <div 
+                            className="flex items-center justify-center h-full cursor-pointer hover:bg-slate-200 transition-colors"
+                            onClick={() => loadVideoData(video._id)}
+                          >
                             <div className="text-center">
-                              <Play className="h-12 w-12 mx-auto mb-3" />
-                              <span className="text-lg">Video unavailable</span>
+                              {loadingVideoId === video._id ? (
+                                <>
+                                  <Loader2 className="h-12 w-12 mx-auto mb-3 animate-spin text-purple-500" />
+                                  <span className="text-lg text-slate-600">Loading video...</span>
+                                </>
+                              ) : (
+                                <>
+                                  <PlayCircle className="h-16 w-16 mx-auto mb-3 text-purple-500 hover:text-purple-600 transition-colors" />
+                                  <span className="text-lg text-slate-600">Click to play</span>
+                                  <p className="text-sm text-slate-400 mt-1">{video.filename}</p>
+                                </>
+                              )}
                             </div>
                           </div>
                         )}
