@@ -35,7 +35,6 @@ const OrderOverviewDashboard = ({ selectedRole, setSelectedRole }) => {
   const [priorityFilter, setPriorityFilter] = useState("All Priorities");
   const [selectedOrder, setSelectedOrder] = useState(null);
   const [showOrderModal, setShowOrderModal] = useState(false);
-  const [initializingTracking, setInitializingTracking] = useState(false);
 
   const lastFetchTime = useRef(0);
   const fetchIntervalRef = useRef(null);
@@ -63,48 +62,23 @@ const OrderOverviewDashboard = ({ selectedRole, setSelectedRole }) => {
   };
 
   useEffect(() => {
-    initializeSystem();
-  }, []);
+    // Fetch data immediately on mount
+    fetchOrders();
+    fetchWorkflowStatus();
 
-  useEffect(() => {
-    if (!initializingTracking) {
+    // Set up polling every 30 seconds (increased from 10s for better performance)
+    fetchIntervalRef.current = setInterval(() => {
       fetchOrders();
       fetchWorkflowStatus();
+    }, 30000);
 
-      fetchIntervalRef.current = setInterval(() => {
-        fetchOrders();
-        fetchWorkflowStatus();
-      }, 10000);
-
-      return () => {
-        if (fetchIntervalRef.current) {
-          clearInterval(fetchIntervalRef.current);
-        }
-      };
-    }
-  }, [initializingTracking]);
-
-  const initializeSystem = async () => {
-    try {
-      setInitializingTracking(true);
-
-      const response = await fetch(
-        `${API_BASE_URL}/api/delivery/initialize-tracking`,
-        {
-          method: "POST",
-          headers: { "Content-Type": "application/json" },
-        }
-      );
-
-      if (response.ok) {
-        console.log("✅ Tracking initialized");
+    return () => {
+      if (fetchIntervalRef.current) {
+        clearInterval(fetchIntervalRef.current);
       }
-    } catch (error) {
-      console.error("Error initializing tracking:", error);
-    } finally {
-      setInitializingTracking(false);
-    }
-  };
+    };
+  }, []);
+
 
   const fetchOrders = async () => {
     try {
@@ -525,19 +499,7 @@ const OrderOverviewDashboard = ({ selectedRole, setSelectedRole }) => {
     );
   };
 
-  if (initializingTracking) {
-    return (
-      <div className="min-h-screen bg-gray-50 flex items-center justify-center">
-        <div className="text-center">
-          <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-blue-600 mx-auto mb-4"></div>
-          <h2 className="text-xl font-semibold text-gray-900 mb-2">
-            Initializing Delivery System
-          </h2>
-          <p className="text-gray-600">Setting up your orders...</p>
-        </div>
-      </div>
-    );
-  }
+
 
   return (
     <div className="min-h-screen bg-gray-50">
