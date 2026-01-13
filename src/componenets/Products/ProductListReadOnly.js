@@ -827,7 +827,7 @@ const ProductListReadOnly = () => {
                           </td>
                           <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
                             {product.Stock || "0"}{" "}
-                            {product.productType === "Parent" ? "" : "bags"}
+                            {product.productType === "Parent" ? "" : "items"}
                           </td>
                           <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
                             -

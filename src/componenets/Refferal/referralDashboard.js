@@ -143,7 +143,7 @@ export default function ReferralVideos() {
   };
 
   // Update video status
-  const updateVideoStatus = async (customerId, videoId, newStatus, rejectionReason = null, note = null) => {
+  const updateVideoStatus = async (customerId, videoId, newStatus, rejectionReasons = null, note = null) => {
     try {
       setUpdating(true);
       const response = await fetch(
@@ -157,7 +157,7 @@ export default function ReferralVideos() {
             customerId,
             videoId,
             status: newStatus,
-            ...(newStatus === "not_passed" && { rejectionReason, note }),
+            ...(newStatus === "not_passed" && { rejectionReasons, note }),
           }),
         }
       );
@@ -471,34 +471,53 @@ export default function ReferralVideos() {
   );
 }
 
-// Rejection Modal Component
+// Rejection Modal Component - Checkbox-based for multiple reason selection
 function RejectionModal({ video, onClose, onSubmit, updating }) {
-  const [reason, setReason] = useState("");
+  const [selectedReasons, setSelectedReasons] = useState([]);
   const [note, setNote] = useState("");
 
+  // Merged rejection reasons (existing + new from screenshot)
   const REJECTION_REASONS = [
-    { value: "vulgar", label: "Vulgar" },
-    { value: "error", label: "Error" },
-    { value: "spam", label: "Spam Content" },
-    { value: "not_good_enough", label: "Not Good Enough" },
-    { value: "other", label: "Other" },
+    // New reasons from screenshot
+    { value: "video_quality_unclear", label: "Video quality is unclear (blurred, low resolution, or poor lighting)" },
+    { value: "audio_not_clear", label: "Audio is not clear or has background noise" },
+    { value: "instructions_not_followed", label: "Required instructions were not followed" },
+    { value: "incomplete_information", label: "Incomplete or missing information" },
+    { value: "duration_not_met", label: "Video duration does not meet the requirement" },
+    { value: "content_mismatch", label: "Content does not match referral guidelines" },
+    { value: "face_not_visible", label: "Face is not clearly visible" },
+    { value: "duplicate_video", label: "Duplicate or previously submitted video" },
+    // Existing reasons
+    { value: "vulgar", label: "Vulgar content" },
+    { value: "spam", label: "Spam content" },
+    { value: "not_good_enough", label: "Not good enough quality" },
+    { value: "error", label: "Error in video" },
+    { value: "other", label: "Other reason" },
   ];
+
+  const toggleReason = (value) => {
+    setSelectedReasons(prev => 
+      prev.includes(value) 
+        ? prev.filter(r => r !== value)
+        : [...prev, value]
+    );
+  };
 
   const handleSubmit = (e) => {
     e.preventDefault();
-    if (!reason) {
-      alert("Please select a reason");
+    if (selectedReasons.length === 0) {
+      alert("Please select at least one reason");
       return;
     }
-    onSubmit(reason, note);
+    onSubmit(selectedReasons, note);
   };
 
   return (
     <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">
-      <div className="bg-white rounded-lg shadow-xl w-full max-w-md p-6">
+      <div className="bg-white rounded-lg shadow-xl w-full max-w-lg p-6 max-h-[90vh] overflow-y-auto">
         <div className="flex items-center justify-between mb-4">
           <h3 className="text-lg font-semibold text-gray-900">
-            Video Not Passed
+            Referral Video Rejected
           </h3>
           <button
             onClick={onClose}
@@ -508,33 +527,35 @@ function RejectionModal({ video, onClose, onSubmit, updating }) {
           </button>
         </div>
 
+        <div className="border-b border-gray-200 mb-4"></div>
+
         <p className="text-sm text-gray-600 mb-4">
-          Please select a reason for marking this video as not passed.
+          Your referral video was rejected due to one or more of the following reasons
+          <span className="text-gray-400"> [Reason appears here]</span>, Please review the guidelines and upload a new video
+          addressing the mentioned issues
         </p>
 
         <form onSubmit={handleSubmit}>
-          <div className="mb-4">
-            <label className="block text-sm font-medium text-gray-700 mb-2">
-              Reason <span className="text-red-500">*</span>
-            </label>
-            <select
-              value={reason}
-              onChange={(e) => setReason(e.target.value)}
-              className="w-full border border-gray-300 rounded-lg px-3 py-2 focus:outline-none focus:ring-2 focus:ring-blue-500"
-              required
-            >
-              <option value="">Select a reason...</option>
-              {REJECTION_REASONS.map((r) => (
-                <option key={r.value} value={r.value}>
-                  {r.label}
-                </option>
-              ))}
-            </select>
+          <div className="mb-4 space-y-3 bg-gray-50 p-4 rounded-lg">
+            {REJECTION_REASONS.map((r) => (
+              <label 
+                key={r.value} 
+                className="flex items-start gap-3 cursor-pointer hover:bg-gray-100 p-2 rounded transition-colors"
+              >
+                <input
+                  type="checkbox"
+                  checked={selectedReasons.includes(r.value)}
+                  onChange={() => toggleReason(r.value)}
+                  className="mt-1 h-5 w-5 text-blue-600 border-2 border-gray-400 rounded focus:ring-blue-500"
+                />
+                <span className="text-sm text-gray-700">{r.label}</span>
+              </label>
+            ))}
           </div>
 
           <div className="mb-6">
             <label className="block text-sm font-medium text-gray-700 mb-2">
-              Note (Optional)
+              Additional Note (Optional)
             </label>
             <textarea
               value={note}
@@ -545,21 +566,21 @@ function RejectionModal({ video, onClose, onSubmit, updating }) {
             />
           </div>
 
-          <div className="flex gap-3 justify-end">
+          <div className="flex gap-3">
             <button
               type="button"
               onClick={onClose}
-              className="px-4 py-2 text-gray-700 bg-gray-100 hover:bg-gray-200 rounded-lg transition-colors"
+              className="flex-1 px-4 py-3 text-gray-700 bg-gray-100 hover:bg-gray-200 rounded-lg transition-colors font-medium"
               disabled={updating}
             >
               Cancel
             </button>
             <button
               type="submit"
-              className="px-4 py-2 bg-red-600 hover:bg-red-700 text-white rounded-lg transition-colors disabled:opacity-50"
-              disabled={updating || !reason}
+              className="flex-1 px-4 py-3 bg-red-600 hover:bg-red-700 text-white rounded-lg transition-colors disabled:opacity-50 font-medium"
+              disabled={updating || selectedReasons.length === 0}
             >
-              {updating ? "Processing..." : "Confirm"}
+              {updating ? "Processing..." : "Reject and send rejection msg"}
             </button>
           </div>
         </form>
