@@ -14,6 +14,43 @@ import { API_BASE_URL } from "../../utils/config";
 
 const API_URL = API_BASE_URL;
 
+// Helper function to get image src from different formats
+const getImageSrc = (imageData) => {
+  if (!imageData) return null;
+  
+  // If it's already a string (data URL or path)
+  if (typeof imageData === "string") {
+    if (imageData.startsWith("data:")) {
+      return imageData; // Already a data URL
+    }
+    return `${API_URL}${imageData}`; // Path - prepend API URL
+  }
+  
+  // If it's a Buffer object from MongoDB { data: { type: 'Buffer', data: [...] }, contentType: '...' }
+  if (imageData.data && imageData.contentType) {
+    try {
+      // Handle when data is a Buffer-like object with data array
+      const bufferData = imageData.data.data || imageData.data;
+      
+      if (Array.isArray(bufferData)) {
+        // Convert byte array to base64
+        const base64 = btoa(
+          bufferData.reduce((data, byte) => data + String.fromCharCode(byte), "")
+        );
+        return `data:${imageData.contentType};base64,${base64}`;
+      } else if (typeof bufferData === "string") {
+        // Already base64 encoded
+        return `data:${imageData.contentType};base64,${bufferData}`;
+      }
+    } catch (e) {
+      console.error("Error converting image:", e);
+      return null;
+    }
+  }
+  
+  return null;
+};
+
 
 const ProductListReadOnly = () => {
   const [isSidebarOpen, setIsSidebarOpen] = useState(true);
@@ -559,12 +596,7 @@ const ProductListReadOnly = () => {
                       </label>
                       {selectedProduct.masterImage ? (
                         <img
-                          src={
-                            typeof selectedProduct.masterImage === "string" &&
-                            !selectedProduct.masterImage.startsWith("data:")
-                              ? `${API_URL}${selectedProduct.masterImage}`
-                              : selectedProduct.masterImage
-                          }
+                          src={getImageSrc(selectedProduct.masterImage)}
                           alt="Master"
                           className="h-32 object-contain mx-auto border rounded p-2"
                           onError={(e) => {
@@ -588,12 +620,7 @@ const ProductListReadOnly = () => {
                           <div key={index}>
                             {image ? (
                               <img
-                                src={
-                                  typeof image === "string" &&
-                                  !image.startsWith("data:")
-                                    ? `${API_URL}${image}`
-                                    : image
-                                }
+                                src={getImageSrc(image)}
                                 alt={`Additional ${index + 1}`}
                                 className="h-24 w-full object-contain border rounded p-2"
                                 onError={(e) => {

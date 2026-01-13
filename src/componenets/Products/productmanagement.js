@@ -22,6 +22,43 @@ import { API_BASE_URL } from "../../utils/config";
 
 const API_URL = API_BASE_URL;
 
+// Helper function to get image src from different formats
+const getImageSrc = (imageData) => {
+  if (!imageData) return null;
+  
+  // If it's already a string (data URL or path)
+  if (typeof imageData === "string") {
+    if (imageData.startsWith("data:")) {
+      return imageData; // Already a data URL
+    }
+    return `${API_URL}${imageData}`; // Path - prepend API URL
+  }
+  
+  // If it's a Buffer object from MongoDB { data: { type: 'Buffer', data: [...] }, contentType: '...' }
+  if (imageData.data && imageData.contentType) {
+    try {
+      // Handle when data is a Buffer-like object with data array
+      const bufferData = imageData.data.data || imageData.data;
+      
+      if (Array.isArray(bufferData)) {
+        // Convert byte array to base64
+        const base64 = btoa(
+          bufferData.reduce((data, byte) => data + String.fromCharCode(byte), "")
+        );
+        return `data:${imageData.contentType};base64,${base64}`;
+      } else if (typeof bufferData === "string") {
+        // Already base64 encoded
+        return `data:${imageData.contentType};base64,${bufferData}`;
+      }
+    } catch (e) {
+      console.error("Error converting image:", e);
+      return null;
+    }
+  }
+  
+  return null;
+};
+
 
 const ProductManagement = () => {
   const [isSidebarOpen, setIsSidebarOpen] = useState(true);
@@ -192,6 +229,7 @@ const ProductManagement = () => {
 
   // Start editing product
   const startEditProduct = (product) => {
+    console.log("Starting edit for product:", product);
     setEditingProduct({
       ...product,
       specifications: product.specifications || [],
@@ -366,6 +404,8 @@ const ProductManagement = () => {
   const saveProduct = async () => {
     try {
       setLoading(true);
+      console.log("Saving product:", editingProduct);
+      console.log("Is creating:", isCreating);
 
       // Prepare form data
       const formData = new FormData();
@@ -416,6 +456,7 @@ const ProductManagement = () => {
         );
       }
 
+      console.log("Save response:", response.data);
       if (response.data && response.data.success) {
         toast.success(
           `Product ${isCreating ? "created" : "updated"} successfully!`
@@ -435,7 +476,9 @@ const ProductManagement = () => {
       }
     } catch (err) {
       console.error("Error saving product:", err);
-      toast.error(`Failed to save product: ${err.message}`);
+      console.error("Error response:", err.response?.data);
+      const errorMessage = err.response?.data?.message || err.message || "Unknown error";
+      toast.error(`Failed to save product: ${errorMessage}`);
     } finally {
       setLoading(false);
     }
@@ -575,12 +618,7 @@ const ProductManagement = () => {
         {currentImage ? (
           <div className="mb-2">
             <img
-              src={
-                typeof currentImage === "string" &&
-                !currentImage.startsWith("data:")
-                  ? `${API_URL}${currentImage}`
-                  : currentImage
-              }
+              src={getImageSrc(currentImage)}
               alt={label}
               className="h-32 object-contain mx-auto"
               onError={(e) => {

@@ -17,6 +17,42 @@ import { API_BASE_URL } from "../../utils/config";
 // Updated API URL to connect to your backend server
 const API_URL = API_BASE_URL;
 
+// Helper function to get image src from different formats
+const getImageSrc = (imageData) => {
+  if (!imageData) return null;
+  
+  // If it's already a string (data URL or path)
+  if (typeof imageData === "string") {
+    if (imageData.startsWith("data:")) {
+      return imageData; // Already a data URL
+    }
+    return `${API_URL}${imageData}`; // Path - prepend API URL
+  }
+  
+  // If it's a Buffer object from MongoDB { data: { type: 'Buffer', data: [...] }, contentType: '...' }
+  if (imageData.data && imageData.contentType) {
+    try {
+      // Handle when data is a Buffer-like object with data array
+      const bufferData = imageData.data.data || imageData.data;
+      
+      if (Array.isArray(bufferData)) {
+        // Convert byte array to base64
+        const base64 = btoa(
+          bufferData.reduce((data, byte) => data + String.fromCharCode(byte), "")
+        );
+        return `data:${imageData.contentType};base64,${base64}`;
+      } else if (typeof bufferData === "string") {
+        // Already base64 encoded
+        return `data:${imageData.contentType};base64,${bufferData}`;
+      }
+    } catch (e) {
+      console.error("Error converting image:", e);
+      return null;
+    }
+  }
+  
+  return null;
+};
 
 const ViewProducts = () => {
   const [isSidebarOpen, setIsSidebarOpen] = useState(true);
@@ -1211,9 +1247,9 @@ const ViewProducts = () => {
                         Master Image
                       </label>
                       <div className="border border-gray-300 rounded-lg overflow-hidden h-48">
-                        {selectedProduct.masterImage ? (
+                        {getImageSrc(selectedProduct.masterImage) ? (
                           <img
-                            src={`${API_URL}${selectedProduct.masterImage}`}
+                            src={getImageSrc(selectedProduct.masterImage)}
                             alt="Product Master"
                             className="w-full h-full object-contain"
                             onError={(e) => {
@@ -1244,7 +1280,7 @@ const ViewProducts = () => {
                               className="border border-gray-300 rounded-lg overflow-hidden h-24"
                             >
                               <img
-                                src={`${API_URL}${imgSrc}`}
+                                src={getImageSrc(imgSrc)}
                                 alt={`Product ${index + 1}`}
                                 className="w-full h-full object-contain"
                                 onError={(e) => {
