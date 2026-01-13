@@ -252,7 +252,7 @@ const AreaManagementB = () => {
     <div className="flex min-h-screen bg-gray-50">
       <Sidebar />
       
-      <div className="flex-1 p-6">
+      <div className="flex-1 p-6 ml-64">
         <div className="max-w-7xl mx-auto">
           {/* Header */}
           <div className="bg-green-700 text-white p-4 rounded-lg mb-6 shadow-md flex justify-between items-start">
