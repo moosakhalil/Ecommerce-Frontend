@@ -72,7 +72,7 @@ import ReferralVideoSending from "./componenets/Refferal/referraldemovideo";
 import ReferralVideoManager from "./componenets/Refferal/referraldemovideo";
 import IntroductionVideoManagement159B from "./componenets/Refferal/IntroductionVideos";
 import SupportManagement from "./componenets/Support/supportManagemnt";
-import AreasManagement from "./componenets/Delivery&complaints/DeliveryAreas";
+
 import DeliveryManagementSystem from "./componenets/DeliverySystem/maindeliverysystem";
 import OrderOverviewPage from "./componenets/DeliverySystem/OrderOverviewPage";
 import PackingStaffPage from "./componenets/DeliverySystem/PackingStaffPage";
@@ -289,14 +289,7 @@ function App() {
             </>
           }
         />
-        <Route
-          path="/admin/delivery-areas"
-          element={
-            <>
-              <AreasManagement />
-            </>
-          }
-        />
+
         <Route
           path="/admin/delivery-types"
           element={

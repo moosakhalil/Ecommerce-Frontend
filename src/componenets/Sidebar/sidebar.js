@@ -672,15 +672,7 @@ const Sidebar = ({ onSectionClick }) => {
           access: "",
           path: "/admin/Products/edit",
         },
-        {
-          id: 107,
-          componentId: "admin-delivery-control",
-          number: "107.",
-          icon: <AreaChart />,
-          name: "Delivery Areas",
-          access: "",
-          path: "/admin/delivery-areas",
-        },
+
         {
           id: 108,
           componentId: "admin-delivery-control",
