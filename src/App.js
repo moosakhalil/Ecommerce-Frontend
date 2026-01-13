@@ -122,6 +122,9 @@ import QualityControl from "./componenets/ProductTracking/QualityControl";
 import ReportsAnalytics from "./componenets/ProductTracking/ReportsAnalytics";
 import TrackingSettings from "./componenets/ProductTracking/TrackingSettings";
 
+// Settings
+import ChatbotControl from "./componenets/Settings/ChatbotControl";
+
 function App() {
   return (
     <Router>
@@ -856,6 +859,9 @@ function App() {
         <Route path="/tracking/quality" element={<QualityControl />} />
         <Route path="/tracking/reports" element={<ReportsAnalytics />} />
         <Route path="/tracking/settings" element={<TrackingSettings />} />
+
+        {/* Settings Routes */}
+        <Route path="/settings/chatbot-control" element={<ChatbotControl />} />
         
       </Routes>
 

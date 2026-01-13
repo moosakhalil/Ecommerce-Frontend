@@ -1124,6 +1124,15 @@ const Sidebar = ({ onSectionClick }) => {
           isCollapsible: true,
           onClick: toggleSettings,
         },
+        {
+          id: 115,
+          componentId: "115",
+          number: "115.",
+          icon: <Settings />,
+          name: "Control Chatbot",
+          access: "Monitor chatbot messages",
+          path: "/settings/chatbot-control",
+        },
       ],
     },
     {
