@@ -18,6 +18,7 @@ import {
   CheckCircle,
 } from "lucide-react";
 import { API_BASE_URL } from "../../utils/config";
+import Sidebar from "../Sidebar/sidebar";
 
 const AssignPreOrderVendorAreas = () => {
   // State Management
@@ -469,8 +470,10 @@ const AssignPreOrderVendorAreas = () => {
   );
 
   return (
-    <div className="min-h-screen bg-gray-50 p-6">
-      <div className="max-w-7xl mx-auto">
+    <div style={{ display: "flex" }}>
+      <Sidebar />
+      <div className="min-h-screen bg-gray-50 p-6" style={{ flex: 1, marginLeft: "320px" }}>
+        <div className="max-w-7xl mx-auto">
         {/* Header */}
         <div className="mb-6">
           <div className="flex justify-between items-center">
@@ -894,6 +897,7 @@ const AssignPreOrderVendorAreas = () => {
 
         {/* Assign Area Modal */}
         <AssignAreaModal />
+        </div>
       </div>
     </div>
   );

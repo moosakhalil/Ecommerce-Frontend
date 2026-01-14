@@ -1,4 +1,4 @@
-import React, { useState, useEffect, useRef } from "react";
+import React, { useState, useEffect } from "react";
 import { Trash2, Edit } from "lucide-react";
 import Sidebar from "../Sidebar/sidebar";
 
@@ -12,9 +12,6 @@ const DeliveryFees = () => {
   const [editingId, setEditingId] = useState(null);
   const [editValues, setEditValues] = useState({ scooterPrice: 0, truckPrice: 0 });
   const [saving, setSaving] = useState(false);
-  const [uploading, setUploading] = useState(false);
-  const [uploadResult, setUploadResult] = useState(null);
-  const fileInputRef = useRef(null);
 
   // Fetch all areas with hierarchy
   const fetchAreas = async () => {
@@ -35,40 +32,6 @@ const DeliveryFees = () => {
   useEffect(() => {
     fetchAreas();
   }, []);
-
-  // Handle Excel upload
-  const handleExcelUpload = async (e) => {
-    const file = e.target.files[0];
-    if (!file) return;
-
-    const formData = new FormData();
-    formData.append("file", file);
-
-    try {
-      setUploading(true);
-      const response = await fetch(`${API_BASE_URL}/api/area-management/upload-excel`, {
-        method: "POST",
-        body: formData,
-      });
-
-      const result = await response.json();
-      if (response.ok) {
-        setUploadResult(result);
-        fetchAreas(); // Refresh the list
-      } else {
-        alert(result.message || "Upload failed");
-      }
-    } catch (err) {
-      console.error("Error uploading Excel:", err);
-      alert("Error uploading file");
-    } finally {
-      setUploading(false);
-      if (fileInputRef.current) {
-        fileInputRef.current.value = "";
-      }
-    }
-  };
-
 
   // Start editing
   const handleEdit = (area) => {
@@ -331,76 +294,14 @@ const DeliveryFees = () => {
       <Sidebar />
       <div style={styles.mainContent}>
         {/* Header */}
-        <div style={{ ...styles.header, display: "flex", justifyContent: "space-between", alignItems: "flex-start" }}>
+        <div style={styles.header}>
           <div>
             <h1 style={styles.title}>🚚 Delivery Fees</h1>
             <p style={styles.subtitle}>
               Manage scooter and truck delivery fees for each area
             </p>
           </div>
-          <div>
-            <input
-              type="file"
-              ref={fileInputRef}
-              accept=".xlsx,.xls"
-              style={{ display: "none" }}
-              onChange={handleExcelUpload}
-            />
-            <button
-              style={{
-                padding: "10px 20px",
-                backgroundColor: "#28a745",
-                color: "white",
-                border: "none",
-                borderRadius: "8px",
-                cursor: uploading ? "not-allowed" : "pointer",
-                fontSize: "14px",
-                fontWeight: "600",
-                opacity: uploading ? 0.7 : 1,
-              }}
-              onClick={() => fileInputRef.current?.click()}
-              disabled={uploading}
-            >
-              {uploading ? "⏳ Uploading..." : "📤 Upload Excel"}
-            </button>
-          </div>
         </div>
-
-        {/* Upload Result Modal */}
-        {uploadResult && (
-          <div style={{
-            backgroundColor: "#d4edda",
-            border: "1px solid #c3e6cb",
-            borderRadius: "8px",
-            padding: "16px",
-            marginBottom: "20px",
-          }}>
-            <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center" }}>
-              <strong style={{ color: "#155724" }}>✅ {uploadResult.message}</strong>
-              <button
-                style={{
-                  background: "none",
-                  border: "none",
-                  fontSize: "18px",
-                  cursor: "pointer",
-                  color: "#155724",
-                }}
-                onClick={() => setUploadResult(null)}
-              >
-                ×
-              </button>
-            </div>
-            <div style={{ marginTop: "12px", fontSize: "13px", color: "#155724" }}>
-              <strong>Import Summary:</strong>
-              <div style={{ display: "grid", gridTemplateColumns: "repeat(4, 1fr)", gap: "12px", marginTop: "8px" }}>
-                <div>🏝️ Islands: {uploadResult.stats.islands.created} new</div>
-                <div>📍 States: {uploadResult.stats.states.created} new</div>
-                <div>🏘️ Regencies: {uploadResult.stats.regencies.created} new</div>
-                <div>📌 Areas: {uploadResult.stats.areas.created} created, {uploadResult.stats.areas.updated} updated</div>
-              </div>
-            </div>
-          </div>
-        )}
 
         {/* Stats */}
         <div style={styles.statsRow}>
