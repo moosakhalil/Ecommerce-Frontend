@@ -490,7 +490,7 @@ const AreaManagementB = () => {
             </div>
           </div>
 
-          {/* Areas Table */}
+          {/* Areas Table - Grouped by Regency */}
           <div className="bg-white rounded-lg shadow-lg p-6">
             <h2 className="text-xl font-bold mb-6 text-gray-800">All Areas ({allAreas.length})</h2>
             
@@ -499,48 +499,75 @@ const AreaManagementB = () => {
                 <table className="w-full">
                   <thead className="bg-gray-50">
                     <tr>
-                      <th className="px-4 py-3 text-left text-sm font-semibold text-gray-600">Island</th>
-                      <th className="px-4 py-3 text-left text-sm font-semibold text-gray-600">Larger State</th>
                       <th className="px-4 py-3 text-left text-sm font-semibold text-gray-600">Regency</th>
                       <th className="px-4 py-3 text-left text-sm font-semibold text-gray-600">Area</th>
-                      <th className="px-4 py-3 text-left text-sm font-semibold text-gray-600">Display Name</th>
-                      <th className="px-4 py-3 text-left text-sm font-semibold text-gray-600">Created</th>
+                      <th className="px-4 py-3 text-left text-sm font-semibold text-gray-600">Area Name</th>
                       <th className="px-4 py-3 text-left text-sm font-semibold text-gray-600">Actions</th>
                     </tr>
                   </thead>
                   <tbody>
-                    {allAreas.map((area) => (
-                      <tr key={area._id} className="border-t hover:bg-gray-50">
-                        <td className="px-4 py-3">
-                          <span className="bg-blue-100 text-blue-800 px-2 py-1 rounded text-sm">
-                            {area.regencyId?.largerStateId?.islandId?.name || "N/A"}
-                          </span>
-                        </td>
-                        <td className="px-4 py-3">
-                          <span className="bg-purple-100 text-purple-800 px-2 py-1 rounded text-sm">
-                            {area.regencyId?.largerStateId?.name || "N/A"}
-                          </span>
-                        </td>
-                        <td className="px-4 py-3">
-                          <span className="bg-yellow-100 text-yellow-800 px-2 py-1 rounded text-sm">
-                            {area.regencyId?.name || "N/A"}
-                          </span>
-                        </td>
-                        <td className="px-4 py-3 font-semibold text-green-700">{area.name}</td>
-                        <td className="px-4 py-3 text-gray-600">{area.displayName || "-"}</td>
-                        <td className="px-4 py-3 text-sm text-gray-500">
-                          {new Date(area.createdAt).toLocaleDateString()}
-                        </td>
-                        <td className="px-4 py-3">
-                          <button
-                            onClick={() => handleDeleteArea(area._id)}
-                            className="text-red-500 hover:text-red-700"
-                          >
-                            <Trash2 size={18} />
-                          </button>
-                        </td>
-                      </tr>
-                    ))}
+                    {(() => {
+                      // Group areas by regency
+                      const groupedByRegency = allAreas.reduce((acc, area) => {
+                        const regencyId = area.regencyId?._id || "unknown";
+                        const regencyName = area.regencyId?.name || "Unknown";
+                        
+                        if (!acc[regencyId]) {
+                          acc[regencyId] = {
+                            regencyName,
+                            regencyId,
+                            areas: []
+                          };
+                        }
+                        acc[regencyId].areas.push(area);
+                        return acc;
+                      }, {});
+                      
+                      // Convert to array and sort by regency name
+                      const regencyGroups = Object.values(groupedByRegency).sort((a, b) => 
+                        a.regencyName.localeCompare(b.regencyName)
+                      );
+                      
+                      return regencyGroups.map((group, groupIdx) => (
+                        <React.Fragment key={group.regencyId}>
+                          {/* Spacer row between regency groups */}
+                          {groupIdx > 0 && (
+                            <tr>
+                              <td colSpan="4" style={{ height: "20px", backgroundColor: "#ffe5cc", borderBottom: "2px solid #dee2e6" }}></td>
+                            </tr>
+                          )}
+                          {group.areas.map((area, idx) => {
+                            const isFirstInGroup = idx === 0;
+                            
+                            return (
+                              <tr key={area._id} className="border-t hover:bg-gray-50">
+                                {isFirstInGroup && (
+                                  <td 
+                                    className="px-4 py-3 font-semibold bg-gray-50 border-r border-gray-200"
+                                    rowSpan={group.areas.length}
+                                    style={{ verticalAlign: "top" }}
+                                  >
+                                    <span className="bg-yellow-100 text-yellow-800 px-2 py-1 rounded text-sm">
+                                      {group.regencyName}
+                                    </span>
+                                  </td>
+                                )}
+                                <td className="px-4 py-3 font-semibold text-green-700">{area.name}</td>
+                                <td className="px-4 py-3 text-gray-600">{area.displayName || "-"}</td>
+                                <td className="px-4 py-3">
+                                  <button
+                                    onClick={() => handleDeleteArea(area._id)}
+                                    className="text-red-500 hover:text-red-700"
+                                  >
+                                    <Trash2 size={18} />
+                                  </button>
+                                </td>
+                              </tr>
+                            );
+                          })}
+                        </React.Fragment>
+                      ));
+                    })()}
                   </tbody>
                 </table>
               </div>
