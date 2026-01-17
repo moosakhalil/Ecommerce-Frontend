@@ -18,6 +18,7 @@ const OrderStatusFilters = [
   { id: "driver-confirmed", label: "Driver confirmed", color: "#f4a593" },
   { id: "issue-driver", label: "Issue (driver)", color: "#ffa07a" },
   { id: "issue-customer", label: "Issue (customer)", color: "#ffb3a7" },
+  { id: "customer-issues", label: "Customer Issues", color: "#f87171" },
   { id: "complain-order", label: "Customer complaint", color: "#ff6b6b" },
   { id: "parcel-returned", label: "Parcel returned", color: "#ffb6ad" },
   { id: "customer-confirmed", label: "Customer confirmed", color: "#c084fc" },

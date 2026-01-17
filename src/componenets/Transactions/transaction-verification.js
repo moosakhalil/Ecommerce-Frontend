@@ -120,7 +120,7 @@ export default function VerificationView() {
           method: "PUT",
           headers: { "Content-Type": "application/json" },
           body: JSON.stringify({
-            status: "order-refunded",
+            status: "customer-issues",
             reason: rejectionReason,
           }),
         }
