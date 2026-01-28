@@ -9,6 +9,8 @@ import {
   Package,
   Bike,
   Truck,
+  HelpCircle,
+  X,
 } from "lucide-react";
 
 import Sidebar from "../Sidebar/sidebar";
@@ -54,17 +56,115 @@ const AddProduct = () => {
   const [selectedCategories, setSelectedCategories] = useState([]);
   const [batchDiscountPrice, setBatchDiscountPrice] = useState("");
   const [batchDiscountPercentage, setBatchDiscountPercentage] = useState("");
+  const [discountInfoModal, setDiscountInfoModal] = useState(null);
 
-  // Discount category options
+  // Discount category options with eligibility info
   const discountCategories = [
-    { id: 'foremen', name: 'Foremen', color: 'bg-blue-100 border-blue-400' },
-    { id: 'foremen_commission', name: 'Foremen+', color: 'bg-blue-200 border-blue-500' },
-    { id: 'referral_3_days', name: 'Referral 3', color: 'bg-green-100 border-green-400' },
-    { id: 'new_customer_referred', name: 'New Cust Ref', color: 'bg-yellow-100 border-yellow-400' },
-    { id: 'new_customer', name: 'New Cust', color: 'bg-orange-100 border-orange-400' },
-    { id: 'shopping_30m', name: 'VIP 30M', color: 'bg-purple-100 border-purple-400' },
-    { id: 'shopping_100m_60d', name: 'Valued 100M', color: 'bg-pink-100 border-pink-400' },
-    { id: 'everyone', name: 'Everyone', color: 'bg-gray-100 border-gray-400' },
+    { 
+      id: 'foremen', 
+      name: 'Foremen', 
+      color: 'bg-blue-100 border-blue-400',
+      bgColor: 'bg-blue-500',
+      eligibility: {
+        title: 'Foremen Discount',
+        whoGetsIt: 'All customers registered as Foremen in the system',
+        howToQualify: ['Customer must be approved as a Foreman by admin', 'Foreman status must be active (not pending or rejected)'],
+        duration: '24/7 - Always available as long as Foreman status is active',
+        notes: 'Foremen are typically construction workers or contractors who buy in bulk'
+      }
+    },
+    { 
+      id: 'foremen_commission', 
+      name: 'Foremen+', 
+      color: 'bg-blue-200 border-blue-500',
+      bgColor: 'bg-blue-600',
+      eligibility: {
+        title: 'Foremen+ (Commission) Discount',
+        whoGetsIt: 'Foremen who have earned commission eligibility',
+        howToQualify: ['Must be an approved Foreman first', 'Must have commission rights enabled in their account', 'Commission rights are granted based on referral performance'],
+        duration: '24/7 - Always available as long as commission rights are active',
+        notes: 'This is a premium tier above regular Foremen with additional discounts'
+      }
+    },
+    { 
+      id: 'referral_3_days', 
+      name: 'Referral 3', 
+      color: 'bg-green-100 border-green-400',
+      bgColor: 'bg-green-500',
+      eligibility: {
+        title: 'Referral Reward Discount',
+        whoGetsIt: 'Customers who have successfully referred 3 or more new customers',
+        howToQualify: ['Refer at least 3 new customers who make purchases', 'Referrals must be valid (not RU/RU or IN/IN phone numbers)', 'Each referral must be a unique new customer'],
+        duration: '3 days base + 1 extra day per additional referral beyond 3',
+        calculation: 'Example: 3 referrals = 3 days, 5 referrals = 5 days, 10 referrals = 10 days',
+        notes: 'Timer starts when the 3rd referral makes their first purchase'
+      }
+    },
+    { 
+      id: 'new_customer_referred', 
+      name: 'New Cust Ref', 
+      color: 'bg-yellow-100 border-yellow-400',
+      bgColor: 'bg-yellow-500',
+      eligibility: {
+        title: 'Referred New Customer Discount',
+        whoGetsIt: 'New customers who signed up via a referral link/code',
+        howToQualify: ['Must be a new customer (first time account)', 'Must have been referred by an existing customer', 'Must make a minimum first purchase of Rp 100,000'],
+        duration: '3 days from first qualifying purchase',
+        notes: 'This discount incentivizes new referred customers to shop quickly'
+      }
+    },
+    { 
+      id: 'new_customer', 
+      name: 'New Cust', 
+      color: 'bg-orange-100 border-orange-400',
+      bgColor: 'bg-orange-500',
+      eligibility: {
+        title: 'New Customer Welcome Discount',
+        whoGetsIt: 'All new customers, regardless of how they found us',
+        howToQualify: ['Must be a new customer (account created recently)', 'No referral required', 'Available to anyone who creates an account'],
+        duration: '10 days from account creation',
+        notes: 'Welcome discount to encourage first-time buyers to make a purchase'
+      }
+    },
+    { 
+      id: 'shopping_30m', 
+      name: 'VIP 30M', 
+      color: 'bg-purple-100 border-purple-400',
+      bgColor: 'bg-purple-500',
+      eligibility: {
+        title: 'VIP Single Purchase Discount',
+        whoGetsIt: 'Customers who made a single purchase of Rp 30,000,000 or more',
+        howToQualify: ['Make a single order totaling at least Rp 30,000,000', 'Must be in one transaction (not cumulative)'],
+        duration: '10 days from the qualifying purchase, or until next 30M+ purchase (whichever is later)',
+        notes: 'High-value buyers get VIP treatment with exclusive discounts'
+      }
+    },
+    { 
+      id: 'shopping_100m_60d', 
+      name: 'Valued 100M', 
+      color: 'bg-pink-100 border-pink-400',
+      bgColor: 'bg-pink-500',
+      eligibility: {
+        title: 'Valued Customer Loyalty Discount',
+        whoGetsIt: 'Customers who spent Rp 100,000,000+ in the last 60 days',
+        howToQualify: ['Cumulative spending of at least Rp 100,000,000', 'Spending must be within the last 60 days', 'Multiple orders count toward the total'],
+        duration: '10 days from reaching the threshold, or until next 100M threshold',
+        notes: 'Rewards our most loyal and frequent shoppers'
+      }
+    },
+    { 
+      id: 'everyone', 
+      name: 'Everyone', 
+      color: 'bg-gray-100 border-gray-400',
+      bgColor: 'bg-gray-500',
+      eligibility: {
+        title: 'General Discount',
+        whoGetsIt: 'All customers - no restrictions',
+        howToQualify: ['No special requirements', 'Available to everyone with an account', 'No minimum purchase needed'],
+        duration: '24/7 - Always available to all customers',
+        notes: 'General promotions and sales available to the entire customer base'
+      }
+    },
   ];
 
   // Generate batch number on component mount
@@ -2015,7 +2115,7 @@ const AddProduct = () => {
                             {/* Batch Number */}
                             <div>
                               <label className="block text-xs font-medium text-gray-600 mb-1">
-                                Batch Allocation Product Number:
+                                Batch Allocation + Product Number:
                               </label>
                               <input
                                 type="text"
@@ -2033,19 +2133,32 @@ const AddProduct = () => {
                               </label>
                               <div className="grid grid-cols-4 gap-2">
                                 {discountCategories.map((cat) => (
-                                  <button
-                                    key={cat.id}
-                                    type="button"
-                                    onClick={() => toggleCategory(cat.id)}
-                                    className={`px-2 py-3 text-xs font-medium rounded-lg border-2 transition-all ${
-                                      selectedCategories.includes(cat.id)
-                                        ? "bg-purple-500 text-white border-purple-600 shadow-md"
-                                        : `${cat.color} text-gray-700 hover:shadow-sm`
-                                    }`}
-                                  >
-                                    {selectedCategories.includes(cat.id) && "✓ "}
-                                    {cat.name}
-                                  </button>
+                                  <div key={cat.id} className="relative">
+                                    <button
+                                      type="button"
+                                      onClick={() => toggleCategory(cat.id)}
+                                      className={`w-full px-2 py-3 text-xs font-medium rounded-lg border-2 transition-all pr-7 ${
+                                        selectedCategories.includes(cat.id)
+                                          ? "bg-purple-500 text-white border-purple-600 shadow-md"
+                                          : `${cat.color} text-gray-700 hover:shadow-sm`
+                                      }`}
+                                    >
+                                      {selectedCategories.includes(cat.id) && "✓ "}
+                                      {cat.name}
+                                    </button>
+                                    {/* Info Icon */}
+                                    <button
+                                      type="button"
+                                      onClick={(e) => {
+                                        e.stopPropagation();
+                                        setDiscountInfoModal(cat);
+                                      }}
+                                      className="absolute right-1 top-1/2 -translate-y-1/2 p-0.5 rounded-full hover:bg-purple-200 transition-colors"
+                                      title="Click for eligibility details"
+                                    >
+                                      <HelpCircle className="w-4 h-4 text-purple-600" />
+                                    </button>
+                                  </div>
                                 ))}
                               </div>
                               {selectedCategories.length > 0 && (
@@ -2281,6 +2394,100 @@ const AddProduct = () => {
               <div className="mt-4 text-sm text-gray-500">
                 This message will automatically close in 10 seconds
               </div>
+            </div>
+          </div>
+        </div>
+      )}
+
+      {/* Discount Eligibility Info Modal */}
+      {discountInfoModal && discountInfoModal.eligibility && (
+        <div 
+          className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50"
+          onClick={() => setDiscountInfoModal(null)}
+        >
+          <div 
+            className="bg-white rounded-2xl shadow-2xl max-w-lg w-full mx-4 overflow-hidden"
+            onClick={(e) => e.stopPropagation()}
+          >
+            {/* Modal Header */}
+            <div className={`${discountInfoModal.bgColor} p-6 text-white`}>
+              <div className="flex items-center justify-between">
+                <div className="flex items-center space-x-4">
+                  <div className="text-3xl font-bold">{discountInfoModal.name}</div>
+                </div>
+                <button
+                  type="button"
+                  onClick={() => setDiscountInfoModal(null)}
+                  className="p-2 hover:bg-white/20 rounded-full transition-colors"
+                >
+                  <X className="w-6 h-6" />
+                </button>
+              </div>
+              <p className="text-sm opacity-90 mt-2">{discountInfoModal.eligibility.title}</p>
+            </div>
+
+            {/* Modal Body */}
+            <div className="p-6 space-y-5 max-h-[60vh] overflow-y-auto">
+              {/* Who Gets It */}
+              <div>
+                <h3 className="text-sm font-semibold text-gray-500 uppercase tracking-wide mb-2">
+                  👤 Who Gets This Discount?
+                </h3>
+                <p className="text-gray-800 font-medium">
+                  {discountInfoModal.eligibility.whoGetsIt}
+                </p>
+              </div>
+
+              {/* How to Qualify */}
+              <div>
+                <h3 className="text-sm font-semibold text-gray-500 uppercase tracking-wide mb-2">
+                  ✅ How to Qualify
+                </h3>
+                <ul className="space-y-2">
+                  {discountInfoModal.eligibility.howToQualify.map((item, idx) => (
+                    <li key={idx} className="flex items-start text-gray-700">
+                      <span className="text-green-500 mr-2 mt-1">•</span>
+                      <span>{item}</span>
+                    </li>
+                  ))}
+                </ul>
+              </div>
+
+              {/* Duration */}
+              <div className="bg-purple-50 rounded-lg p-4">
+                <h3 className="text-sm font-semibold text-purple-700 uppercase tracking-wide mb-2">
+                  ⏱️ Duration / Availability
+                </h3>
+                <p className="text-purple-800 font-medium">
+                  {discountInfoModal.eligibility.duration}
+                </p>
+                {discountInfoModal.eligibility.calculation && (
+                  <p className="text-sm text-purple-600 mt-2 italic">
+                    {discountInfoModal.eligibility.calculation}
+                  </p>
+                )}
+              </div>
+
+              {/* Notes */}
+              <div className="bg-gray-50 rounded-lg p-4 border-l-4 border-gray-300">
+                <h3 className="text-sm font-semibold text-gray-500 uppercase tracking-wide mb-2">
+                  📝 Additional Notes
+                </h3>
+                <p className="text-gray-600 text-sm">
+                  {discountInfoModal.eligibility.notes}
+                </p>
+              </div>
+            </div>
+
+            {/* Modal Footer */}
+            <div className="bg-gray-50 px-6 py-4 flex justify-end">
+              <button
+                type="button"
+                onClick={() => setDiscountInfoModal(null)}
+                className="px-6 py-2 bg-purple-600 text-white rounded-lg hover:bg-purple-700 transition-colors font-medium"
+              >
+                Got it!
+              </button>
             </div>
           </div>
         </div>
