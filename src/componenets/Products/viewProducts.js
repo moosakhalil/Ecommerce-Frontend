@@ -652,14 +652,6 @@ const ViewProducts = () => {
                 </button>
                 <h2 className="text-xl font-semibold">Product Details</h2>
               </div>
-              <div className="flex space-x-2">
-                <button className="px-4 py-2 bg-blue-600 text-white rounded hover:bg-blue-700">
-                  Edit
-                </button>
-                <button className="px-4 py-2 bg-red-600 text-white rounded hover:bg-red-700">
-                  Delete
-                </button>
-              </div>
             </div>
 
             {/* Product details form view */}

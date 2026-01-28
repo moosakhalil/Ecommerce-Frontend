@@ -125,6 +125,9 @@ import TrackingSettings from "./componenets/ProductTracking/TrackingSettings";
 // Settings
 import ChatbotControl from "./componenets/Settings/ChatbotControl";
 
+// Project Documentation
+import ProjectInfo from "./componenets/ProjectInfo/ProjectInfo";
+
 function App() {
   return (
     <Router>
@@ -855,6 +858,9 @@ function App() {
 
         {/* Settings Routes */}
         <Route path="/settings/chatbot-control" element={<ChatbotControl />} />
+        
+        {/* Project Documentation - ID 5000 */}
+        <Route path="/project-info" element={<ProjectInfo />} />
         
       </Routes>
 

@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from "react";
 import axios from "axios";
 import Sidebar from "../Sidebar/sidebar";
-import { Truck, Users, Plus, X, Check } from "lucide-react";
+import { Truck, Users, Plus, X, Check, HelpCircle } from "lucide-react";
 
 const API_BASE_URL = process.env.REACT_APP_API_URL || "http://localhost:5000";
 
@@ -18,6 +18,7 @@ const TruckDrivers = () => {
   const [showAssignModal, setShowAssignModal] = useState(false);
   const [selectedVehicle, setSelectedVehicle] = useState(null);
   const [selectedDriver, setSelectedDriver] = useState("");
+  const [showHelpModal, setShowHelpModal] = useState(false);
 
   useEffect(() => {
     fetchVehicles();
@@ -108,9 +109,18 @@ const TruckDrivers = () => {
         <div className="p-8">
           {/* Header */}
           <div className="mb-8">
-            <h1 className="text-3xl font-bold text-gray-800 mb-2">
-              Assign Driver to Vehicles
-            </h1>
+            <div className="flex items-center gap-3 mb-2">
+              <h1 className="text-3xl font-bold text-gray-800">
+                Assign Driver to Vehicles
+              </h1>
+              <button
+                onClick={() => setShowHelpModal(true)}
+                className="text-blue-600 hover:bg-blue-50 p-1.5 rounded-full transition-colors"
+                title="Page Information"
+              >
+                <HelpCircle size={28} />
+              </button>
+            </div>
             <p className="text-gray-600">
               Assign drivers to vehicles based on vehicle type
             </p>
@@ -456,6 +466,60 @@ const TruckDrivers = () => {
               >
                 {loading ? "Assigning..." : "Assign"}
               </button>
+            </div>
+          </div>
+        </div>
+      )}
+      {/* Help Modal */}
+      {showHelpModal && (
+        <div className="fixed inset-0 bg-black/50 z-50 flex items-center justify-center p-4">
+          <div className="bg-white rounded-xl shadow-xl w-full max-w-md overflow-hidden animate-in fade-in zoom-in duration-200">
+            <div className="p-6">
+              <div className="flex justify-between items-start mb-4">
+                <div className="flex items-center gap-3">
+                  <div className="p-2 bg-blue-100 rounded-lg">
+                    <HelpCircle className="w-6 h-6 text-blue-600" />
+                  </div>
+                  <h3 className="text-xl font-bold text-gray-900">
+                    Driver Assignment Guide
+                  </h3>
+                </div>
+                <button
+                  onClick={() => setShowHelpModal(false)}
+                  className="text-gray-400 hover:text-gray-500 transition-colors"
+                >
+                  <X className="w-6 h-6" />
+                </button>
+              </div>
+
+              <div className="space-y-4">
+                <div className="bg-blue-50 rounded-lg p-4 border border-blue-100">
+                  <h4 className="font-semibold text-blue-900 mb-2">Task Overview</h4>
+                  <p className="text-blue-800 text-sm leading-relaxed">
+                    This page allows you to assign specific drivers to vehicles. Select a vehicle to see its current assignment status and choose a driver to allocate to it.
+                  </p>
+                </div>
+                
+                <div className="space-y-2">
+                  <h4 className="font-medium text-gray-900">How to Use:</h4>
+                  <ul className="text-sm text-gray-600 space-y-2 pl-4 list-disc">
+                    <li>Select <strong>Vehicle Type</strong> (Scooter/Truck) to filter the list.</li>
+                    <li>Search for a specific vehicle by number plate.</li>
+                    <li>Click <strong>Assign Driver</strong> or <strong>Change Driver</strong> on a vehicle row.</li>
+                    <li>Select a driver from the dropdown in the popup modal.</li>
+                    <li>Confirm assignment to link the driver to the vehicle.</li>
+                  </ul>
+                </div>
+              </div>
+
+              <div className="mt-6 flex justify-end">
+                <button
+                  onClick={() => setShowHelpModal(false)}
+                  className="px-4 py-2 bg-gray-100 hover:bg-gray-200 text-gray-800 rounded-lg font-medium transition-colors"
+                >
+                  Got it
+                </button>
+              </div>
             </div>
           </div>
         </div>

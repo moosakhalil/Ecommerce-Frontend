@@ -1118,6 +1118,20 @@ const Sidebar = ({ onSectionClick }) => {
         },
       ],
     },
+    {
+      title: "PROJECT DOCUMENTATION",
+      sections: [
+        {
+          id: 5000,
+          componentId: "5000",
+          number: "5000.",
+          icon: <FileText />,
+          name: "Project Info",
+          access: "Complete system documentation",
+          path: "/project-info",
+        },
+      ],
+    },
   ];
 
   // Filter section groups based on user access

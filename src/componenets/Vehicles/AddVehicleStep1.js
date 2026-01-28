@@ -1,7 +1,7 @@
 import React, { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import axios from 'axios';
-import { Truck, Package, ArrowRight, ArrowLeft, Check } from 'lucide-react';
+import { Truck, Package, ArrowRight, ArrowLeft, Check, HelpCircle, X } from 'lucide-react';
 import Sidebar from '../Sidebar/sidebar';
 import { API_BASE_URL } from '../../utils/config';
 
@@ -9,6 +9,7 @@ const AddVehicleStep1 = () => {
   const navigate = useNavigate();
   const [vehicleType, setVehicleType] = useState('truck');
   const [error, setError] = useState('');
+  const [showHelpModal, setShowHelpModal] = useState(false);
   
   const [formData, setFormData] = useState({
     // Truck fields
@@ -159,7 +160,16 @@ const AddVehicleStep1 = () => {
                 <p className="text-sm text-gray-500">Basic specifications</p>
               </div>
             </div>
-            <div className="flex items-center gap-2 text-sm">
+            <div className="flex items-center gap-4">
+              <button
+                type="button"
+                onClick={() => setShowHelpModal(true)}
+                className="p-2 text-blue-600 hover:bg-blue-50 rounded-full transition-colors"
+                title="Page Information"
+              >
+                <HelpCircle size={24} />
+              </button>
+              <div className="flex items-center gap-2 text-sm">
               <div className="flex items-center gap-2 px-3 py-1 bg-blue-100 text-blue-700 rounded-full font-medium">
                 <span>1</span>
               </div>
@@ -169,6 +179,7 @@ const AddVehicleStep1 = () => {
               </div>
             </div>
           </div>
+        </div>
 
           {error && (
             <div className="mb-6 p-4 bg-red-50 border border-red-200 rounded-lg text-red-700">
@@ -468,6 +479,49 @@ const AddVehicleStep1 = () => {
           )}
         </div>
       </div>
+      {/* Help Modal */}
+      {showHelpModal && (
+        <div className="fixed inset-0 bg-black/50 z-50 flex items-center justify-center p-4">
+          <div className="bg-white rounded-xl shadow-xl w-full max-w-md overflow-hidden animate-in fade-in zoom-in duration-200">
+            <div className="p-6">
+              <div className="flex justify-between items-start mb-4">
+                <div className="flex items-center gap-3">
+                  <div className="p-2 bg-blue-100 rounded-lg">
+                    <HelpCircle className="w-6 h-6 text-blue-600" />
+                  </div>
+                  <h3 className="text-xl font-bold text-gray-900">
+                    Add Vehicle Guide
+                  </h3>
+                </div>
+                <button
+                  onClick={() => setShowHelpModal(false)}
+                  className="text-gray-400 hover:text-gray-500 transition-colors"
+                >
+                  <X className="w-6 h-6" />
+                </button>
+              </div>
+
+              <div className="space-y-4">
+                <div className="bg-blue-50 rounded-lg p-4 border border-blue-100">
+                  <h4 className="font-semibold text-blue-900 mb-2">Step 1: Basic Specifications</h4>
+                  <p className="text-blue-800 text-sm leading-relaxed">
+                    This page allows you to register a new vehicle into the system. You will need to provide vehicle details like plate number, model, type, and capacity. This is the first step of the registration process.
+                  </p>
+                </div>
+              </div>
+
+              <div className="mt-6 flex justify-end">
+                <button
+                  onClick={() => setShowHelpModal(false)}
+                  className="px-4 py-2 bg-gray-100 hover:bg-gray-200 text-gray-800 rounded-lg font-medium transition-colors"
+                >
+                  Got it
+                </button>
+              </div>
+            </div>
+          </div>
+        </div>
+      )}
       </div>
     </div>
   );

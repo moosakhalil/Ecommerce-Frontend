@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import axios from 'axios';
 import { useNavigate } from 'react-router-dom';
-import { Truck, Package, Edit, Trash2, Search, Filter, Plus, Eye, AlertCircle } from 'lucide-react';
+import { Truck, Package, Edit, Trash2, Search, Filter, Plus, Eye, AlertCircle, HelpCircle, X } from 'lucide-react';
 import Sidebar from '../Sidebar/sidebar';
 import { API_BASE_URL } from '../../utils/config';
 
@@ -16,6 +16,7 @@ const ViewVehicles = () => {
   const [filterStatus, setFilterStatus] = useState('all');
   const [showDeleteModal, setShowDeleteModal] = useState(false);
   const [vehicleToDelete, setVehicleToDelete] = useState(null);
+  const [showHelpModal, setShowHelpModal] = useState(false);
 
   useEffect(() => {
     fetchVehicles();
@@ -110,7 +111,16 @@ const ViewVehicles = () => {
         {/* Header */}
         <div className="bg-white rounded-lg shadow-md p-6 mb-6">
           <div className="flex justify-between items-center mb-6">
-            <h1 className="text-2xl font-bold text-gray-800">Vehicle Management</h1>
+            <div className="flex items-center gap-3">
+              <h1 className="text-2xl font-bold text-gray-800">Vehicle Management</h1>
+              <button
+                onClick={() => setShowHelpModal(true)}
+                className="text-blue-600 hover:bg-blue-50 p-1.5 rounded-full transition-colors"
+                title="Page Information"
+              >
+                <HelpCircle size={24} />
+              </button>
+            </div>
             <button
               onClick={() => navigate('/admin/vehicles/add')}
               className="flex items-center gap-2 bg-blue-600 text-white px-4 py-2 rounded-lg hover:bg-blue-700 transition-colors"
@@ -349,9 +359,62 @@ const ViewVehicles = () => {
           </div>
         </div>
       )}
-        </div>
+        {/* Help Modal */}
+        {showHelpModal && (
+          <div className="fixed inset-0 bg-black/50 z-50 flex items-center justify-center p-4">
+            <div className="bg-white rounded-xl shadow-xl w-full max-w-md overflow-hidden animate-in fade-in zoom-in duration-200">
+              <div className="p-6">
+                <div className="flex justify-between items-start mb-4">
+                  <div className="flex items-center gap-3">
+                    <div className="p-2 bg-blue-100 rounded-lg">
+                      <HelpCircle className="w-6 h-6 text-blue-600" />
+                    </div>
+                    <h3 className="text-xl font-bold text-gray-900">
+                      Vehicle Management Guide
+                    </h3>
+                  </div>
+                  <button
+                    onClick={() => setShowHelpModal(false)}
+                    className="text-gray-400 hover:text-gray-500 transition-colors"
+                  >
+                    <X className="w-6 h-6" />
+                  </button>
+                </div>
+
+                <div className="space-y-4">
+                  <div className="bg-blue-50 rounded-lg p-4 border border-blue-100">
+                    <h4 className="font-semibold text-blue-900 mb-2">Platform Overview</h4>
+                    <p className="text-blue-800 text-sm leading-relaxed">
+                      This page displays a list of all registered vehicles. You can view vehicle details, edit information, check status, and manage the fleet from this dashboard.
+                    </p>
+                  </div>
+                  
+                  <div className="space-y-2">
+                    <h4 className="font-medium text-gray-900">Key Features:</h4>
+                    <ul className="text-sm text-gray-600 space-y-2 pl-4 list-disc">
+                      <li>Filter vehicles by type (Truck/Scooter) and status</li>
+                      <li>Search by name or number plate</li>
+                      <li>Add new vehicles to the fleet</li>
+                      <li>View detailed specifications and dimensions</li>
+                      <li>Manage vehicle status (Active/Maintenance)</li>
+                    </ul>
+                  </div>
+                </div>
+
+                <div className="mt-6 flex justify-end">
+                  <button
+                    onClick={() => setShowHelpModal(false)}
+                    className="px-4 py-2 bg-gray-100 hover:bg-gray-200 text-gray-800 rounded-lg font-medium transition-colors"
+                  >
+                    Got it
+                  </button>
+                </div>
+              </div>
+            </div>
+          </div>
+        )}
       </div>
-    
+    </div>
   );
 };
 
