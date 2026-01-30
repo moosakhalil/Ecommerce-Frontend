@@ -32,6 +32,7 @@ const DollarSign = () => <span>💰</span>;
 const MapPin = () => <span>📍</span>;
 const Search = () => <span>🔍</span>;
 const ClipboardCheck = () => <span>✅</span>;
+const MessageSquare = () => <span>💬</span>;
 
 const Sidebar = ({ onSectionClick }) => {
   const [isOpen, setIsOpen] = useState(true);
@@ -735,6 +736,15 @@ const Sidebar = ({ onSectionClick }) => {
           name: "Delivery Fees",
           access: "",
           path: "/delivery-fees",
+        },
+        {
+          id: 115,
+          componentId: "chatbot-messages",
+          number: "115.",
+          icon: <MessageSquare />,
+          name: "Chatbot Messages",
+          access: "",
+          path: "/settings/chatbot-messages",
         },
       ],
     },
