@@ -46,6 +46,7 @@ import AllDiscounts from "./componenets/Discounts/allDiscounts";
 import DiscountedProductsInvA from "./componenets/Discounts/DiscountedInventory";
 import InventoryControlCheckDiscount from "./componenets/Discounts/Inventorycontrol(discounts)";
 import DiscountPageInfo from "./componenets/Discounts/DiscountPageInfo";
+import DiscountPolicies from "./componenets/Discounts/DiscountPolicies";
 
 
 import ReferralProfit from "./componenets/Refferal/referralProfits";
@@ -644,6 +645,14 @@ function App() {
           element={
             <>
               <DiscountPageInfo />
+            </>
+          }
+        />
+        <Route
+          path="/discount-policies"
+          element={
+            <>
+              <DiscountPolicies />
             </>
           }
         />
