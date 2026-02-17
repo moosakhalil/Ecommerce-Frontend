@@ -1,0 +1,45 @@
+productType,productName,brand,description,categories,subCategories,NormalPrice,Stock,globalTradeItemNumber,packageSize,visibility,tags,notes
+Normal,Portland Cement Type I,Tiga Roda,High-quality Portland cement type I for general construction,Construction A-Z (Genteng),Cement,85000,500,8991001100001,Large,Public,"Popular,Construction",Standard gray cement 50kg
+Normal,Portland Cement Type II,Holcim,Moderate sulfate resistant cement for concrete,Construction A-Z (Genteng),Cement,90000,350,8991001100002,Large,Public,"Construction",Sulfate resistant 40kg
+Normal,White Cement,Tiga Roda,Premium white cement for decorative finishing,Construction A-Z (Genteng),Cement,125000,200,8991001100003,Large,Public,"Premium,Construction",White decorative cement 40kg
+Normal,Rapid Setting Cement,Semen Indonesia,Fast-setting cement for quick repairs,Construction A-Z (Genteng),Cement,95000,150,8991001100004,Large,Public,"Construction,New",Quick dry cement 25kg
+Normal,Red Clay Brick Standard,Local Brick,Standard red clay brick for wall construction,Construction A-Z (Genteng),Bricks,1200,5000,8991001200001,Large,Public,"Popular,Construction",Standard size 20x10x5cm
+Normal,Hollow Brick 10cm,Mitra Brick,Hollow brick for partition walls,Construction A-Z (Genteng),Bricks,2500,3000,8991001200002,Large,Public,"Construction",Hollow brick 40x20x10cm
+Normal,Concrete Block,Indo Block,Heavy-duty concrete block for foundations,Construction A-Z (Genteng),Bricks,3500,2000,8991001200003,Large,Public,"Construction",40x20x20cm concrete block
+Normal,Decorative Brick,Artisan Brick,Exposed decorative brick for modern walls,Construction A-Z (Genteng),Bricks,4500,1000,8991001200004,Large,Public,"Premium,Construction",Red exposed brick finish
+Normal,River Sand Fine,Local Sand,Fine-grade river sand for plastering,Construction A-Z (Genteng),Sand,75000,800,8991001300001,Large,Public,"Construction",Fine sand per m3
+Normal,River Sand Coarse,Local Sand,Coarse-grade river sand for concrete mixing,Construction A-Z (Genteng),Sand,70000,1000,8991001300002,Large,Public,"Popular,Construction",Coarse sand per m3
+Normal,Black Sand,Merapi Sand,Volcanic black sand for construction,Construction A-Z (Genteng),Sand,65000,600,8991001300003,Large,Public,"Construction",Volcanic sand per m3
+Normal,Silica Sand,Premium Sand,High-quality silica sand for special applications,Construction A-Z (Genteng),Sand,120000,300,8991001300004,Large,Public,"Premium,Construction",Pure silica sand per m3
+Normal,Ceramic Roof Tile Brown,Kanmuri,Premium ceramic roof tile in brown color,Roofing & Tiles (Atap),Tiles,8500,2000,8991002100001,Small,Public,"Popular,Roofing",Brown ceramic tile
+Normal,Ceramic Roof Tile Red,Kanmuri,Classic red ceramic roof tile,Roofing & Tiles (Atap),Tiles,8500,1800,8991002100002,Small,Public,"Popular,Roofing",Traditional red tile
+Normal,Flat Concrete Tile,Monier,Modern flat concrete roof tile,Roofing & Tiles (Atap),Tiles,12000,1500,8991002100003,Large,Public,"Premium,Roofing",Contemporary flat tile
+Normal,S-Shape Roof Tile,Jatiwangi,Traditional S-shaped terracotta tile,Roofing & Tiles (Atap),Tiles,7500,2500,8991002100004,Small,Public,"Roofing",Traditional S-tile
+Normal,Metal Roof Sheet 0.3mm,Bluescope,Zinc-aluminum coated steel roof sheet,Roofing & Tiles (Atap),Metal Sheets,85000,500,8991002200001,Large,Public,"Popular,Roofing",0.3mm thickness 6m length
+Normal,Metal Roof Sheet 0.4mm,Bluescope,Heavy-duty metal roof sheet,Roofing & Tiles (Atap),Metal Sheets,110000,400,8991002200002,Large,Public,"Roofing",0.4mm thickness 6m length
+Normal,Colored Metal Roof Red,Prima,Pre-painted metal roofing in red,Roofing & Tiles (Atap),Metal Sheets,125000,300,8991002200003,Large,Public,"Premium,Roofing",Red painted metal 6m
+Normal,Colored Metal Roof Blue,Prima,Pre-painted metal roofing in blue,Roofing & Tiles (Atap),Metal Sheets,125000,250,8991002200004,Large,Public,"Roofing",Blue painted metal 6m
+Normal,Polycarbonate Sheet Clear,Twinlite,Clear polycarbonate roofing sheet,Roofing & Tiles (Atap),Plastic Roof,180000,200,8991002300001,Large,Public,"Popular,Roofing",Clear UV-protected 6m
+Normal,Polycarbonate Sheet Bronze,Twinlite,Bronze tinted polycarbonate sheet,Roofing & Tiles (Atap),Plastic Roof,185000,180,8991002300002,Large,Public,"Roofing",Bronze tint 6m
+Normal,PVC Roof Sheet White,Alderon,White PVC corrugated roof sheet,Roofing & Tiles (Atap),Plastic Roof,95000,400,8991002300003,Large,Public,"Roofing",White PVC 3m
+Normal,Fiberglass Roof Sheet,Atap Fiber,Translucent fiberglass roofing,Roofing & Tiles (Atap),Plastic Roof,75000,350,8991002300004,Large,Public,"Roofing",Translucent fiberglass 3m
+Normal,Double Door Mahogany,Pintu Jati,Premium mahogany double door set,Doors,Double Door,8500000,20,8991003100001,Large,Public,"Premium,Doors",220x160cm with frame
+Normal,Double Door Teak,Pintu Jati,Solid teak double door carved,Doors,Double Door,12000000,15,8991003100002,Large,Public,"Premium,Doors",220x160cm carved design
+Normal,Double Door Modern,Modern Door,Contemporary aluminum-glass double door,Doors,Double Door,6500000,25,8991003100003,Large,Public,"Modern,Doors",220x160cm aluminum frame
+Normal,Double Door Steel,Securex,Heavy-duty steel security double door,Doors,Double Door,5500000,30,8991003100004,Large,Public,"Security,Doors",220x160cm security door
+Normal,Room Door Plywood,Economy Door,Basic plywood room door,Doors,Room Door,450000,100,8991003200001,Large,Public,"Popular,Doors",200x80cm standard
+Normal,Room Door HDF,Modern Door,HDF engineered wood door,Doors,Room Door,750000,80,8991003200002,Large,Public,"Doors",200x80cm white finish
+Normal,Room Door Solid Wood,Pintu Jati,Solid wood panel room door,Doors,Room Door,1200000,50,8991003200003,Large,Public,"Premium,Doors",200x80cm natural finish
+Normal,Room Door Glass Panel,Modern Door,Room door with glass panel insert,Doors,Room Door,850000,60,8991003200004,Large,Public,"Modern,Doors",200x80cm frosted glass
+Normal,Main Door Teak,Pintu Jati,Premium teak main entrance door,Doors,Main Door,5500000,25,8991003300001,Large,Public,"Premium,Doors",220x100cm solid teak
+Normal,Main Door Mahogany Carved,Pintu Jati,Carved mahogany main door,Doors,Main Door,7500000,15,8991003300002,Large,Public,"Premium,Doors",220x100cm hand carved
+Normal,Main Door Steel Security,Securex,Steel main door with security features,Doors,Main Door,3500000,40,8991003300003,Large,Public,"Security,Doors",220x100cm multi-lock
+Normal,Main Door Modern Glass,Modern Door,Modern main door with tempered glass,Doors,Main Door,4500000,30,8991003300004,Large,Public,"Modern,Doors",220x100cm contemporary
+Normal,LED Ceiling Light 12W Round,Philips,Round LED ceiling light 12W daylight,Electric,Lamps Roof,85000,200,8991004100001,Small,Public,"Popular,Electric",12W 6500K round
+Normal,LED Ceiling Light 18W Square,Philips,Square LED ceiling light 18W warm,Electric,Lamps Roof,125000,150,8991004100002,Small,Public,"Electric",18W 3000K square
+Normal,LED Downlight 7W,Osram,Recessed LED downlight 7W,Electric,Lamps Roof,65000,300,8991004100003,Small,Public,"Popular,Electric",7W 6500K 3-inch
+Normal,LED Panel Light 40W,Philips,LED panel light for office 40W,Electric,Lamps Roof,350000,80,8991004100004,Large,Public,"Electric",40W 60x60cm panel
+Normal,Standing Floor Lamp Modern,IKEA Style,Modern floor lamp with fabric shade,Electric,Lamps Standing,450000,50,8991004200001,Large,Public,"Premium,Electric",160cm height fabric shade
+Normal,LED Floor Lamp Reading,Philips,Adjustable LED reading floor lamp,Electric,Lamps Standing,380000,60,8991004200002,Large,Public,"Electric",Adjustable arm LED
+Normal,Tripod Floor Lamp,Modern Light,Wooden tripod floor lamp,Electric,Lamps Standing,550000,40,8991004200003,Large,Public,"Premium,Electric",Wooden tripod design
+Normal,Arc Floor Lamp,Designer Light,Contemporary arc floor lamp,Electric,Lamps Standing,750000,25,8991004200004,Large,Public,"Premium,Electric",Arc design chrome finish

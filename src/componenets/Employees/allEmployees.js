@@ -1,0 +1,614 @@
+import React, { useState, useEffect } from "react";
+import axios from "axios";
+import { Search, ChevronDown, Bell } from "lucide-react";
+import Sidebar from "../Sidebar/sidebar";
+import ModeToggle from "../Shared/ModeToggle";
+import { API_BASE_URL } from "../../utils/config";
+
+const AllEmployees = () => {
+  const [employees, setEmployees] = useState([]);
+  const [isSidebarOpen, setIsSidebarOpen] = useState(true);
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState(null);
+  const [showModeToggle, setShowModeToggle] = useState(false);
+  const [searchTerm, setSearchTerm] = useState("");
+  const [employeeType, setEmployeeType] = useState("All employees");
+  const [currentPage, setCurrentPage] = useState(1);
+  const [itemsPerPage, setItemsPerPage] = useState(10);
+  const [totalItems, setTotalItems] = useState(0);
+  const [categoryOptions, setCategoryOptions] = useState(["All employees"]);
+  const [roles, setRoles] = useState([]);
+  const [selectedEmployee, setSelectedEmployee] = useState(null);
+  const [isModalOpen, setIsModalOpen] = useState(false);
+
+  // Fetch roles data
+  useEffect(() => {
+    const fetchRoles = async () => {
+      try {
+        const response = await axios.get(`${API_BASE_URL}/api/employee-roles`);
+        setRoles(response.data.roles || []);
+      } catch (error) {
+        console.error("Error fetching roles:", error);
+      }
+    };
+    fetchRoles();
+  }, []);
+
+  // Fetch employees data from the API
+  useEffect(() => {
+    const fetchEmployees = async () => {
+      try {
+        setLoading(true);
+        const response = await axios.get(`${API_BASE_URL}/api/employees`);
+        setEmployees(response.data.employees);
+        setTotalItems(response.data.total);
+
+        setLoading(false);
+      } catch (error) {
+        console.error("Error fetching employees:", error);
+        setError("Failed to fetch employees. Please try again.");
+        setLoading(false);
+      }
+    };
+
+    fetchEmployees();
+  }, []);
+
+  // Update category options when roles change
+  useEffect(() => {
+    if (roles.length > 0) {
+      const systemRoles = [
+        { _id: "packing-staff", name: "Packing Staff" },
+        { _id: "storage-officer", name: "Storage Officer" },
+        { _id: "dispatch-officer-1", name: "Dispatch Officer 1" },
+        { _id: "dispatch-officer-2", name: "Dispatch Officer 2" },
+        { _id: "driver", name: "Driver" },
+        { _id: "driver-on-delivery", name: "Driver on Delivery" },
+        { _id: "complaint-manager", name: "Complaint Manager" },
+      ];
+
+      const allRoleNames = [
+        "All employees",
+        ...systemRoles.map((r) => r.name),
+        ...roles.map((r) => r.name),
+      ];
+
+      setCategoryOptions(allRoleNames);
+    }
+  }, [roles]);
+
+  // Map role IDs to display names
+  const getRoleDisplayName = (roleId) => {
+    // First check if it's a custom role (ObjectId)
+    const customRole = roles.find((role) => role._id === roleId);
+    if (customRole) {
+      return customRole.name;
+    }
+
+    // If not found in custom roles, use default mapping
+    const roleMap = {
+      "packing-staff": "Packing Staff",
+      "storage-officer": "Storage Officer",
+      "dispatch-officer-1": "Dispatch Officer 1",
+      "dispatch-officer-2": "Dispatch Officer 2",
+      driver: "Driver",
+      "driver-on-delivery": "Driver on Delivery",
+      "complaint-manager": "Complaint Manager",
+      "add-products": "Add product",
+      "product-list": "Product List",
+      finance: "Finance",
+      orders: "Orders",
+      "customer-service": "Customer Service",
+      "truck-driver": "Truck Driver",
+    };
+
+    return roleMap[roleId] || roleId;
+  };
+
+  // Filter employees based on search term and selected employee type
+  const filteredEmployees = (employees || []).filter((employee) => {
+    // Search filter
+    const matchesSearch =
+      employee.name?.toLowerCase().includes(searchTerm.toLowerCase()) ||
+      employee.email?.toLowerCase().includes(searchTerm.toLowerCase()) ||
+      employee.employeeId?.toLowerCase().includes(searchTerm.toLowerCase());
+
+    // Role filter
+    let matchesRole = true;
+    if (employeeType !== "All employees") {
+      // Check if employee has any role that matches the selected role name
+      matchesRole = (employee.roles || []).some((roleId) => {
+        return getRoleDisplayName(roleId) === employeeType;
+      });
+    }
+
+    return matchesSearch && matchesRole;
+  });
+
+  // Calculate pagination
+  const indexOfLastItem = currentPage * itemsPerPage;
+  const indexOfFirstItem = indexOfLastItem - itemsPerPage;
+  const currentItems = filteredEmployees.slice(
+    indexOfFirstItem,
+    indexOfLastItem,
+  );
+  const totalPages = Math.ceil(filteredEmployees.length / itemsPerPage);
+
+  // Handle page changes
+  const paginate = (pageNumber) => setCurrentPage(pageNumber);
+
+  // Handle items per page change
+  const handleItemsPerPageChange = (e) => {
+    setItemsPerPage(Number(e.target.value));
+    setCurrentPage(1);
+  };
+
+  // Format date to be displayed in a readable format
+  const formatDate = (dateString) => {
+    if (!dateString) return "";
+    const date = new Date(dateString);
+    return `${date.getDate()} ${date.toLocaleString("default", {
+      month: "long",
+    })}, ${date.getFullYear()}`;
+  };
+
+  // Get badge color based on role
+  const getRoleBadgeColor = (role) => {
+    const colorMap = {
+      "add-products": "bg-blue-600 text-white",
+      "product-list": "bg-pink-500 text-white",
+      finance: "bg-green-600 text-white",
+      orders: "bg-indigo-500 text-white",
+      "customer-service": "bg-purple-500 text-white",
+      "truck-driver": "bg-amber-500 text-white",
+      categories: "bg-pink-500 text-white",
+    };
+
+    return colorMap[role] || "bg-gray-500 text-white";
+  };
+
+  // Handle search input change with immediate filtering
+  const handleSearchChange = (e) => {
+    setSearchTerm(e.target.value);
+    setCurrentPage(1); // Reset to first page when searching
+  };
+
+  // Handle employee type filter change
+  const handleEmployeeTypeChange = (e) => {
+    setEmployeeType(e.target.value);
+    setCurrentPage(1); // Reset to first page when filtering
+  };
+
+  // Open modal with employee details
+  const handleViewDetails = (employee) => {
+    setSelectedEmployee(employee);
+    setIsModalOpen(true);
+  };
+
+  // Close modal
+  const handleCloseModal = () => {
+    setIsModalOpen(false);
+    setSelectedEmployee(null);
+  };
+
+  return (
+    <div className="flex h-screen bg-gray-100">
+      {/* Sidebar */}
+      <Sidebar
+        isOpen={isSidebarOpen}
+        toggleSidebar={() => setIsSidebarOpen(!isSidebarOpen)}
+      />
+
+      {/* Main content area with proper margin */}
+      <div
+        className={`flex-1 transition-all duration-300 overflow-auto ${
+          isSidebarOpen ? "lg:ml-80" : "ml-0"
+        }`}
+      >
+        {/* Main content */}
+        <main className="p-6">
+          <div className="max-w-7xl mx-auto">
+            <div className="flex justify-between items-center mb-6">
+              <h1 className="text-2xl font-bold  text-purple-800">
+                <strong>82.</strong> All employees
+              </h1>
+              <div className="flex items-center gap-4">
+                <button
+                  onClick={() => setShowModeToggle(true)}
+                  className="bg-gradient-to-r from-purple-600 to-indigo-600 hover:from-purple-700 hover:to-indigo-700 text-white px-3 py-1.5 rounded-lg text-xs font-medium shadow-md hover:shadow-lg transition-all duration-200 flex items-center space-x-1.5"
+                >
+                  <span>🚀</span>
+                  <span>Advanced</span>
+                </button>
+                <button
+                  onClick={() => setShowModeToggle(true)}
+                  className="bg-gradient-to-r from-blue-500 to-cyan-500 hover:from-blue-600 hover:to-cyan-600 text-white px-3 py-1.5 rounded-lg text-xs font-medium shadow-md hover:shadow-lg transition-all duration-200 flex items-center space-x-1.5"
+                >
+                  <span>🤖</span>
+                  <span>AI</span>
+                </button>
+              </div>
+            </div>
+
+            {/* Search and filter */}
+            <div className="bg-white rounded-lg p-6 mb-6 shadow-sm">
+              <div className="flex flex-col md:flex-row gap-4 mb-4">
+                <div className="relative flex-1">
+                  <input
+                    type="text"
+                    className="w-full pl-10 pr-4 py-2 rounded border border-gray-300 focus:outline-none focus:ring-2 focus:ring-blue-500"
+                    placeholder="Search..."
+                    value={searchTerm}
+                    onChange={handleSearchChange}
+                  />
+                  <Search className="absolute left-3 top-2.5 text-gray-400 h-5 w-5" />
+                </div>
+                <div className="md:w-64">
+                  <label className="block text-sm text-gray-500 mb-1">
+                    Filter by role
+                  </label>
+                  <div className="relative">
+                    <select
+                      className="appearance-none w-full pl-4 pr-10 py-2 rounded border border-gray-300 focus:outline-none focus:ring-2 focus:ring-blue-500"
+                      value={employeeType}
+                      onChange={handleEmployeeTypeChange}
+                    >
+                      {categoryOptions.map((category) => (
+                        <option key={category} value={category}>
+                          {category}
+                        </option>
+                      ))}
+                    </select>
+                    <ChevronDown className="absolute right-3 top-2.5 text-gray-400 h-5 w-5 pointer-events-none" />
+                  </div>
+                </div>
+              </div>
+
+              {/* Employees Table */}
+              <div className="overflow-x-auto">
+                <table className="w-full">
+                  <thead>
+                    <tr className="text-left text-gray-500 border-b">
+                      <th className="pb-3 pl-2 pr-4">ID</th>
+                      <th className="pb-3 px-4">NAME</th>
+                      <th className="pb-3 px-4">Date Added</th>
+                      <th className="pb-3 px-4">Roles</th>
+                      <th className="pb-3 px-4">ACTIONS</th>
+                    </tr>
+                  </thead>
+                  <tbody>
+                    {loading ? (
+                      <tr>
+                        <td colSpan="5" className="py-4 text-center">
+                          Loading employees...
+                        </td>
+                      </tr>
+                    ) : error ? (
+                      <tr>
+                        <td
+                          colSpan="5"
+                          className="py-4 text-center text-red-500"
+                        >
+                          {error}
+                        </td>
+                      </tr>
+                    ) : currentItems.length === 0 ? (
+                      <tr>
+                        <td colSpan="5" className="py-4 text-center">
+                          No employees found
+                        </td>
+                      </tr>
+                    ) : (
+                      currentItems.map((employee, index) => (
+                        <tr
+                          key={employee._id || index}
+                          className="border-b hover:bg-gray-50 cursor-pointer"
+                        >
+                          <td className="py-4 pl-2 pr-4 text-gray-800">
+                            #{employee.employeeId?.split("-")[1] || "5089"}
+                          </td>
+                          <td className="py-4 px-4 text-gray-800">
+                            {employee.name || "Joseph Wheeler"}
+                          </td>
+                          <td className="py-4 px-4 text-gray-800">
+                            {formatDate(employee.updatedAt) || "6 April, 2023"}
+                          </td>
+                          <td className="py-4 px-4">
+                            <div className="flex flex-wrap gap-2">
+                              {employee.roles && employee.roles.length > 0 ? (
+                                employee.roles.map((role, index) => (
+                                  <span
+                                    key={index}
+                                    className={`px-2 py-1 rounded text-xs ${getRoleBadgeColor(
+                                      role,
+                                    )}`}
+                                  >
+                                    {getRoleDisplayName(role)}
+                                  </span>
+                                ))
+                              ) : (
+                                <span className="text-gray-400 text-sm">
+                                  No roles assigned
+                                </span>
+                              )}
+                            </div>
+                          </td>
+                          <td className="py-4 px-4">
+                            <button
+                              onClick={() => handleViewDetails(employee)}
+                              className="text-blue-600 hover:text-blue-900"
+                              title="View Details"
+                            >
+                              <svg
+                                xmlns="http://www.w3.org/2000/svg"
+                                className="h-5 w-5"
+                                fill="none"
+                                viewBox="0 0 24 24"
+                                stroke="currentColor"
+                              >
+                                <path
+                                  strokeLinecap="round"
+                                  strokeLinejoin="round"
+                                  strokeWidth={2}
+                                  d="M15 12a3 3 0 11-6 0 3 3 0 016 0z"
+                                />
+                                <path
+                                  strokeLinecap="round"
+                                  strokeLinejoin="round"
+                                  strokeWidth={2}
+                                  d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z"
+                                />
+                              </svg>
+                            </button>
+                          </td>
+                        </tr>
+                      ))
+                    )}
+                  </tbody>
+                </table>
+              </div>
+
+              {/* Pagination */}
+              <div className="flex flex-col md:flex-row justify-between items-center mt-4">
+                <div className="flex items-center mb-4 md:mb-0">
+                  <span className="text-sm text-gray-500 mr-2">Showing</span>
+                  <select
+                    className="border rounded px-2 py-1 text-sm"
+                    value={itemsPerPage}
+                    onChange={handleItemsPerPageChange}
+                  >
+                    <option value="10">10</option>
+                    <option value="20">20</option>
+                    <option value="50">50</option>
+                  </select>
+                  <span className="text-sm text-gray-500 ml-2">
+                    of {filteredEmployees.length}
+                  </span>
+                </div>
+
+                <div className="flex">
+                  <button
+                    onClick={() => paginate(currentPage - 1)}
+                    disabled={currentPage === 1}
+                    className="px-3 py-1 border rounded text-gray-600 hover:bg-gray-100 disabled:opacity-50"
+                  >
+                    &lt;
+                  </button>
+                  {Array.from({ length: Math.min(5, totalPages) }).map(
+                    (_, i) => {
+                      // Calculate page numbers to show
+                      let pageNum;
+                      if (totalPages <= 5) {
+                        pageNum = i + 1;
+                      } else if (currentPage <= 3) {
+                        pageNum = i + 1;
+                      } else if (currentPage >= totalPages - 2) {
+                        pageNum = totalPages - 4 + i;
+                      } else {
+                        pageNum = currentPage - 2 + i;
+                      }
+
+                      return (
+                        <button
+                          key={pageNum}
+                          onClick={() => paginate(pageNum)}
+                          className={`px-3 py-1 mx-1 rounded ${
+                            currentPage === pageNum
+                              ? "bg-amber-500 text-white"
+                              : "border text-gray-600 hover:bg-gray-100"
+                          }`}
+                        >
+                          {pageNum}
+                        </button>
+                      );
+                    },
+                  )}
+                  <button
+                    onClick={() => paginate(currentPage + 1)}
+                    disabled={currentPage === totalPages || totalPages === 0}
+                    className="px-3 py-1 border rounded text-gray-600 hover:bg-gray-100 disabled:opacity-50"
+                  >
+                    &gt;
+                  </button>
+                </div>
+              </div>
+            </div>
+          </div>
+        </main>
+      </div>
+
+      {/* Employee Details Modal */}
+      {isModalOpen && selectedEmployee && (
+        <div className="fixed inset-0 bg-black bg-opacity-50 z-50 flex justify-center items-center overflow-y-auto">
+          <div className="bg-white rounded-lg shadow-xl max-w-3xl w-full m-4 p-6 relative max-h-[90vh] overflow-y-auto">
+            {/* Close button */}
+            <button
+              onClick={handleCloseModal}
+              className="absolute top-4 right-4 text-gray-400 hover:text-gray-600"
+            >
+              <svg
+                xmlns="http://www.w3.org/2000/svg"
+                className="h-6 w-6"
+                fill="none"
+                viewBox="0 0 24 24"
+                stroke="currentColor"
+              >
+                <path
+                  strokeLinecap="round"
+                  strokeLinejoin="round"
+                  strokeWidth={2}
+                  d="M6 18L18 6M6 6l12 12"
+                />
+              </svg>
+            </button>
+
+            <h2 className="text-2xl font-bold mb-6 text-gray-800">
+              Employee Details
+            </h2>
+
+            {/* Basic Information */}
+            <div className="mb-6 grid grid-cols-1 md:grid-cols-2 gap-4">
+              <div>
+                <label className="block text-sm font-medium text-gray-500 mb-1">
+                  Employee ID
+                </label>
+                <p className="text-gray-900">
+                  #
+                  {selectedEmployee.employeeId?.split("-")[1] ||
+                    selectedEmployee.employeeId}
+                </p>
+              </div>
+              <div>
+                <label className="block text-sm font-medium text-gray-500 mb-1">
+                  Name
+                </label>
+                <p className="text-gray-900">{selectedEmployee.name}</p>
+              </div>
+              <div>
+                <label className="block text-sm font-medium text-gray-500 mb-1">
+                  Email
+                </label>
+                <p className="text-gray-900">
+                  {selectedEmployee.email || "N/A"}
+                </p>
+              </div>
+              <div>
+                <label className="block text-sm font-medium text-gray-500 mb-1">
+                  Phone
+                </label>
+                <p className="text-gray-900">
+                  {selectedEmployee.phone || "N/A"}
+                </p>
+              </div>
+              <div>
+                <label className="block text-sm font-medium text-gray-500 mb-1">
+                  Address
+                </label>
+                <p className="text-gray-900">
+                  {selectedEmployee.address || "N/A"}
+                </p>
+              </div>
+              <div>
+                <label className="block text-sm font-medium text-gray-500 mb-1">
+                  Date Added
+                </label>
+                <p className="text-gray-900">
+                  {formatDate(
+                    selectedEmployee.createdAt || selectedEmployee.updatedAt,
+                  )}
+                </p>
+              </div>
+            </div>
+
+            {/* Roles */}
+            <div className="mb-6">
+              <label className="block text-sm font-medium text-gray-500 mb-2">
+                Assigned Roles
+              </label>
+              <div className="flex flex-wrap gap-2">
+                {selectedEmployee.roles && selectedEmployee.roles.length > 0 ? (
+                  selectedEmployee.roles.map((role, index) => (
+                    <span
+                      key={index}
+                      className={`px-3 py-1 rounded-full text-sm ${getRoleBadgeColor(role)}`}
+                    >
+                      {getRoleDisplayName(role)}
+                    </span>
+                  ))
+                ) : (
+                  <span className="text-gray-400">No roles assigned</span>
+                )}
+              </div>
+            </div>
+
+            {/* Permissions */}
+            {selectedEmployee.permissions &&
+              Object.keys(selectedEmployee.permissions).length > 0 && (
+                <div className="mb-6">
+                  <label className="block text-sm font-medium text-gray-500 mb-2">
+                    Permissions
+                  </label>
+                  <div className="bg-gray-50 rounded-lg p-4">
+                    <div className="grid grid-cols-2 md:grid-cols-3 gap-3">
+                      {Object.entries(selectedEmployee.permissions).map(
+                        ([key, value]) => (
+                          <div
+                            key={key}
+                            className="flex items-center space-x-2"
+                          >
+                            <span
+                              className={`inline-block w-2 h-2 rounded-full ${value ? "bg-green-500" : "bg-red-500"}`}
+                            ></span>
+                            <span className="text-sm text-gray-700 capitalize">
+                              {key.replace(/([A-Z])/g, " $1").trim()}
+                            </span>
+                          </div>
+                        ),
+                      )}
+                    </div>
+                  </div>
+                </div>
+              )}
+
+            {/* Status */}
+            <div className="mb-6">
+              <label className="block text-sm font-medium text-gray-500 mb-1">
+                Status
+              </label>
+              <span
+                className={`px-3 py-1 inline-flex text-sm font-semibold rounded-full ${
+                  selectedEmployee.status === "active"
+                    ? "bg-green-100 text-green-800"
+                    : "bg-red-100 text-red-800"
+                }`}
+              >
+                {selectedEmployee.status === "active" ? "Active" : "Inactive"}
+              </span>
+            </div>
+
+            {/* Additional Information */}
+            {selectedEmployee.notes && (
+              <div className="mb-6">
+                <label className="block text-sm font-medium text-gray-500 mb-1">
+                  Notes
+                </label>
+                <p className="text-gray-900 bg-gray-50 p-3 rounded">
+                  {selectedEmployee.notes}
+                </p>
+              </div>
+            )}
+          </div>
+        </div>
+      )}
+
+      {showModeToggle && (
+        <ModeToggle
+          componentName="All Employees Management"
+          onClose={() => setShowModeToggle(false)}
+        />
+      )}
+    </div>
+  );
+};
+
+export default AllEmployees;
